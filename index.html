@@ -1,0 +1,1049 @@
+<title>Gardrób</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Figtree:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+/* Layout: egyoszlopos telefonos app — sticky fejléc, görgethető nézet, alsó fülsor, lebegő feltöltés gomb */
+:root{
+  --bg:#ECEEF1; --surface:#FFFFFF; --sunk:#E3E6EA; --ink:#15171C; --muted:#5B6270; --line:#D2D7DE;
+  --accent:#2E3FCF; --on-accent:#FFFFFF; --tag:#F2C230; --tag-ink:#3A2C00; --danger:#C2362B;
+  --sil-line:rgba(21,23,28,.28); --scrim:rgba(14,16,22,.42);
+  --shadow:0 1px 2px rgba(20,24,40,.06),0 10px 28px rgba(20,24,40,.09);
+  --f-display:'Bricolage Grotesque','Segoe UI',system-ui,sans-serif;
+  --f-body:'Figtree',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  --f-mono:'IBM Plex Mono',ui-monospace,Menlo,Consolas,monospace;
+  --r:16px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#111318; --surface:#1A1D24; --sunk:#232730; --ink:#ECEEF2; --muted:#9CA3B0; --line:#2D323C;
+  --accent:#8E9BFF; --on-accent:#0E1235; --tag:#E9B92E; --tag-ink:#2A1F00; --danger:#FF7A6E;
+  --sil-line:rgba(236,238,242,.32); --scrim:rgba(0,0,0,.6);
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 10px 28px rgba(0,0,0,.35); color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --bg:#111318; --surface:#1A1D24; --sunk:#232730; --ink:#ECEEF2; --muted:#9CA3B0; --line:#2D323C;
+  --accent:#8E9BFF; --on-accent:#0E1235; --tag:#E9B92E; --tag-ink:#2A1F00; --danger:#FF7A6E;
+  --sil-line:rgba(236,238,242,.32); --scrim:rgba(0,0,0,.6);
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 10px 28px rgba(0,0,0,.35); color-scheme:dark;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.45;-webkit-tap-highlight-color:transparent}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.vh{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+.gut{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+header.top .gut{display:flex;align-items:baseline;justify-content:space-between;gap:12px;padding-block:14px 10px;max-width:760px;margin:0 auto}
+.brand{font-family:var(--f-display);font-weight:800;font-size:28px;letter-spacing:-.02em;margin:0;line-height:1}
+.brand span{color:var(--accent)}
+.count{font-family:var(--f-mono);font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+main{max-width:760px;margin:0 auto;padding-block:4px calc(96px + env(safe-area-inset-bottom,0px))}
+.view{display:flex;flex-direction:column;gap:14px}
+h2.sec,.sec{display:block;font-family:var(--f-mono);font-weight:500;font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:0}
+.panel{background:var(--surface);border-radius:var(--r);padding:16px;display:flex;flex-direction:column;gap:10px;box-shadow:var(--shadow)}
+.hint{margin:0;color:var(--muted);font-size:13.5px}
+.row{display:flex;align-items:center;justify-content:space-between;gap:10px}
+
+/* chips */
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chips.scroll{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;margin-inline:-16px;padding-inline:16px;padding-block:2px}
+.chips.scroll::-webkit-scrollbar{display:none}
+.chip{flex:none;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:7px 13px;font-size:14px;font-weight:500;display:inline-flex;gap:6px;align-items:center}
+.chip small{font-family:var(--f-mono);font-size:11px;color:var(--muted)}
+.chip[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--bg)}
+.chip[aria-pressed="true"] small{color:inherit;opacity:.7}
+
+/* closet grid */
+.banner{display:flex;gap:12px;align-items:flex-start;background:var(--surface);border:1.5px dashed var(--tag);border-radius:var(--r);padding:14px}
+.banner b{display:block;margin-bottom:2px}
+.banner p{margin:0;color:var(--muted);font-size:13.5px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
+.item{position:relative;text-align:left;border:0;padding:0;background:var(--surface);border-radius:var(--r);overflow:hidden;box-shadow:var(--shadow);display:flex;flex-direction:column}
+.ph{aspect-ratio:3/4;max-width:100%;background:var(--sunk);display:grid;place-items:center;overflow:hidden}
+.ph img{width:100%;height:100%;object-fit:cover;display:block}
+.ph svg{width:72%;height:72%}
+.meta{padding:9px 11px 11px;display:flex;flex-direction:column;gap:4px;min-width:0}
+.meta .nm{font-weight:600;font-size:14px;line-height:1.25;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.meta .sub{display:flex;align-items:center;gap:6px;font-family:var(--f-mono);font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.dot{width:11px;height:11px;border-radius:50%;border:1px solid var(--sil-line);flex:none}
+.badge{position:absolute;top:8px;left:8px;font-family:var(--f-mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;background:var(--tag);color:var(--tag-ink);padding:3px 7px;border-radius:6px}
+.form-dots{display:inline-flex;gap:2px;margin-left:auto}
+.form-dots i{width:5px;height:5px;border-radius:50%;background:var(--line)}
+.form-dots i.on{background:var(--ink)}
+.empty{color:var(--muted);text-align:center;padding:40px 0}
+.progress{display:flex;gap:12px;align-items:center;background:var(--surface);border-radius:var(--r);padding:14px;box-shadow:var(--shadow)}
+.spin{width:20px;height:20px;border-radius:50%;border:2.5px solid var(--line);border-top-color:var(--accent);animation:spin .8s linear infinite;flex:none}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* buttons */
+.primary{border:0;background:var(--accent);color:var(--on-accent);font-weight:700;border-radius:12px;padding:12px 18px}
+.primary.big{width:100%;padding:15px;font-size:16px}
+.primary:disabled{opacity:.55}
+.ghost{border:1px solid var(--line);background:transparent;border-radius:12px;padding:9px 14px;font-weight:600;font-size:14px}
+.danger{color:var(--danger);border-color:color-mix(in srgb,var(--danger) 45%,transparent)}
+.seg{display:grid;grid-template-columns:1fr 1fr;background:var(--sunk);border-radius:12px;padding:4px;gap:4px}
+.seg button{border:0;background:transparent;border-radius:9px;padding:9px 6px;font-weight:600;font-size:14px;color:var(--muted)}
+.seg button[aria-pressed="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.12)}
+input[type=text],textarea,select{width:100%;border:1px solid var(--line);background:var(--surface);border-radius:12px;padding:11px 12px;font-size:16px}
+textarea{resize:vertical;min-height:92px}
+
+/* outfits */
+.outfit{background:var(--surface);border-radius:var(--r);padding:16px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:12px}
+.outfit h3{font-family:var(--f-display);font-weight:800;font-size:21px;letter-spacing:-.01em;margin:0;text-wrap:balance;line-height:1.15}
+.outfit .kicker{font-family:var(--f-mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.lay{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.lay .tile{position:relative;aspect-ratio:3/4;max-width:100%;border-radius:12px;overflow:hidden;background:var(--sunk);display:grid;place-items:center}
+.lay .tile img{width:100%;height:100%;object-fit:cover}
+.lay .tile svg{width:70%;height:70%}
+.lay .tile span{position:absolute;left:6px;bottom:6px;right:6px;font-size:11px;font-weight:600;background:color-mix(in srgb,var(--surface) 86%,transparent);border-radius:6px;padding:2px 6px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.why{margin:0;font-size:14.5px}
+.tip{margin:0;font-size:13.5px;color:var(--muted);border-left:2px solid var(--tag);padding-left:10px}
+.acts{display:flex;gap:8px;flex-wrap:wrap}
+.status{display:flex;gap:12px;align-items:center;color:var(--muted);font-size:14px}
+
+/* style */
+.swatches{display:flex;flex-wrap:wrap;gap:10px}
+.sw{width:34px;height:34px;border-radius:50%;border:1px solid var(--sil-line);padding:0;position:relative}
+.sw[aria-pressed="true"]{box-shadow:0 0 0 2px var(--surface),0 0 0 4px var(--accent)}
+.bars{display:flex;flex-direction:column;gap:7px}
+.bar{display:grid;grid-template-columns:92px 1fr 28px;align-items:center;gap:10px;font-size:13.5px}
+.bar .tr{height:10px;background:var(--sunk);border-radius:6px;overflow:hidden}
+.bar .tr i{display:block;height:100%;background:var(--accent);border-radius:6px}
+.bar .n{font-family:var(--f-mono);font-size:12px;color:var(--muted);text-align:right;font-variant-numeric:tabular-nums}
+.foot{font-family:var(--f-mono);font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);text-align:center;margin:6px 0 0}
+
+/* nav + fab */
+nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:6;background:var(--surface);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px)}
+nav.tabs .in{max-width:760px;margin:0 auto;display:grid;grid-template-columns:repeat(3,1fr)}
+nav.tabs a{display:flex;flex-direction:column;align-items:center;gap:3px;padding:9px 4px 10px;color:var(--muted);text-decoration:none;font-size:12px;font-weight:600}
+nav.tabs a svg{width:24px;height:24px}
+nav.tabs a[aria-current="page"]{color:var(--accent)}
+.fab{position:fixed;right:calc(16px + env(safe-area-inset-right,0px));bottom:calc(76px + env(safe-area-inset-bottom,0px));z-index:6;display:flex;align-items:center;gap:8px;background:var(--accent);color:var(--on-accent);border-radius:999px;padding:13px 18px 13px 14px;font-weight:700;box-shadow:0 8px 24px color-mix(in srgb,var(--accent) 40%,transparent);cursor:pointer}
+.fab svg{width:22px;height:22px}
+
+/* sheet */
+.sheet-wrap{position:fixed;inset:0;z-index:20;display:flex;align-items:flex-end;justify-content:center}
+.scrim{position:absolute;inset:0;background:var(--scrim)}
+.sheet{position:relative;width:100%;max-width:560px;max-height:92%;overflow-y:auto;background:var(--surface);border-radius:22px 22px 0 0;padding:10px 16px calc(18px + env(safe-area-inset-bottom,0px));padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:14px;animation:up .22s ease-out}
+@keyframes up{from{transform:translateY(30px);opacity:.4}}
+.grab{width:40px;height:4px;border-radius:4px;background:var(--line);margin:0 auto}
+.sheet-head{display:grid;grid-template-columns:96px 1fr;gap:14px;align-items:start}
+.sheet-head .ph{border-radius:12px}
+.field{display:flex;flex-direction:column;gap:7px}
+.colorrow{display:flex;gap:10px;align-items:center}
+.colorrow input[type=color]{width:46px;height:42px;border:1px solid var(--line);border-radius:10px;padding:2px;background:var(--surface);flex:none}
+input[type=range]{width:100%;accent-color:var(--accent)}
+.rlab{display:flex;justify-content:space-between;font-family:var(--f-mono);font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.sheet .acts{position:sticky;bottom:calc(-18px - env(safe-area-inset-bottom,0px));background:var(--surface);padding-block:10px 0}
+.sheet .acts .primary{flex:1}
+
+/* me photo, inspiration, try-on */
+.me{display:grid;grid-template-columns:88px 1fr;gap:14px;align-items:center}
+.me .ph{border-radius:12px}
+.me .acts{margin-top:8px}
+.btnlabel{display:inline-flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;text-align:center}
+.inspo{display:flex;gap:8px;overflow-x:auto;padding-bottom:2px}
+.inspo img{width:64px;height:84px;object-fit:cover;border-radius:10px;flex:none}
+.missing{margin:0;font-size:13.5px}
+.missing b{font-family:var(--f-mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:500;margin-right:6px}
+.stage{position:relative;width:100%;display:flex;justify-content:center;background:var(--sunk);border-radius:14px;overflow:hidden;touch-action:none;min-height:200px;align-items:center}
+.stage canvas{display:block;max-width:100%;max-height:60vh;width:auto;height:auto;touch-action:none}
+.tools{display:flex;gap:8px;flex-wrap:wrap}
+.tools .ghost{min-width:48px}
+.or{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:12px;font-family:var(--f-mono);text-transform:uppercase;letter-spacing:.08em}
+.or::before,.or::after{content:"";flex:1;height:1px;background:var(--line)}
+.foot a{color:var(--accent)}
+#toast{position:fixed;left:50%;bottom:calc(140px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:30;background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:12px;font-size:14px;font-weight:500;max-width:calc(100% - 32px);width:max-content;box-shadow:var(--shadow)}
+@media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+</style>
+
+<header class="top"><div class="gut">
+  <h1 class="brand">Gard<span>ró</span>b</h1>
+  <div class="count" id="count">betöltés…</div>
+</div></header>
+
+<main class="gut">
+  <section class="view" id="view-closet">
+    <div id="progress"></div>
+    <div class="chips scroll" id="filters" role="toolbar" aria-label="Szűrés kategóriára"></div>
+    <div id="closet"></div>
+  </section>
+
+  <section class="view" id="view-outfits" hidden>
+    <div class="panel">
+      <h2 class="sec">Hova mész?</h2>
+      <div class="chips" id="occ"></div>
+      <h2 class="sec">Milyen idő van?</h2>
+      <div class="chips" id="wx"></div>
+      <div class="field" id="extra-wrap" hidden>
+        <label class="sec" for="extra">Különleges kérés (nem kötelező)</label>
+        <input type="text" id="extra" placeholder="pl. legyen benne a zöld ruha" autocomplete="off">
+      </div>
+      <div class="seg" id="engine" hidden>
+        <button type="button" data-engine="ai">Claude stylist</button>
+        <button type="button" data-engine="quick">Gyors</button>
+      </div>
+      <button class="primary big" id="go" type="button">Szettek összeállítása</button>
+      <div class="or">vagy</div>
+      <label class="ghost btnlabel" for="inspofile">Inspirációs képből</label>
+      <p class="hint">Küldj 1–4 képet (Pinterest, Insta, képernyőkép), és a saját ruháidból rakom össze a hasonló szettet.</p>
+    </div>
+    <div id="status"></div>
+    <div class="view" id="results"></div>
+    <h2 class="sec" style="margin-top:8px">Mentett szettek</h2>
+    <div class="view" id="favs"></div>
+  </section>
+
+  <section class="view" id="view-style" hidden>
+    <div class="panel">
+      <h2 class="sec">Rólad egy fotó</h2>
+      <div class="me" id="me"></div>
+    </div>
+    <div class="panel">
+      <h2 class="sec">A stílusod</h2>
+      <p class="hint">Válassz 1–3 irányt. Ezek alapján súlyozom a szetteket.</p>
+      <div class="chips" id="p-styles"></div>
+    </div>
+    <div class="panel">
+      <h2 class="sec">Kedvenc színek</h2>
+      <div class="swatches" id="p-like"></div>
+      <h2 class="sec" style="margin-top:6px">Ezeket kerülöd</h2>
+      <div class="swatches" id="p-avoid"></div>
+    </div>
+    <div class="panel">
+      <label class="sec" for="p-about">Mesélj magadról</label>
+      <textarea id="p-about" rows="4" placeholder="pl. szeretem a bő szabást, nem hordok magassarkút, irodában dolgozom, de pénteken lazább a dress code"></textarea>
+      <p class="hint">Ezt a Claude stylist olvassa, amikor szettet állít össze.</p>
+    </div>
+    <div class="panel">
+      <div class="row"><h2 class="sec">A szekrényed stílusa</h2><button class="ghost" id="detect" type="button">Felismerés</button></div>
+      <div class="bars" id="bars"></div>
+      <p class="hint" id="detect-out"></p>
+    </div>
+    <p class="foot" id="storage-note"></p>
+  </section>
+</main>
+
+<label class="fab" id="fab" for="file">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+  Ruha feltöltése
+</label>
+<input class="vh" type="file" id="file" accept="image/*" multiple>
+<input class="vh" type="file" id="mefile" accept="image/*">
+<input class="vh" type="file" id="inspofile" accept="image/*" multiple>
+
+<nav class="tabs" aria-label="Fő menü"><div class="in gut">
+  <a href="#szekreny" data-view="closet">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 7a2 2 0 1 1 2-2c0 1-2 1.5-2 3v1"/><path d="M12 9 3 15.5c-.8.6-.4 1.5.5 1.5h17c.9 0 1.3-.9.5-1.5L12 9Z"/></svg>
+    Szekrény</a>
+  <a href="#szettek" data-view="outfits">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.8 4.2L18 9l-4.2 1.8L12 15l-1.8-4.2L6 9l4.2-1.8z"/><path d="M18.5 15l.8 1.8 1.7.7-1.7.8-.8 1.7-.7-1.7-1.8-.8 1.8-.7z"/></svg>
+    Szettek</a>
+  <a href="#stilus" data-view="style">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="8.5" cy="10" r="1.3"/><circle cx="12.5" cy="7.5" r="1.3"/><circle cx="16" cy="11" r="1.3"/><path d="M12 21c-1.5 0-2-1.2-1.4-2.3.7-1.3.2-2.7-1.6-2.7"/></svg>
+    Stílusom</a>
+</div></nav>
+
+<div class="sheet-wrap" id="sheet" hidden>
+  <div class="scrim" data-act="close"></div>
+  <form class="sheet" id="itemForm" autocomplete="off">
+    <div class="grab"></div>
+    <div class="sheet-head">
+      <div class="ph" id="f-ph"></div>
+      <div class="field">
+        <label class="sec" for="f-name">Név</label>
+        <input type="text" id="f-name" maxlength="60">
+        <div class="colorrow">
+          <input type="color" id="f-color" aria-label="Szín">
+          <input type="text" id="f-colorname" aria-label="Szín neve" maxlength="30">
+        </div>
+      </div>
+    </div>
+    <div class="field"><span class="sec">Kategória</span><div class="chips" id="f-cat"></div></div>
+    <div class="field"><span class="sec">Stílus</span><div class="chips" id="f-styles"></div></div>
+    <div class="field"><span class="sec">Évszak</span><div class="chips" id="f-seasons"></div></div>
+    <div class="field">
+      <label class="sec" for="f-form">Formalitás</label>
+      <input type="range" id="f-form" min="1" max="5" step="1">
+      <div class="rlab"><span>Sport</span><span>Laza</span><span>Smart</span><span>Üzleti</span><span>Gála</span></div>
+    </div>
+    <div class="acts">
+      <button type="button" class="ghost danger" id="f-del">Törlés</button>
+      <button type="button" class="ghost" data-act="close">Mégse</button>
+      <button type="submit" class="primary">Mentés</button>
+    </div>
+  </form>
+</div>
+<div class="sheet-wrap" id="tryon" hidden>
+  <div class="scrim" data-act="close-try"></div>
+  <div class="sheet">
+    <div class="grab"></div>
+    <div class="row"><h2 class="sec" id="try-title">Felpróbálás</h2><button type="button" class="ghost" data-act="close-try">Kész</button></div>
+    <div class="stage" id="stage"><canvas id="cv" width="10" height="10" aria-label="Te a szettben"></canvas></div>
+    <p class="hint" id="try-hint">Koppints egy darabra, és húzd a helyére. A gombokkal méretezed. Képernyőképpel elmentheted.</p>
+    <div class="chips" id="try-layers"></div>
+    <div class="tools">
+      <button type="button" class="ghost" data-try="smaller" aria-label="Kisebb">−</button>
+      <button type="button" class="ghost" data-try="bigger" aria-label="Nagyobb">+</button>
+      <button type="button" class="ghost" data-try="hide">Elrejt</button>
+      <button type="button" class="ghost" data-try="reset">Alaphelyzet</button>
+    </div>
+  </div>
+</div>
+<div id="toast" hidden></div>
+
+<script>
+(() => {
+'use strict';
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const uid8 = () => 'x' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+
+// ---------- vocab ----------
+const CATS = [['felso','Felső'],['also','Alsó'],['ruha','Ruha'],['kabat','Kabát'],['cipo','Cipő'],['kieg','Kiegészítő']];
+const CAT_L = Object.fromEntries(CATS);
+const CAT_ORDER = {kabat:0, felso:1, ruha:1, also:2, cipo:3, kieg:4};
+const STYLES = [['laza','Laza'],['minimal','Minimál'],['elegans','Elegáns'],['uzleti','Üzleti'],['utcai','Utcai'],['sportos','Sportos'],['bohem','Bohém'],['romantikus','Romantikus']];
+const STY_L = Object.fromEntries(STYLES);
+const SEASONS = [['tavasz','Tavasz'],['nyar','Nyár'],['osz','Ősz'],['tel','Tél']];
+const SEA_L = Object.fromEntries(SEASONS);
+const OCC = [
+  {k:'hetkoznap', l:'Hétköznap', f:2, st:['laza','minimal','utcai']},
+  {k:'munka', l:'Munka', f:3.5, st:['uzleti','minimal','elegans']},
+  {k:'randi', l:'Randi', f:3, st:['romantikus','elegans','minimal']},
+  {k:'buli', l:'Buli', f:3, st:['utcai','elegans','romantikus']},
+  {k:'sport', l:'Sport', f:1, st:['sportos']},
+  {k:'esemeny', l:'Elegáns esemény', f:4.5, st:['elegans','uzleti']},
+  {k:'utazas', l:'Utazás', f:1.8, st:['laza','sportos','minimal']},
+];
+const WX = [{k:'meleg', l:'Meleg'}, {k:'enyhe', l:'Enyhe'}, {k:'hideg', l:'Hideg'}, {k:'eso', l:'Esős'}];
+const COLORS = [
+  ['fekete','#1d1d1f'],['fehér','#f5f5f2'],['szürke','#8a8d91'],['sötétszürke','#4a4c50'],['bézs','#d8c3a5'],
+  ['teve','#b48a5a'],['barna','#6e4b32'],['sötétkék','#1f2d4d'],['farmerkék','#4f6d94'],['világoskék','#a9c7e8'],
+  ['piros','#c0392b'],['bordó','#6d1f2b'],['rózsaszín','#e8a6b8'],['narancs','#e67e22'],['mustár','#d4a017'],
+  ['sárga','#f1d44c'],['zöld','#3f7d4e'],['khaki','#8a8a5c'],['olíva','#5f6236'],['lila','#7d5ba6'],['türkiz','#2aa198']
+];
+
+const SAMPLES = [
+  ['Fehér póló','felso','fehér','#F4F4F1',['laza','minimal'],['tavasz','nyar','osz'],2],
+  ['Sötétkék ing','felso','sötétkék','#24345A',['uzleti','elegans'],['tavasz','osz','tel'],4],
+  ['Mustár pulóver','felso','mustár','#C9971C',['laza','bohem'],['osz','tel'],2],
+  ['Fekete top','felso','fekete','#1C1C1E',['elegans','minimal'],['tavasz','nyar'],3],
+  ['Egyenes farmer','also','farmerkék','#4F6D94',['laza','utcai'],['tavasz','nyar','osz','tel'],2],
+  ['Bézs chino','also','bézs','#CDB894',['minimal','uzleti'],['tavasz','nyar','osz'],3],
+  ['Fekete szövetnadrág','also','fekete','#232326',['uzleti','elegans'],['tavasz','osz','tel'],4],
+  ['Zöld midiruha','ruha','zöld','#3F7D4E',['romantikus','elegans'],['tavasz','nyar'],3],
+  ['Teve kabát','kabat','teve','#B48A5A',['elegans','minimal'],['osz','tel'],4],
+  ['Farmerdzseki','kabat','farmerkék','#6F8DB5',['laza','utcai'],['tavasz','osz'],2],
+  ['Fehér sneaker','cipo','fehér','#F2F2EE',['laza','sportos','utcai'],['tavasz','nyar','osz'],2],
+  ['Barna bokacsizma','cipo','barna','#6E4B32',['bohem','laza'],['osz','tel'],3],
+  ['Fekete loafer','cipo','fekete','#1E1E1E',['uzleti','elegans'],['tavasz','osz','tel'],4],
+  ['Bőr válltáska','kieg','barna','#7B5536',['minimal','elegans'],[],3],
+].map(([name,category,colorName,colorHex,styles,seasons,formality],i)=>({id:'demo'+i,name,category,colorName,colorHex,styles,seasons,formality,demo:true}));
+
+// ---------- state ----------
+const defProfile = () => ({styles:[], likeColors:[], avoidColors:[], about:''});
+const S = {
+  mode:'loading', items:new Map(), favs:new Map(), profile:defProfile(),
+  filter:'all', occ:'hetkoznap', wx:null, engine:'quick', results:[], resultsFrom:null, busy:false,
+  me:null, inspo:[], inspoLook:'',
+};
+const FULL_URL = 'https://claude.ai/artifact/MFbHHKaWnuPbGvCXkRHL9k';
+let db = null, uidv = null, sample = null, sampleLimits = null, aiOff = false;
+
+function month(){ return new Date().getMonth() + 1; }
+function curSeason(){ const m = month(); return m>=3&&m<=5?'tavasz':m>=6&&m<=8?'nyar':m>=9&&m<=11?'osz':'tel'; }
+S.wx = {nyar:'meleg', tel:'hideg'}[curSeason()] || 'enyhe';
+function seasonsFor(w){ return w==='meleg'?['nyar']:w==='hideg'?['tel']:['tavasz','osz']; }
+
+// ---------- color helpers ----------
+function hexToRgb(h){ const m=/^#?([0-9a-f]{6})$/i.exec(h||''); if(!m) return [128,128,128]; const n=parseInt(m[1],16); return [n>>16&255,n>>8&255,n&255]; }
+function rgbToHex(r,g,b){ return '#'+[r,g,b].map(v=>Math.round(v).toString(16).padStart(2,'0')).join(''); }
+function hsl(hex){ let [r,g,b]=hexToRgb(hex).map(v=>v/255); const mx=Math.max(r,g,b), mn=Math.min(r,g,b); let h=0,s=0; const l=(mx+mn)/2;
+  if(mx!==mn){ const d=mx-mn; s=l>.5?d/(2-mx-mn):d/(mx+mn); h=mx===r?(g-b)/d+(g<b?6:0):mx===g?(b-r)/d+2:(r-g)/d+4; h*=60; } return {h,s,l}; }
+function isNeutral(hex){ const {h,s,l}=hsl(hex);
+  if(s<.16||l<.13||l>.92) return true;
+  if(h>=18&&h<=50&&s<.55&&l>.22&&l<.86) return true;      // bézs, teve, barna
+  if(h>=200&&h<=245&&l<.33) return true;                 // sötétkék
+  if(h>=200&&h<=230&&s<.42&&l<.62) return true;          // farmer
+  return false; }
+function nearestColor(hex){ const [r,g,b]=hexToRgb(hex); let best=COLORS[0][0], bd=1e9;
+  for(const [n,h] of COLORS){ const [r2,g2,b2]=hexToRgb(h); const d=(r-r2)**2*0.3+(g-g2)**2*0.59+(b-b2)**2*0.11; if(d<bd){bd=d;best=n;} } return best; }
+function hueDiff(a,b){ const d=Math.abs(a-b)%360; return d>180?360-d:d; }
+
+// ---------- silhouettes ----------
+const SIL = {
+  felso:'M30 18 L42 12 Q50 19 58 12 L70 18 L86 32 L76 43 L70 38 L70 88 L30 88 L30 38 L24 43 L14 32 Z',
+  also:'M32 10 L68 10 L73 90 L56 90 L50 36 L44 90 L27 90 Z',
+  ruha:'M41 8 L59 8 L58 28 Q66 30 64 40 L80 90 L20 90 L36 40 Q34 30 42 28 Z',
+  kabat:'M35 10 L50 20 L65 10 L84 24 L89 86 L73 86 L71 46 L69 92 L31 92 L29 46 L27 86 L11 86 L16 24 Z',
+  cipo:'M12 60 L38 56 Q47 66 60 66 L86 70 Q92 78 85 82 L15 82 Q10 72 12 60 Z',
+  kieg:'M22 42 L78 42 L82 86 L18 86 Z',
+};
+function sil(it){
+  const c = esc(it.colorHex||'#999');
+  const extra = it.category==='kieg' ? `<path d="M37 42 Q37 22 50 22 Q63 22 63 42" fill="none" stroke="${c}" stroke-width="5"/>`
+    : it.category==='kabat' ? `<path d="M50 20 L50 92" stroke="var(--sil-line)" stroke-width="1.5"/>` : '';
+  return `<svg viewBox="0 0 100 100" aria-hidden="true">${extra}<path d="${SIL[it.category]||SIL.felso}" fill="${c}" stroke="var(--sil-line)" stroke-width="1.2" stroke-linejoin="round"/></svg>`;
+}
+function thumb(it){ return it.img ? `<img src="${esc(it.img)}" alt="${esc(it.name)}" loading="lazy">` : sil(it); }
+function formDots(f){ let s='<span class="form-dots" aria-label="Formalitás '+f+'/5">'; for(let i=1;i<=5;i++) s+=`<i class="${i<=f?'on':''}"></i>`; return s+'</span>'; }
+
+// ---------- storage ----------
+const LS_KEY = 'gardrob.v1';
+function lsLoad(){ try{ const d = JSON.parse(localStorage.getItem(LS_KEY)||'null'); if(!d) return;
+  (d.items||[]).forEach(i=>S.items.set(i.id,i)); (d.favs||[]).forEach(f=>S.favs.set(f.id,f));
+  if(d.profile) S.profile = {...defProfile(), ...d.profile}; if(d.me) S.me = d.me; }catch{} }
+function lsSave(){ try{ localStorage.setItem(LS_KEY, JSON.stringify({items:[...S.items.values()], favs:[...S.favs.values()], profile:S.profile, me:S.me})); }
+  catch{ toast('Megtelt a böngésző tárhelye. Törölj néhány ruhát.'); } }
+const writing = new Map();
+async function put(key, obj){
+  if(S.mode !== 'cloud'){ lsSave(); return; }
+  const prev = writing.get(key) || Promise.resolve();
+  const p = prev.then(() => db.doc(`data/users/${uidv}/${key}`).set(obj)).catch(onWriteErr);
+  writing.set(key, p); return p;
+}
+async function remove(key){
+  if(S.mode !== 'cloud'){ lsSave(); return; }
+  try{ await db.doc(`data/users/${uidv}/${key}`).delete(); }catch(e){ onWriteErr(e); }
+}
+function onWriteErr(e){
+  if(e?.code==='quota_exceeded') toast('Betelt a tárhely. Törölj néhány ruhát.');
+  else if(e?.code==='invalid_argument') toast('Ezt nem tudtam elmenteni. Lehet, hogy túl nagy a kép.');
+  else toast('Mentési hiba. Próbáld újra.');
+}
+
+// ---------- boot ----------
+async function boot(){
+  renderAll();
+  const c = window.claude;
+  if(!c || typeof c.use !== 'function'){ S.mode='local'; lsLoad(); renderAll(); return; }
+  const [d,u,s] = await Promise.all([c.use('db'), c.use('user'), c.use('sample')].map(p=>p.catch(()=>null)));
+  sample = s;
+  if(s){ try{ sampleLimits = await s.limits(); }catch{} S.engine = 'ai'; }
+  uidv = u ? await u.id() : null;
+  if(d && uidv){ db = d; S.mode = 'cloud'; subscribe(); }
+  else { S.mode = 'local'; lsLoad(); }
+  renderAll();
+}
+let profileDirty = false;
+function subscribe(){
+  let first = false;
+  const t = setTimeout(()=>{ if(!first) toast('A szekrényed még nem érhető el. Ellenőrizd a netet.'); }, 10000);
+  db.collection(`data/users/${uidv}`).onSnapshot(snap => {
+    const items = new Map(), favs = new Map(); let prof = null, me = null;
+    for(const d of snap.docs){ const v = d.data(); if(!v) continue;
+      if(d.id==='profile') prof = v; else if(d.id==='photo') me = v; else if(d.id.startsWith('i_')) items.set(v.id, v); else if(d.id.startsWith('f_')) favs.set(v.id, v); }
+    S.items = items; S.favs = favs; S.me = me && me.img ? me : null;
+    if(prof && !profileDirty) S.profile = {...defProfile(), ...prof};
+    if(!snap.metadata.fromCache){ first = true; clearTimeout(t); }
+    renderAll();
+  }, err => {
+    clearTimeout(t); S.mode='local'; lsLoad(); renderAll();
+    toast('A fiókos mentés nem érhető el, most ebben a böngészőben mentek.');
+  });
+}
+
+// ---------- routing ----------
+const ROUTES = {szekreny:'closet', szettek:'outfits', stilus:'style'};
+let view = 'closet';
+function route(){ const h = location.hash.replace('#',''); view = ROUTES[h] || 'closet';
+  for(const v of ['closet','outfits','style']) $('#view-'+v).hidden = v!==view;
+  document.querySelectorAll('nav.tabs a').forEach(a=>{ if(a.dataset.view===view) a.setAttribute('aria-current','page'); else a.removeAttribute('aria-current'); });
+  $('#fab').hidden = view !== 'closet';
+  if(view==='outfits' && !S.results.length && !S.busy) quickGenerate(false);
+  renderAll(); window.scrollTo(0,0); }
+addEventListener('hashchange', route);
+
+// ---------- helpers ----------
+const realItems = () => [...S.items.values()].sort((a,b)=>(b.ts||0)-(a.ts||0));
+const isDemo = () => S.mode!=='loading' && S.items.size===0;
+const pool = () => isDemo() ? SAMPLES : realItems();
+const byId = id => S.items.get(id) || SAMPLES.find(s=>s.id===id);
+function chip(label, pressed, data, extra=''){ return `<button type="button" class="chip" aria-pressed="${pressed}" ${data}>${esc(label)}${extra}</button>`; }
+
+// ---------- render: closet ----------
+function renderCloset(){
+  const el = $('#closet');
+  const n = S.items.size;
+  $('#count').textContent = S.mode==='loading' ? 'betöltés…' : n ? `${n} darab` : 'mintaszekrény';
+  if(S.mode==='loading'){ el.innerHTML = '<p class="empty">Szekrény betöltése…</p>'; $('#filters').innerHTML=''; return; }
+  const list = pool();
+  const counts = {}; list.forEach(i=>counts[i.category]=(counts[i.category]||0)+1);
+  $('#filters').innerHTML = chip('Mind', S.filter==='all', 'data-filter="all"', ` <small>${list.length}</small>`) +
+    CATS.filter(([k])=>counts[k]).map(([k,l])=>chip(l, S.filter===k, `data-filter="${k}"`, ` <small>${counts[k]}</small>`)).join('');
+  const shown = list.filter(i=>S.filter==='all'||i.category===S.filter);
+  const banner = isDemo() ? `<div class="banner"><div><b>Ez egy mintaszekrény</b><p>Fotózd le a ruháidat egyesével (sima háttér előtt a legjobb), és töltsd fel őket. Claude felismeri a darabot, a színét és a stílusát. Amint feltöltötted az elsőt, a minták eltűnnek.</p></div></div>` : '';
+  el.innerHTML = banner + `<div class="grid" style="margin-top:${banner?'14px':'0'}">` + shown.map(it => `
+    <button type="button" class="item" data-item="${esc(it.id)}">
+      ${it.demo ? '<span class="badge">Minta</span>' : it.review ? '<span class="badge">Ellenőrizd</span>' : ''}
+      <div class="ph">${thumb(it)}</div>
+      <div class="meta"><div class="nm">${esc(it.name)}</div>
+        <div class="sub"><span class="dot" style="background:${esc(it.colorHex)}"></span>${esc(CAT_L[it.category]||'')}${formDots(it.formality||2)}</div></div>
+    </button>`).join('') + '</div>';
+}
+
+// ---------- upload ----------
+function loadImg(file){ return new Promise((res,rej)=>{ const u=URL.createObjectURL(file); const im=new Image();
+  im.onload=()=>{ URL.revokeObjectURL(u); res(im); }; im.onerror=()=>{ URL.revokeObjectURL(u); rej(new Error('decode')); }; im.src=u; }); }
+function dominant(cv){
+  const s=48, c=document.createElement('canvas'); c.width=c.height=s; const x=c.getContext('2d',{willReadFrequently:true});
+  x.drawImage(cv,0,0,s,s); const d=x.getImageData(0,0,s,s).data;
+  const px=(i,j)=>{const k=(j*s+i)*4; return [d[k],d[k+1],d[k+2]];};
+  const corners=[px(1,1),px(s-2,1),px(1,s-2),px(s-2,s-2)]; const bg=corners.reduce((a,c)=>a.map((v,i)=>v+c[i]/4),[0,0,0]);
+  const bins=new Map(); let total=0;
+  for(let j=Math.floor(s*.18);j<s*.82;j++) for(let i=Math.floor(s*.22);i<s*.78;i++){ const [r,g,b]=px(i,j);
+    if(Math.hypot(r-bg[0],g-bg[1],b-bg[2])<38) continue; const key=(r>>4)<<8|(g>>4)<<4|(b>>4);
+    const e=bins.get(key)||{n:0,r:0,g:0,b:0}; e.n++; e.r+=r; e.g+=g; e.b+=b; bins.set(key,e); total++; }
+  if(!total) return rgbToHex(...bg);
+  let best=null; for(const e of bins.values()) if(!best||e.n>best.n) best=e;
+  return rgbToHex(best.r/best.n, best.g/best.n, best.b/best.n);
+}
+async function prep(file, max = 520){
+  const im = await loadImg(file); const k = Math.min(1, max/Math.max(im.naturalWidth, im.naturalHeight));
+  const cv = document.createElement('canvas'); cv.width = Math.round(im.naturalWidth*k); cv.height = Math.round(im.naturalHeight*k);
+  const x = cv.getContext('2d'); x.fillStyle='#fff'; x.fillRect(0,0,cv.width,cv.height); x.drawImage(im,0,0,cv.width,cv.height);
+  let q = 0.8, dataUrl = cv.toDataURL('image/jpeg', q);
+  while(dataUrl.length > 220000 && q > 0.4){ q -= 0.1; dataUrl = cv.toDataURL('image/jpeg', q); }
+  const blob = await new Promise(r=>cv.toBlob(r,'image/jpeg',0.85));
+  return {dataUrl, blob, hex: dominant(cv)};
+}
+function normItem(raw, base){
+  const cat = CAT_L[raw.category] ? raw.category : 'felso';
+  const hex = /^#[0-9a-f]{6}$/i.test(raw.colorHex||'') ? raw.colorHex : base.hex;
+  const colorName = String(raw.colorName || nearestColor(hex)).slice(0,30).toLowerCase();
+  const styles = (Array.isArray(raw.styles)?raw.styles:[]).filter(s=>STY_L[s]).slice(0,3);
+  const seasons = (Array.isArray(raw.seasons)?raw.seasons:[]).filter(s=>SEA_L[s]);
+  const f = Math.min(5, Math.max(1, Math.round(Number(raw.formality)||2)));
+  const name = String(raw.name || `${colorName[0].toUpperCase()+colorName.slice(1)} ${CAT_L[cat].toLowerCase()}`).slice(0,60);
+  return {id: uid8(), ts: Date.now(), img: base.dataUrl, name, category: cat, colorName, colorHex: hex.toUpperCase(), styles, seasons, formality: f, review: !raw.name};
+}
+const TAG_PROMPT = n => `${n} ruhadarab fotóját kapod, ebben a sorrendben. Mindegyikről add meg az adatokat ugyanabban a sorrendben.
+Csak egy JSON tömböt válaszolj, ${n} elemmel, így:
+[{"name":"rövid magyar név, pl. Fehér oxford ing","category":"felso|also|ruha|kabat|cipo|kieg","colorName":"magyar színnév, kisbetűvel","colorHex":"#rrggbb a darab fő színe","styles":["legfeljebb 3 a következőkből: laza, minimal, elegans, uzleti, utcai, sportos, bohem, romantikus"],"seasons":["évszakok, amikor hordható: tavasz, nyar, osz, tel"],"formality":1}]
+A formality 1-5: 1 sport, 2 laza, 3 smart casual, 4 üzleti, 5 gála. A kategória: felso = póló/ing/pulóver/blúz, also = nadrág/szoknya/short, ruha = egyrészes ruha/overál, kabat = kabát/dzseki/blézer, cipo = lábbeli, kieg = táska/öv/sál/ékszer/sapka.`;
+
+async function addFiles(files){
+  files = [...files].filter(f => !f.type || f.type.startsWith('image/'));
+  if(!files.length) return;
+  const prog = $('#progress');
+  const setProg = t => prog.innerHTML = `<div class="progress"><div class="spin"></div><div>${esc(t)}</div></div>`;
+  setProg(`${files.length} kép előkészítése…`);
+  const prepared = [];
+  for(const f of files){ try{ prepared.push(await prep(f)); }catch{} }
+  if(!prepared.length){ prog.innerHTML=''; toast('Ezeket a képeket nem tudtam megnyitni.'); return; }
+  let tags = prepared.map(()=>({}));
+  const canSee = sample && !aiOff && sampleLimits?.images;
+  if(canSee){
+    const per = Math.max(1, Math.min(6, sampleLimits.images.maxCount||1));
+    for(let i=0;i<prepared.length;i+=per){
+      const chunk = prepared.slice(i,i+per);
+      setProg(`Claude nézi a ruháidat… (${Math.min(i+per,prepared.length)}/${prepared.length})`);
+      try{
+        const res = await sample.json(TAG_PROMPT(chunk.length), {images: chunk.map(c=>c.blob), modelTier:'quick'});
+        const arr = Array.isArray(res) ? res : (res && Array.isArray(res.items) ? res.items : []);
+        chunk.forEach((_,j)=>{ if(arr[j] && typeof arr[j]==='object') tags[i+j] = arr[j]; });
+      }catch(e){ if(handleSampleErr(e)) break; }
+    }
+  }
+  const added = prepared.map((p,i)=>normItem(tags[i]||{}, p));
+  for(const it of added){ S.items.set(it.id, it); }
+  if(S.mode==='cloud'){ for(const it of added) await put('i_'+it.id, it); } else lsSave();
+  prog.innerHTML = '';
+  S.filter = 'all'; S.results = [];
+  renderAll();
+  const unchecked = added.filter(a=>a.review).length;
+  toast(unchecked ? `${added.length} ruha hozzáadva. Nézd át a címkéket.` : `${added.length} ruha hozzáadva és felcímkézve.`);
+}
+function handleSampleErr(e){
+  const c = e?.code;
+  if(['not_granted','sampling_disabled','not_declared','capability_disabled','capability_removed'].includes(c)){
+    aiOff = true; S.engine='quick'; toast('Claude nem érhető el, ezért a gyors módot használom.'); renderAll(); return true; }
+  if(c==='images_unavailable'){ sampleLimits = {...sampleLimits, images:null}; return true; }
+  if(c==='cancelled') return true;
+  if(c==='rate_limited'){ toast('Túl sok kérés. Próbáld újra kicsit később.'); return true; }
+  if(c==='session_expired'){ toast('Jelentkezz be újra a claude.ai-on.'); return true; }
+  toast('Claude most nem válaszolt. Próbáld újra.'); return false;
+}
+
+// ---------- item sheet ----------
+let editing = null, delArmed = 0;
+function openSheet(it){
+  editing = JSON.parse(JSON.stringify(it)); delArmed = 0;
+  $('#f-ph').innerHTML = thumb(it);
+  $('#f-name').value = it.name; $('#f-color').value = (it.colorHex||'#888888').toLowerCase(); $('#f-colorname').value = it.colorName||'';
+  $('#f-form').value = it.formality||2; $('#f-del').textContent = 'Törlés';
+  renderSheetChips(); $('#sheet').hidden = false;
+}
+function renderSheetChips(){
+  $('#f-cat').innerHTML = CATS.map(([k,l])=>chip(l, editing.category===k, `data-fcat="${k}"`)).join('');
+  $('#f-styles').innerHTML = STYLES.map(([k,l])=>chip(l, editing.styles.includes(k), `data-fsty="${k}"`)).join('');
+  $('#f-seasons').innerHTML = SEASONS.map(([k,l])=>chip(l, editing.seasons.includes(k), `data-fsea="${k}"`)).join('');
+}
+function closeSheet(){ $('#sheet').hidden = true; editing = null; }
+$('#f-color').addEventListener('input', e => { $('#f-colorname').value = nearestColor(e.target.value); });
+$('#itemForm').addEventListener('submit', async e => {
+  e.preventDefault(); if(!editing) return;
+  const it = {...editing, name: $('#f-name').value.trim() || editing.name, colorHex: $('#f-color').value.toUpperCase(),
+    colorName: ($('#f-colorname').value.trim() || nearestColor($('#f-color').value)).toLowerCase(), formality: +$('#f-form').value, review:false};
+  S.items.set(it.id, it); closeSheet(); S.results = []; renderAll(); await put('i_'+it.id, it); toast('Mentve');
+});
+$('#f-del').addEventListener('click', async () => {
+  if(!editing) return;
+  if(Date.now() - delArmed > 3000){ delArmed = Date.now(); $('#f-del').textContent = 'Biztos? Koppints újra'; return; }
+  const id = editing.id; S.items.delete(id); closeSheet(); S.results = []; renderAll(); await remove('i_'+id); toast('Törölve');
+});
+
+// ---------- outfit engine (offline) ----------
+function itemScore(it, ctx){
+  let s = 0;
+  for(const x of it.styles||[]){ if(ctx.prof.styles.includes(x)) s += 2; if(ctx.occ.st.includes(x)) s += 1.5; }
+  if(it.seasons?.length) s += it.seasons.some(x=>ctx.seasons.includes(x)) ? 1.2 : -4;
+  s -= Math.abs((it.formality||2) - ctx.occ.f) * 1.4;
+  if(ctx.prof.likeColors.includes(it.colorName)) s += 1;
+  if(ctx.prof.avoidColors.includes(it.colorName)) s -= 3;
+  if(ctx.inspo?.length){ const [r,g,b] = hexToRgb(it.colorHex);
+    const md = Math.min(...ctx.inspo.map(h=>{ const [r2,g2,b2] = hexToRgb(h); return Math.hypot(r-r2,g-g2,b-b2); }));
+    s += Math.max(0, 3 - md/45); }
+  return s;
+}
+function harmony(items){
+  const acc = items.filter(i=>!isNeutral(i.colorHex));
+  if(!acc.length) return {s:.6, note:'semleges, letisztult színek'};
+  const hs = []; for(const a of acc){ const h = hsl(a.colorHex).h; if(!hs.some(x=>hueDiff(x,h)<22)) hs.push(h); }
+  if(hs.length===1) return {s:1.5, note: acc.length>1 ? 'ton-sur-ton színvilág' : `semleges alap, ${acc[0].colorName} kiemeléssel`};
+  if(hs.length===2){ const d = hueDiff(hs[0],hs[1]);
+    if(d<50) return {s:.8, note:'rokon árnyalatok'};
+    if(Math.abs(d-180)<35) return {s:.7, note:'merész komplementer színpár'};
+    return {s:-1.5, note:'két erős szín'}; }
+  return {s:-3, note:'sok szín'};
+}
+function wpick(arr, temp=1.3){
+  if(!arr.length) return null; const top = arr.slice(0,6);
+  const w = top.map(x=>Math.exp(x._s/temp)); const sum = w.reduce((a,b)=>a+b,0); let r = Math.random()*sum;
+  for(let i=0;i<top.length;i++){ r -= w[i]; if(r<=0) return top[i]; } return top[0];
+}
+function genQuick(items, occK, wxK, n=3, inspo=null){
+  const occ = OCC.find(o=>o.k===occK), seasons = seasonsFor(wxK);
+  const ctx = {occ, seasons, prof:S.profile, inspo};
+  const g = {}; for(const it of items){ (g[it.category] ||= []).push({...it, _s: itemScore(it, ctx) + Math.random()*0.6}); }
+  for(const k in g) g[k].sort((a,b)=>b._s-a._s);
+  const canSep = g.felso?.length && g.also?.length, canDress = g.ruha?.length;
+  if(!canSep && !canDress) return {error:'Kell legalább egy felső és egy alsó, vagy egy ruha.'};
+  const seen = new Map();
+  for(let t=0;t<260;t++){
+    const dress = canDress && (!canSep || Math.random() < (occ.k==='sport'?0.05:0.3));
+    const core = dress ? [wpick(g.ruha)] : [wpick(g.felso), wpick(g.also)];
+    const set = [...core];
+    if(g.cipo) set.push(wpick(g.cipo));
+    const coldish = wxK==='hideg' || wxK==='eso';
+    if(g.kabat && (coldish || (wxK==='enyhe' && Math.random()<.5))) set.push(wpick(g.kabat));
+    if(g.kieg && Math.random()<.55) set.push(wpick(g.kieg));
+    const h = harmony(set);
+    const score = set.reduce((a,i)=>a+i._s,0)/set.length + h.s + (coldish && g.kabat && !set.some(i=>i.category==='kabat') ? -3 : 0);
+    const key = core.map(i=>i.id).join('+');
+    if(!seen.has(key) || seen.get(key).score < score) seen.set(key, {set, core, score, h});
+  }
+  const sorted = [...seen.values()].sort((a,b)=>b.score-a.score);
+  const chosen = [];
+  const used = new Set();
+  for(const c of sorted){ if(chosen.length>=n) break; if(c.core.some(i=>used.has(i.id))) continue; chosen.push(c); c.core.forEach(i=>used.add(i.id)); }
+  for(const c of sorted){ if(chosen.length>=n) break; if(!chosen.includes(c)) chosen.push(c); }
+  return {outfits: chosen.map(c=>{
+    const stc = {}; c.set.forEach(i=>(i.styles||[]).forEach(s=>stc[s]=(stc[s]||0)+1));
+    const main = Object.entries(stc).sort((a,b)=>b[1]-a[1])[0]?.[0];
+    const avgF = (c.set.reduce((a,i)=>a+(i.formality||2),0)/c.set.length);
+    const title = `${main?STY_L[main]:'Kényelmes'} ${occ.l.toLowerCase()}`;
+    const why = `${cap(c.h.note)}. ${main?STY_L[main]+' hangulat, ':''}formalitás ${avgF.toFixed(1).replace('.',',')}/5, ${occ.l.toLowerCase()} alkalomra.`;
+    return {itemIds: c.set.map(i=>i.id), title, why, tip:'', occ:occ.k};
+  })};
+}
+const cap = s => s ? s[0].toUpperCase()+s.slice(1) : s;
+
+function quickGenerate(show=true){
+  if(S.mode==='loading') return;
+  const r = genQuick(pool(), S.occ, S.wx);
+  S.results = r.outfits || []; S.resultsFrom = isDemo() ? 'demo' : 'quick';
+  S.statusMsg = r.error || '';
+  if(show) renderOutfits();
+}
+
+// ---------- outfit engine (Claude) ----------
+let aiCtl = null;
+function outfitLines(items){
+  return 'Ruhatár (azonosító | kategória | név | szín | stílusok | évszakok | formalitás 1-5):\n' +
+    items.slice(0,180).map(i=>[i.id, i.category, i.name, i.colorName, (i.styles||[]).join(','), (i.seasons||[]).join(',')||'bármikor', i.formality||2].join(' | ')).join('\n');
+}
+function parseOutfits(res, items){
+  const ids = new Set(items.map(i=>i.id));
+  return (Array.isArray(res?.outfits) ? res.outfits : []).map(o=>{
+    const itemIds = [...new Set((Array.isArray(o?.items)?o.items:[]).map(String).filter(id=>ids.has(id)))];
+    const cats = itemIds.map(id=>byId(id).category);
+    const ok = cats.includes('ruha') || (cats.includes('felso') && cats.includes('also'));
+    return ok ? {itemIds, title:String(o.title||'Szett').slice(0,80), why:String(o.why||'').slice(0,400), tip:String(o.tip||'').slice(0,200), missing:String(o.missing||'').slice(0,200), occ:S.occ} : null;
+  }).filter(Boolean);
+}
+async function aiGenerate(){
+  const items = pool(); const occ = OCC.find(o=>o.k===S.occ); const wx = WX.find(w=>w.k===S.wx);
+  const p = S.profile;
+  const lines = outfitLines(items);
+  const extra = $('#extra').value.trim().slice(0,300);
+  const prompt = `Személyes stylist vagy. A felhasználó ruhatárából állíts össze 3 különböző szettet.
+Alkalom: ${occ.l}. Időjárás: ${wx.l}. Mostani évszak: ${SEA_L[curSeason()]}.
+${extra ? 'Különleges kérés: '+extra : ''}
+Stílusprofil — kedvelt stílusok: ${p.styles.map(s=>STY_L[s]).join(', ')||'nincs megadva'}; kedvenc színek: ${p.likeColors.join(', ')||'-'}; kerülendő színek: ${p.avoidColors.join(', ')||'-'}.
+Magáról írta: "${(p.about||'').slice(0,800)}"
+Szabályok: minden szett tartalmazzon vagy egy darabot a "ruha" kategóriából, vagy egy felsőt és egy alsót. Tegyél bele cipőt, ha van. Hideg vagy esős időben kabátot is, ha van. Csak a listában szereplő azonosítókat használd. A 3 szett alapdarabjai lehetőleg különbözzenek. Figyelj a színharmóniára és a formalitásra.
+${lines}
+
+Csak JSON-t válaszolj, így:
+{"outfits":[{"title":"rövid, ütős magyar cím","items":["azonosító1","azonosító2"],"why":"1-2 mondat magyarul: miért működik és hogyan illik a stílusához","tip":"egy rövid styling tipp (pl. tűrd be, hajtsd fel)"}]}`;
+  aiCtl = new AbortController(); S.busy = true; S.statusMsg = ''; renderOutfits();
+  try{
+    const res = await sample.json(prompt, {signal: aiCtl.signal, cache:false});
+    const outs = parseOutfits(res, items);
+    if(outs.length){ S.results = outs; S.resultsFrom = isDemo() ? 'demo' : 'ai'; }
+    else { toast('Nem kaptam használható szettet, ezért a gyors módot használtam.'); quickGenerate(false); }
+  }catch(e){ handleSampleErr(e); }
+  finally{ S.busy = false; aiCtl = null; renderOutfits(); }
+}
+
+// ---------- render: outfits ----------
+function outfitCard(o, saved){
+  const its = o.itemIds.map(byId).filter(Boolean).sort((a,b)=>(CAT_ORDER[a.category]??9)-(CAT_ORDER[b.category]??9));
+  if(!its.length) return '';
+  const occ = OCC.find(x=>x.k===o.occ);
+  return `<article class="outfit">
+    <div><div class="kicker">${esc(occ?occ.l:'Szett')} · ${its.length} darab</div><h3>${esc(o.title)}</h3></div>
+    <div class="lay">${its.map(i=>`<div class="tile">${thumb(i)}<span>${esc(i.name)}</span></div>`).join('')}</div>
+    ${o.why?`<p class="why">${esc(o.why)}</p>`:''}
+    ${o.tip?`<p class="tip">${esc(o.tip)}</p>`:''}
+    ${o.missing?`<p class="missing"><b>Ehhez vennék</b>${esc(o.missing)}</p>`:''}
+    <div class="acts">
+      <button type="button" class="ghost" ${saved ? `data-tryf="${esc(o.id)}"` : `data-tryr="${esc(o._i)}"`}>Felpróbálom</button>
+      ${saved
+      ? `<button type="button" class="ghost danger" data-unfav="${esc(o.id)}">Eltávolítás</button>`
+      : `<button type="button" class="ghost" data-fav="${esc(o._i)}">♥ Mentés</button>`}</div>
+  </article>`;
+}
+function renderOutfits(){
+  $('#occ').innerHTML = OCC.map(o=>chip(o.l, S.occ===o.k, `data-occ="${o.k}"`)).join('');
+  $('#wx').innerHTML = WX.map(w=>chip(w.l, S.wx===w.k, `data-wx="${w.k}"`)).join('');
+  const aiAvail = !!sample && !aiOff;
+  $('#engine').hidden = !aiAvail;
+  if(!aiAvail) S.engine = 'quick';
+  document.querySelectorAll('#engine button').forEach(b=>b.setAttribute('aria-pressed', b.dataset.engine===S.engine));
+  $('#extra-wrap').hidden = S.engine!=='ai';
+  const go = $('#go'); go.disabled = S.busy || S.mode==='loading';
+  go.textContent = S.results.length ? 'Újabb szettek' : 'Szettek összeállítása';
+  const st = $('#status');
+  const strip = S.resultsFrom==='inspo' && S.inspo.length
+    ? `<div class="panel"><div class="row"><h2 class="sec">Inspiráció</h2><button type="button" class="ghost" data-act="clear-inspo">Törlés</button></div>
+       <div class="inspo">${S.inspo.map(p=>`<img src="${esc(p.dataUrl)}" alt="Inspirációs kép">`).join('')}</div>
+       ${S.inspoLook?`<p class="why">${esc(S.inspoLook)}</p>`:''}</div>` : '';
+  if(S.busy) st.innerHTML = strip + `<div class="progress" style="margin-top:${strip?'14px':'0'}"><div class="spin"></div><div style="flex:1">A stylist válogat… (fél perc is lehet)</div><button type="button" class="ghost" id="stop">Leállítás</button></div>`;
+  else if(strip) st.innerHTML = strip + (S.statusMsg ? `<div class="banner" style="margin-top:14px"><p>${esc(S.statusMsg)}</p></div>` : '');
+  else if(S.statusMsg) st.innerHTML = `<div class="banner"><p>${esc(S.statusMsg)}</p></div>`;
+  else if(S.resultsFrom==='demo' && S.results.length) st.innerHTML = `<div class="banner"><div><b>Mintaszettek</b><p>Ezek a mintaszekrényből készültek. Töltsd fel a saját ruháidat, és azokból válogatok.</p></div></div>`;
+  else st.innerHTML = '';
+  $('#results').innerHTML = S.results.map((o,i)=>outfitCard({...o,_i:i}, false)).join('');
+  const favs = [...S.favs.values()].sort((a,b)=>(b.ts||0)-(a.ts||0));
+  $('#favs').innerHTML = favs.length ? favs.map(f=>outfitCard(f, true)).join('') : '<p class="hint">Még nincs mentett szetted. Nyomj a ♥ Mentés gombra annál, amelyik tetszik.</p>';
+}
+
+// ---------- render: style ----------
+function renderStyle(){
+  const p = S.profile;
+  $('#p-styles').innerHTML = STYLES.map(([k,l])=>chip(l, p.styles.includes(k), `data-psty="${k}"`)).join('');
+  const sw = (list, attr) => COLORS.map(([n,h])=>`<button type="button" class="sw" style="background:${h}" title="${n}" aria-label="${n}" aria-pressed="${list.includes(n)}" ${attr}="${n}"></button>`).join('');
+  $('#p-like').innerHTML = sw(p.likeColors, 'data-like');
+  $('#p-avoid').innerHTML = sw(p.avoidColors, 'data-avoid');
+  const ta = $('#p-about'); if(document.activeElement !== ta) ta.value = p.about || '';
+  const items = pool(); const c = {}; items.forEach(i=>(i.styles||[]).forEach(s=>c[s]=(c[s]||0)+1));
+  const max = Math.max(1, ...Object.values(c));
+  const rows = STYLES.filter(([k])=>c[k]).sort((a,b)=>c[b[0]]-c[a[0]]);
+  $('#bars').innerHTML = rows.length ? rows.map(([k,l])=>`<div class="bar"><span>${l}</span><div class="tr"><i style="width:${(c[k]/max*100).toFixed(0)}%"></i></div><span class="n">${c[k]}</span></div>`).join('')
+    : '<p class="hint">Tölts fel ruhákat, és itt látod, milyen stílusok vannak túlsúlyban.</p>';
+  $('#detect').hidden = !items.length;
+  renderMe();
+  const note = $('#storage-note');
+  if(S.mode==='cloud') note.textContent = 'Mentés: a Claude-fiókodban, csak te látod';
+  else if(S.mode==='local') note.innerHTML = `Mentés: ebben a böngészőben${sample ? '' : `<br><a href="${FULL_URL}" target="_blank" rel="noopener">Claude-os verzió fotófelismeréssel és stylisttal</a>`}`;
+  else note.textContent = '';
+}
+let profTimer = null;
+function saveProfile(){ profileDirty = true; clearTimeout(profTimer);
+  profTimer = setTimeout(async ()=>{ await put('profile', S.profile); profileDirty = false; }, 700); }
+async function detectStyle(){
+  const out = $('#detect-out'); const items = pool();
+  if(sample && !aiOff){
+    const btn = $('#detect'); btn.disabled = true; out.textContent = 'Claude elemzi a szekrényedet…';
+    const lines = items.slice(0,180).map(i=>`${i.name} | ${CAT_L[i.category]} | ${i.colorName} | ${(i.styles||[]).join(',')} | ${i.formality}`).join('\n');
+    try{
+      const r = await sample.json(`Egy ember ruhatára (név | kategória | szín | stílusok | formalitás 1-5):\n${lines}\n\nHatározd meg a stílusát. Csak JSON-t válaszolj: {"styles":["1-3 kulcs ezekből: laza, minimal, elegans, uzleti, utcai, sportos, bohem, romantikus"],"colors":["2-4 jellemző szín ezekből: ${COLORS.map(c=>c[0]).join(', ')}"],"summary":"2-3 mondat magyarul, tegezve: milyen a stílusa és mi hiányzik a szekrényéből"}`, {modelTier:'quick'});
+      const st = (r?.styles||[]).filter(s=>STY_L[s]).slice(0,3);
+      if(st.length) S.profile.styles = st;
+      const cols = (r?.colors||[]).filter(cn=>COLORS.some(c=>c[0]===cn));
+      if(cols.length && !S.profile.likeColors.length) S.profile.likeColors = cols;
+      out.textContent = String(r?.summary||'');
+      saveProfile(); renderStyle(); S.results = [];
+    }catch(e){ handleSampleErr(e); out.textContent=''; }
+    finally{ btn.disabled = false; }
+    return;
+  }
+  const c = {}; items.forEach(i=>(i.styles||[]).forEach(s=>c[s]=(c[s]||0)+1));
+  S.profile.styles = Object.entries(c).sort((a,b)=>b[1]-a[1]).slice(0,3).map(e=>e[0]);
+  out.textContent = 'A leggyakoribb stílusokat jelöltem be a szekrényed alapján.';
+  saveProfile(); renderStyle(); S.results = [];
+}
+
+// ---------- me photo ----------
+const DEF_BODY = {top:.04, shoulderY:.19, shoulderL:.36, shoulderR:.64, waistY:.42, hipY:.5, hipL:.37, hipR:.63, kneeY:.72, ankleY:.92, footY:.97, centerX:.5};
+const BODY_PROMPT = `Egy ember egész alakos fotója. Add meg a testpontok helyét a kép méretéhez viszonyítva (0 = bal vagy felső szél, 1 = jobb vagy alsó szél; a "bal" a kép bal oldala).
+Csak JSON-t válaszolj, minden érték 0 és 1 közötti szám:
+{"top":fejtető y,"shoulderY":vállak y,"shoulderL":bal váll x,"shoulderR":jobb váll x,"waistY":derék y,"hipY":csípő y,"hipL":csípő bal széle x,"hipR":csípő jobb széle x,"kneeY":térd y,"ankleY":boka y,"footY":talp y,"centerX":test közepe x}
+Ha valamelyik testrész nem látszik, becsüld meg az arányok alapján.`;
+function validBody(b){
+  if(!b || typeof b !== 'object') return null; const o = {};
+  for(const k of Object.keys(DEF_BODY)){ const v = Number(b[k]); if(!(v >= 0 && v <= 1)) return null; o[k] = v; }
+  if(!(o.top < o.shoulderY && o.shoulderY < o.waistY && o.waistY <= o.hipY && o.hipY < o.kneeY && o.kneeY < o.ankleY && o.ankleY <= o.footY)) return null;
+  if(!(o.shoulderL < o.shoulderR && o.hipL < o.hipR)) return null;
+  return o;
+}
+const PERSON_SVG = `<svg viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="16" r="9" fill="var(--line)"/><path d="M34 30 Q50 26 66 30 L70 58 L62 58 L60 94 L52 94 L50 62 L48 94 L40 94 L38 58 L30 58 Z" fill="var(--line)"/></svg>`;
+function renderMe(){
+  const el = $('#me');
+  if(S.me){
+    el.innerHTML = `<div class="ph"><img src="${esc(S.me.img)}" alt="A fotód"></div>
+      <div><p class="hint">${S.me.auto ? 'Kész! Claude bejelölte a testarányaidat, a szetteknél nyomj a „Felpróbálom” gombra.' : 'Kész! A szetteknél nyomj a „Felpróbálom” gombra. A darabokat kézzel is a helyükre húzhatod.'}</p>
+      <div class="acts"><label class="ghost btnlabel" for="mefile">Csere</label><button type="button" class="ghost danger" id="me-del">Törlés</button></div></div>`;
+  } else {
+    el.innerHTML = `<div class="ph">${PERSON_SVG}</div>
+      <div><p class="hint">Egész alakos, szemből készült fotó, lehetőleg testhez simuló ruhában, sima háttér előtt. Erre rakom rá a szetteket.</p>
+      <div class="acts"><label class="primary btnlabel" for="mefile">Fotó feltöltése</label></div></div>`;
+  }
+}
+async function setMePhoto(file){
+  const el = $('#me'); const busy = t => el.innerHTML = `<div class="ph">${PERSON_SVG}</div><div class="status"><div class="spin"></div><div>${esc(t)}</div></div>`;
+  busy('Fotó feldolgozása…');
+  let p; try{ p = await prep(file, 640); }catch{ toast('Ezt a képet nem tudtam megnyitni.'); renderMe(); return; }
+  let body = null;
+  if(sample && !aiOff && sampleLimits?.images){
+    busy('Claude megkeresi a vállad, derekad és bokád…');
+    try{ body = validBody(await sample.json(BODY_PROMPT, {images:[p.blob]})); }catch(e){ handleSampleErr(e); }
+  }
+  S.me = {img: p.dataUrl, body: body || DEF_BODY, auto: !!body, ts: Date.now()};
+  renderMe(); await put('photo', S.me); toast('Fotó elmentve');
+}
+
+// ---------- try-on montage ----------
+const imgCache = new Map();
+function loadSrc(src){ if(!imgCache.has(src)) imgCache.set(src, new Promise((res,rej)=>{ const im = new Image(); im.onload = ()=>res(im); im.onerror = rej; im.src = src; })); return imgCache.get(src); }
+function cropAlpha(c){
+  const x = c.getContext('2d',{willReadFrequently:true}); const {width:w, height:h} = c; const d = x.getImageData(0,0,w,h).data;
+  let x0=w, y0=h, x1=-1, y1=-1;
+  for(let j=0;j<h;j++) for(let i=0;i<w;i++) if(d[(j*w+i)*4+3] > 16){ if(i<x0)x0=i; if(i>x1)x1=i; if(j<y0)y0=j; if(j>y1)y1=j; }
+  if(x1 < 0) return c;
+  const o = document.createElement('canvas'); o.width = x1-x0+1; o.height = y1-y0+1;
+  o.getContext('2d').drawImage(c, x0, y0, o.width, o.height, 0, 0, o.width, o.height); return o;
+}
+function removeBg(im){
+  const k = Math.min(1, 380/Math.max(im.naturalWidth, im.naturalHeight));
+  const w = Math.max(1, Math.round(im.naturalWidth*k)), h = Math.max(1, Math.round(im.naturalHeight*k));
+  const c = document.createElement('canvas'); c.width = w; c.height = h;
+  const x = c.getContext('2d',{willReadFrequently:true}); x.drawImage(im,0,0,w,h);
+  const id = x.getImageData(0,0,w,h), d = id.data;
+  const corners = [0, w-1, (h-1)*w, h*w-1].map(p=>[d[p*4],d[p*4+1],d[p*4+2]]);
+  const nearBg = o => corners.some(c=>Math.hypot(d[o]-c[0], d[o+1]-c[1], d[o+2]-c[2]) < 80);
+  const seen = new Uint8Array(w*h); const st = [];
+  for(let i=0;i<w;i++){ st.push(i,i, (h-1)*w+i,(h-1)*w+i); }
+  for(let j=0;j<h;j++){ st.push(j*w,j*w, j*w+w-1,j*w+w-1); }
+  let removed = 0;
+  while(st.length){
+    const par = st.pop(), p = st.pop(); if(seen[p]) continue;
+    const o = p*4, q = par*4;
+    if(Math.hypot(d[o]-d[q], d[o+1]-d[q+1], d[o+2]-d[q+2]) > 22 || !nearBg(o)) continue;
+    seen[p] = 1; removed++;
+    const xx = p % w, yy = (p / w) | 0;
+    if(xx>0) st.push(p-1,p); if(xx<w-1) st.push(p+1,p); if(yy>0) st.push(p-w,p); if(yy<h-1) st.push(p+w,p);
+  }
+  if(removed < w*h*0.03 || removed > w*h*0.97) return c;
+  for(let p=0;p<w*h;p++) if(seen[p]) d[p*4+3] = 0;
+  x.putImageData(id,0,0); return cropAlpha(c);
+}
+const cutCache = new Map();
+async function cutout(it){
+  const key = it.id + (it.img ? it.img.length : it.colorHex);
+  if(cutCache.has(key)) return cutCache.get(key);
+  let c;
+  if(it.img){ try{ c = removeBg(await loadSrc(it.img)); }catch{ c = null; } }
+  if(!c){
+    c = document.createElement('canvas'); c.width = c.height = 300; const x = c.getContext('2d'); x.scale(3,3);
+    x.fillStyle = it.colorHex || '#999'; x.strokeStyle = 'rgba(0,0,0,.3)'; x.lineWidth = 1;
+    const p = new Path2D(SIL[it.category] || SIL.felso); x.fill(p); x.stroke(p); c = cropAlpha(c);
+  }
+  cutCache.set(key, c); return c;
+}
+const LAYER_Z = {also:1, ruha:1, cipo:2, felso:3, kabat:4, kieg:5};
+function place(it, src, W, H, b){
+  const sw = (b.shoulderR-b.shoulderL)*W, hw = (b.hipR-b.hipL)*W, cx = b.centerX*W;
+  const box = {
+    felso: [b.shoulderY-.03, b.hipY+.07, sw*1.6, cx],
+    kabat: [b.shoulderY-.035, b.hipY+.16, sw*1.75, cx],
+    also:  [b.waistY-.01, b.ankleY+.01, hw*1.5, cx],
+    ruha:  [b.shoulderY-.03, b.ankleY, Math.max(sw, hw)*1.7, cx],
+    cipo:  [b.ankleY-.03, Math.min(b.footY+.01, .995), hw*1.25, cx],
+    kieg:  [b.hipY-.09, b.hipY+.12, sw*.6, b.hipR*W + sw*.15],
+  }[it.category] || [b.shoulderY, b.hipY, sw, cx];
+  const top = box[0]*H, bh = (box[1]-box[0])*H, bw = box[2];
+  const s = Math.min(bw/src.width, bh/src.height);
+  const w = src.width*s, h = src.height*s;
+  return {x: box[3]-w/2, y: it.category==='cipo' ? top+bh-h : top, w, h};
+}
+const T = {open:false, photo:null, W:0, H:0, layers:[], sel:-1, drag:null};
+async function openTry(o){
+  if(!S.me){ toast('Előbb tölts fel magadról egy fotót a Stílusom fülön.'); location.hash = 'stilus'; return; }
+  const its = o.itemIds.map(byId).filter(Boolean);
+  $('#try-title').textContent = o.title || 'Felpróbálás';
+  $('#tryon').hidden = false; T.open = true; T.layers = []; T.sel = -1;
+  $('#try-layers').innerHTML = '<div class="status"><div class="spin"></div><div>Darabok kivágása…</div></div>';
+  try{
+    T.photo = await loadSrc(S.me.img); T.W = T.photo.naturalWidth; T.H = T.photo.naturalHeight;
+    const cv = $('#cv'); cv.width = T.W; cv.height = T.H;
+    const b = validBody(S.me.body) || DEF_BODY;
+    const srcs = await Promise.all(its.map(cutout));
+    T.layers = its.map((it,i)=>({it, src:srcs[i], hidden:false, ...place(it, srcs[i], T.W, T.H, b)}))
+      .sort((a,c)=>(LAYER_Z[a.it.category]??9)-(LAYER_Z[c.it.category]??9));
+  }catch{ toast('Nem sikerült betölteni a fotót.'); }
+  drawTry(); renderTryChips();
+}
+function closeTry(){ $('#tryon').hidden = true; T.open = false; T.drag = null; }
+function drawTry(){
+  const cv = $('#cv'), x = cv.getContext('2d'); x.clearRect(0,0,cv.width,cv.height);
+  if(!T.photo) return;
+  x.drawImage(T.photo, 0, 0, T.W, T.H);
+  T.layers.forEach((L,i)=>{ if(L.hidden) return;
+    x.save(); x.shadowColor = 'rgba(0,0,0,.25)'; x.shadowBlur = 6; x.shadowOffsetY = 2; x.drawImage(L.src, L.x, L.y, L.w, L.h); x.restore();
+    if(i === T.sel){ x.save(); x.setLineDash([6,5]); x.lineWidth = Math.max(1.5, T.W/300); x.strokeStyle = '#2E3FCF'; x.strokeRect(L.x, L.y, L.w, L.h); x.restore(); }
+  });
+}
+function renderTryChips(){
+  $('#try-layers').innerHTML = T.layers.map((L,i)=>chip(L.it.name + (L.hidden ? ' (rejtve)' : ''), i===T.sel, `data-tsel="${i}"`)).join('');
+  document.querySelector('[data-try="hide"]').textContent = T.layers[T.sel]?.hidden ? 'Mutat' : 'Elrejt';
+}
+function toPx(e){ const cv = $('#cv'), r = cv.getBoundingClientRect(); return {x:(e.clientX-r.left)*cv.width/r.width, y:(e.clientY-r.top)*cv.height/r.height}; }
+$('#cv').addEventListener('pointerdown', e => {
+  const p = toPx(e);
+  for(let i=T.layers.length-1;i>=0;i--){ const L = T.layers[i];
+    if(!L.hidden && p.x>=L.x && p.x<=L.x+L.w && p.y>=L.y && p.y<=L.y+L.h){
+      T.sel = i; T.drag = {dx:p.x-L.x, dy:p.y-L.y}; $('#cv').setPointerCapture(e.pointerId); drawTry(); renderTryChips(); e.preventDefault(); return; } }
+  T.sel = -1; drawTry(); renderTryChips();
+});
+$('#cv').addEventListener('pointermove', e => { if(!T.drag) return; const L = T.layers[T.sel]; if(!L) return; const p = toPx(e); L.x = p.x-T.drag.dx; L.y = p.y-T.drag.dy; drawTry(); });
+['pointerup','pointercancel'].forEach(ev => $('#cv').addEventListener(ev, () => { T.drag = null; }));
+function tryTool(k){
+  if(k==='reset'){ const b = validBody(S.me?.body) || DEF_BODY; T.layers.forEach(L=>Object.assign(L, place(L.it, L.src, T.W, T.H, b), {hidden:false})); drawTry(); renderTryChips(); return; }
+  const L = T.layers[T.sel]; if(!L){ toast('Előbb koppints egy darabra.'); return; }
+  if(k==='hide'){ L.hidden = !L.hidden; }
+  else { const f = k==='bigger' ? 1.08 : 1/1.08; const cx = L.x+L.w/2, cy = L.y+L.h/2; L.w *= f; L.h *= f; L.x = cx-L.w/2; L.y = cy-L.h/2; }
+  drawTry(); renderTryChips();
+}
+
+// ---------- inspiration ----------
+async function inspoFiles(files){
+  files = [...files].filter(f => !f.type || f.type.startsWith('image/')).slice(0,4);
+  if(!files.length) return;
+  location.hash = 'szettek';
+  const prepared = []; for(const f of files){ try{ prepared.push(await prep(f, 640)); }catch{} }
+  if(!prepared.length){ toast('Ezeket a képeket nem tudtam megnyitni.'); return; }
+  S.inspo = prepared; S.inspoLook = ''; S.results = []; S.resultsFrom = 'inspo'; S.statusMsg = '';
+  if(sample && !aiOff && sampleLimits?.images) await aiInspo(); else quickInspo();
+}
+function quickInspo(){
+  const r = genQuick(pool(), S.occ, S.wx, 3, S.inspo.map(p=>p.hex));
+  S.results = (r.outfits||[]).map(o=>({...o, why: 'A képek színeihez igazítva. ' + o.why}));
+  S.resultsFrom = 'inspo'; S.statusMsg = r.error || ''; S.inspoLook = '';
+  renderOutfits();
+}
+async function aiInspo(){
+  const items = pool(); const occ = OCC.find(o=>o.k===S.occ); const wx = WX.find(w=>w.k===S.wx); const p = S.profile;
+  const max = Math.max(1, Math.min(4, sampleLimits.images.maxCount||1));
+  const prompt = `A képeken inspirációs szettek láthatók (pl. Pinterestről vagy Instagramról). Először értsd meg a lookot: színek, sziluett, anyagok, stílus, hangulat.
+Aztán a felhasználó SAJÁT ruhatárából rakj össze legfeljebb 3 szettet, ami a lehető legjobban visszaadja ezt a lookot.
+Alkalom: ${occ.l}. Időjárás: ${wx.l}.
+Stílusprofil — kedvelt stílusok: ${p.styles.map(s=>STY_L[s]).join(', ')||'nincs megadva'}; kerülendő színek: ${p.avoidColors.join(', ')||'-'}. Magáról: "${(p.about||'').slice(0,600)}"
+Szabályok: minden szett tartalmazzon vagy egy darabot a "ruha" kategóriából, vagy egy felsőt és egy alsót. Cipőt is, ha van. Csak a listában szereplő azonosítókat használd.
+${outfitLines(items)}
+
+Csak JSON-t válaszolj, így:
+{"look":"1 mondat magyarul: mi az inspiráció lényege","outfits":[{"title":"rövid magyar cím","items":["azonosító1","azonosító2"],"why":"1-2 mondat: mi adja vissza az inspirációt","tip":"rövid styling tipp","missing":"ha egy kulcsdarab hiányzik a szekrényből, mit érdemes venni hozzá; ha semmi, üres szöveg"}]}`;
+  aiCtl = new AbortController(); S.busy = true; renderOutfits();
+  try{
+    const res = await sample.json(prompt, {images: S.inspo.slice(0,max).map(x=>x.blob), signal: aiCtl.signal, cache:false});
+    const outs = parseOutfits(res, items);
+    S.inspoLook = String(res?.look||'').slice(0,300);
+    if(outs.length){ S.results = outs; S.resultsFrom = 'inspo'; }
+    else { toast('Nem kaptam használható szettet, ezért a színek alapján válogattam.'); quickInspo(); }
+  }catch(e){ handleSampleErr(e); if(e?.code!=='cancelled') quickInspo(); }
+  finally{ S.busy = false; aiCtl = null; renderOutfits(); }
+}
+
+// ---------- events ----------
+document.addEventListener('click', e => {
+  const t = e.target.closest('button,[data-act]'); if(!t) return;
+  const d = t.dataset;
+  if(d.act==='close'){ closeSheet(); return; }
+  if(d.act==='close-try'){ closeTry(); return; }
+  if(d.act==='clear-inspo'){ S.inspo = []; S.inspoLook = ''; S.results = []; quickGenerate(); return; }
+  if(d.tryr!==undefined){ const o = S.results[+d.tryr]; if(o) openTry(o); return; }
+  if(d.tryf){ const o = S.favs.get(d.tryf); if(o) openTry(o); return; }
+  if(d.tsel!==undefined){ T.sel = +d.tsel; drawTry(); renderTryChips(); return; }
+  if(d.try){ tryTool(d.try); return; }
+  if(t.id==='me-del'){ S.me = null; remove('photo'); renderMe(); toast('Fotó törölve'); return; }
+  if(d.filter){ S.filter = d.filter; renderCloset(); return; }
+  if(d.item){ const it = S.items.get(d.item); if(it) openSheet(it); else toast('Ez mintadarab. Töltsd fel a saját ruháidat a + gombbal.'); return; }
+  if(d.fcat){ editing.category = d.fcat; renderSheetChips(); return; }
+  if(d.fsty){ const a = editing.styles; const i = a.indexOf(d.fsty); i>=0 ? a.splice(i,1) : a.push(d.fsty); renderSheetChips(); return; }
+  if(d.fsea){ const a = editing.seasons; const i = a.indexOf(d.fsea); i>=0 ? a.splice(i,1) : a.push(d.fsea); renderSheetChips(); return; }
+  if(d.occ){ S.occ = d.occ; renderOutfits(); return; }
+  if(d.wx){ S.wx = d.wx; renderOutfits(); return; }
+  if(d.engine){ S.engine = d.engine; renderOutfits(); return; }
+  if(t.id==='go'){ S.inspo = []; S.inspoLook = ''; if(S.engine==='ai' && sample && !aiOff) aiGenerate(); else { quickGenerate(); } return; }
+  if(t.id==='stop'){ aiCtl?.abort(); return; }
+  if(d.fav!==undefined){
+    if(S.resultsFrom==='demo'){ toast('Ez mintaszett. A saját ruháidból készült szetteket tudod menteni.'); return; }
+    const o = S.results[+d.fav]; if(!o) return;
+    const f = {...o, id: uid8(), ts: Date.now()}; S.favs.set(f.id, f); put('f_'+f.id, f); renderOutfits(); toast('Szett elmentve'); return; }
+  if(d.unfav){ S.favs.delete(d.unfav); remove('f_'+d.unfav); renderOutfits(); return; }
+  if(d.psty){ const a = S.profile.styles; const i = a.indexOf(d.psty); i>=0 ? a.splice(i,1) : a.push(d.psty); saveProfile(); renderStyle(); S.results=[]; return; }
+  if(d.like){ toggleColor('likeColors','avoidColors',d.like); return; }
+  if(d.avoid){ toggleColor('avoidColors','likeColors',d.avoid); return; }
+  if(t.id==='detect'){ detectStyle(); return; }
+});
+function toggleColor(list, other, n){ const a = S.profile[list]; const i = a.indexOf(n);
+  if(i>=0) a.splice(i,1); else { a.push(n); const j = S.profile[other].indexOf(n); if(j>=0) S.profile[other].splice(j,1); }
+  saveProfile(); renderStyle(); S.results = []; }
+$('#p-about').addEventListener('input', e => { S.profile.about = e.target.value.slice(0,1500); saveProfile(); });
+$('#file').addEventListener('change', e => { const f = e.target.files; addFiles(f).finally(()=>{ e.target.value=''; }); });
+$('#mefile').addEventListener('change', e => { const f = e.target.files?.[0]; if(f) setMePhoto(f).finally(()=>{ e.target.value=''; }); });
+$('#inspofile').addEventListener('change', e => { const f = e.target.files; inspoFiles(f).finally(()=>{ e.target.value=''; }); });
+addEventListener('keydown', e => { if(e.key!=='Escape') return; if(!$('#sheet').hidden) closeSheet(); if(!$('#tryon').hidden) closeTry(); });
+
+let toastT = null;
+function toast(msg){ const el = $('#toast'); el.textContent = msg; el.hidden = false; clearTimeout(toastT); toastT = setTimeout(()=>el.hidden = true, 3200); }
+
+function renderAll(){
+  renderCloset();
+  if(view==='outfits'){ if(!S.results.length && !S.busy && S.mode!=='loading') quickGenerate(false); renderOutfits(); }
+  if(view==='style') renderStyle();
+}
+
+route();
+boot();
+})();
+</script>
