@@ -229,8 +229,8 @@ input[type=range]{width:100%;accent-color:var(--accent)}
       <h2 class="sec">AI · OpenRouter-fiók</h2>
       <p class="hint">Lépj be ingyenes OpenRouter-fiókkal. Ingyenes AI-modellek címkézik és rajzolják meg a ruháidat, és ők a stylist is. Egyenleg nem kell, de van napi keret.</p>
       <button type="button" class="primary" id="orlogin">Belépés OpenRouterrel</button>
-      <details><summary class="hint">Vagy másolj be egy kulcsot</summary>
-        <p class="hint">Az <a href="https://openrouter.ai/settings/keys" target="_blank" rel="noopener">OpenRouter kulcsainál</a> hozz létre egy kulcsot. A kulcs csak ezen a telefonon tárolódik.</p>
+      <details><summary class="hint">Nem sikerül a belépés? Másolj be egy kulcsot</summary>
+        <p class="hint">Az <a href="https://openrouter.ai/settings/keys" target="_blank" rel="noopener">OpenRouter kulcsainál</a> nyomj a „Create” gombra, másold ki a kulcsot (sk-or-… kezdetű), és illeszd be ide. A kulcs csak ezen a telefonon tárolódik.</p>
         <input type="password" id="orkey" placeholder="API-kulcs (sk-or-…)" autocomplete="off" spellcheck="false">
         <div class="acts"><button type="button" class="ghost" id="orsave">Mentés és ellenőrzés</button></div>
       </details>
@@ -619,20 +619,28 @@ const b64url = buf => btoa(String.fromCharCode(...new Uint8Array(buf))).replace(
 async function orLogin(){
   const verifier = b64url(crypto.getRandomValues(new Uint8Array(32)));
   const challenge = b64url(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(verifier)));
-  try{ localStorage.setItem('gardrob.pkce', verifier); }catch{ toast('Ebben a böngészőben nem megy a belépés. Másold be a kulcsot.'); return; }
-  location.href = `https://openrouter.ai/auth?callback_url=${encodeURIComponent(location.origin + location.pathname)}&code_challenge=${challenge}&code_challenge_method=S256`;
+  try{ localStorage.setItem('gardrob.pkce', verifier); sessionStorage.setItem('gardrob.pkce', verifier); }catch{}
+  // The verifier also rides in the callback URL: on phones the login often returns in a different browser context
+  // (e.g. a home-screen app) where local storage is empty, and the login would silently fail.
+  const cb = location.origin + location.pathname + '?pv=' + verifier;
+  location.href = `https://openrouter.ai/auth?callback_url=${encodeURIComponent(cb)}&code_challenge=${challenge}&code_challenge_method=S256`;
 }
 async function orHandleCallback(){
-  const code = new URLSearchParams(location.search).get('code'); if(!code) return;
-  let verifier = null; try{ verifier = localStorage.getItem('gardrob.pkce'); localStorage.removeItem('gardrob.pkce'); }catch{}
+  const sp = new URLSearchParams(location.search);
+  let code = sp.get('code'), pv = sp.get('pv');
+  if(pv && pv.includes('?code=')){ [pv, code] = pv.split('?code='); }
+  if(!code) return;
+  let verifier = null; try{ verifier = localStorage.getItem('gardrob.pkce') || sessionStorage.getItem('gardrob.pkce'); localStorage.removeItem('gardrob.pkce'); sessionStorage.removeItem('gardrob.pkce'); }catch{}
+  verifier = verifier || pv;
   history.replaceState(null, '', location.pathname + '#profil'); route();
-  if(!verifier) return;
+  if(!verifier){ toast('A belépés nem fejeződött be. Nyomj újra a Belépés gombra, vagy másold be a kulcsot.'); return; }
+  $('#orstatus').dataset.busy = '1'; $('#orstatus').textContent = 'Belépés befejezése…';
   try{
     const r = await fetch(OR_API + '/auth/keys', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({code, code_verifier: verifier, code_challenge_method:'S256'})});
     const j = await r.json().catch(()=>({}));
-    if(!r.ok || !j.key) throw 0;
-    await orConnect(j.key);
-  }catch{ toast('A belépés nem sikerült. Próbáld újra, vagy másold be a kulcsot.'); }
+    if(!r.ok || !j.key) throw new Error(j?.error?.message || ('HTTP ' + r.status));
+    delete $('#orstatus').dataset.busy; await orConnect(j.key);
+  }catch(e){ delete $('#orstatus').dataset.busy; renderProfile(); toast('A belépés nem sikerült (' + String(e?.message||e).slice(0,80) + '). Próbáld újra, vagy másold be a kulcsot.'); }
 }
 
 // ---------- weather ----------
