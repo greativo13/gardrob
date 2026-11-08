@@ -144,6 +144,20 @@ button.tile{border:0;cursor:pointer;font:inherit;color:inherit}
 .gap b{font-size:14.5px}
 .foot{font-family:var(--f-mono);font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);text-align:center;margin:6px 0 0}
 
+/* days, trips, stats, shop */
+.dayrow .outfit{padding:12px;gap:8px}
+.dayrow .outfit h3{font-size:17px}
+.dayrow .lay{grid-template-columns:repeat(4,1fr);gap:6px}
+.dayrow .tile span{font-size:10px}
+.check{display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid var(--line)}
+.check input{width:20px;height:20px;accent-color:var(--accent);flex:none}
+.check .ref{flex:1;min-width:0}
+.statrow{display:flex;align-items:center;gap:8px;justify-content:space-between}
+.statrow .n{font-family:var(--f-mono);font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap}
+.verdict{font-family:var(--f-display);font-weight:800;font-size:22px;margin:0}
+.verdict.igen{color:var(--good)} .verdict.nem{color:var(--danger)} .verdict.talan{color:var(--tag)}
+.badge.wash{background:#5B7DB1;color:#fff}
+input[type=number],input[type=date]{width:100%;border:1px solid var(--line);background:var(--surface);border-radius:12px;padding:11px 12px;font-size:16px}
 /* inspiration board */
 .inspo-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
 .inspo-card{background:var(--sunk);border-radius:14px;overflow:hidden;display:flex;flex-direction:column}
@@ -188,25 +202,52 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 
 <main class="gut">
   <section class="view" id="view-today">
-    <div class="row"><div><div class="kicker" id="today-date"></div><h2 class="big">Mai szetted</h2></div><div class="wx" id="wx"></div></div>
-    <div id="today-banners" class="view"></div>
-    <div class="seg viewmode" style="max-width:220px"><button type="button" data-viewmode="rajz">Rajz</button><button type="button" data-viewmode="foto">Fotó</button></div>
-    <div id="today-card"></div>
-    <div class="panel">
-      <h2 class="sec">Más alkalomra</h2>
-      <div class="chips" id="occ"></div>
-      <button class="ghost" id="occ-go" type="button">Mutass szetteket</button>
-      <label class="ghost" for="inspofile" data-inspo-then="chat">Szett inspirációs képből</label>
+    <div class="seg" id="maseg"><button type="button" data-sub="ma">Ma</button><button type="button" data-sub="het">Hét</button><button type="button" data-sub="ut">Utazás</button></div>
+    <div class="view" id="sub-ma">
+      <div class="row"><div><div class="kicker" id="today-date"></div><h2 class="big">Mai szetted</h2></div><div class="wx" id="wx"></div></div>
+      <div id="today-banners" class="view"></div>
+      <div class="seg viewmode" style="max-width:220px"><button type="button" data-viewmode="rajz">Rajz</button><button type="button" data-viewmode="foto">Fotó</button></div>
+      <div id="today-card"></div>
+      <div id="tomorrow-card"></div>
+      <div class="panel">
+        <h2 class="sec">Más alkalomra</h2>
+        <div class="chips" id="occ"></div>
+        <button class="ghost" id="occ-go" type="button">Mutass szetteket</button>
+        <label class="ghost" for="inspofile" data-inspo-then="chat">Szett inspirációs képből</label>
+      </div>
+      <div id="occ-status"></div>
+      <div class="view" id="occ-results"></div>
+      <h2 class="sec" style="margin-top:6px">Mentett szettek</h2>
+      <div class="view" id="favs"></div>
     </div>
-    <div id="occ-status"></div>
-    <div class="view" id="occ-results"></div>
-    <h2 class="sec" style="margin-top:6px">Mentett szettek</h2>
-    <div class="view" id="favs"></div>
+    <div class="view" id="sub-het" hidden>
+      <div class="panel">
+        <h2 class="big">Heti terv</h2>
+        <p class="hint">Megtervezem a következő 7 napot az időjárás és a heted alapján úgy, hogy ne ismétlődjenek a darabok. A terv napjai a Ma fülön is megjelennek.</p>
+        <button class="primary" type="button" id="week-go">Tervezd meg a hetem</button>
+      </div>
+      <div id="week-status"></div>
+      <div class="view" id="week"></div>
+    </div>
+    <div class="view" id="sub-ut" hidden>
+      <div class="panel">
+        <h2 class="big">Csomagolólista</h2>
+        <p class="hint">Mondd meg, hova és mennyi időre mész, és a ruháidból összerakok egy kis kapszulát, amiből minden napra kijön egy szett.</p>
+        <div class="field"><label class="sec" for="trip-city">Úti cél</label><input type="text" id="trip-city" placeholder="pl. Bécs"></div>
+        <div class="field"><label class="sec" for="trip-days">Hány nap?</label><input type="number" id="trip-days" min="1" max="14" value="3" inputmode="numeric"></div>
+        <div class="field"><span class="sec">Milyen út?</span><div class="chips" id="trip-type"></div></div>
+        <button class="primary" type="button" id="trip-go">Csomagolólista</button>
+      </div>
+      <div id="trip-status"></div>
+      <div class="view" id="trip"></div>
+    </div>
   </section>
 
   <section class="view" id="view-closet" hidden>
     <div id="progress"></div>
     <div id="closet-banners" class="view"></div>
+    <div class="row"><p class="hint" style="flex:1">Boltban vagy? Fotózd le, és megmondom, megéri-e.</p><label class="ghost" for="shopfile">Megéri megvenni?</label></div>
+    <div id="shop"></div>
     <div class="row">
       <div class="chips scroll" id="filters" style="flex:1;margin-right:0" role="toolbar" aria-label="Szűrés kategóriára"></div>
     </div>
@@ -250,6 +291,10 @@ input[type=range]{width:100%;accent-color:var(--accent)}
       <div id="inspo-status"></div>
       <div class="inspo-grid" id="inspo-grid"></div>
     </div>
+    <div class="panel">
+      <h2 class="sec">Statisztika</h2>
+      <div id="stats"></div>
+    </div>
     <div class="panel" id="analysis-panel">
       <div class="row"><h2 class="sec">Szekrény-elemzés</h2><button class="ghost" id="analyze" type="button">Elemzés</button></div>
       <div id="analysis"></div>
@@ -284,6 +329,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 <input class="vh" type="file" id="file" accept="image/*" multiple>
 <input class="vh" type="file" id="chatimg" accept="image/*">
 <input class="vh" type="file" id="inspofile" accept="image/*" multiple>
+<input class="vh" type="file" id="shopfile" accept="image/*">
 <input class="vh" type="file" id="restorefile" accept="application/json,.json">
 
 <nav class="tabs" aria-label="Fő menü"><div class="in gut">
@@ -322,6 +368,14 @@ input[type=range]{width:100%;accent-color:var(--accent)}
       <input type="range" id="f-form" min="1" max="5" step="1">
       <div class="rlab"><span>Sport</span><span>Laza</span><span>Smart</span><span>Üzleti</span><span>Gála</span></div>
     </div>
+    <div class="field"><label class="sec" for="f-price">Ár (Ft, nem kötelező)</label><input type="number" id="f-price" min="0" step="100" inputmode="numeric" placeholder="pl. 12990"></div>
+    <div class="acts" id="f-actions">
+      <button type="button" class="ghost" id="f-match-go">Mihez illik?</button>
+      <button type="button" class="ghost" id="f-wore">Ma viseltem</button>
+      <button type="button" class="ghost" id="f-dirty">Szennyesbe</button>
+    </div>
+    <p class="hint" id="f-info"></p>
+    <div id="f-match" class="view"></div>
     <div class="acts sticky">
       <button type="button" class="ghost danger" id="f-del">Törlés</button>
       <button type="button" class="ghost" data-act="close">Mégse</button>
@@ -338,7 +392,11 @@ const $ = s => document.querySelector(s);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const uid8 = () => 'x' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
 const cap = s => s ? s[0].toUpperCase() + s.slice(1) : s;
-const todayKey = () => { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0'); };
+const dKey = d => d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+const addDays = n => { const d = new Date(); d.setHours(12,0,0,0); d.setDate(d.getDate()+n); return d; };
+const todayKey = () => dKey(new Date());
+const DAYN = ['vasárnap','hétfő','kedd','szerda','csütörtök','péntek','szombat'];
+const dayLabel = key => { const d = new Date(key + 'T12:00'); return DAYN[d.getDay()] + ', ' + d.toLocaleDateString('hu-HU', {month:'long', day:'numeric'}); };
 
 // ---------- vocab ----------
 const CATS = [['felso','Felső'],['also','Alsó'],['ruha','Ruha'],['kabat','Kabát'],['cipo','Cipő'],['kieg','Kiegészítő']];
@@ -594,23 +652,25 @@ const SAMPLES = [
 
 // ---------- state & storage ----------
 const defProfile = () => ({styles:[], likeColors:[], avoidColors:[], about:'', q:{}, view:'rajz'});
-const S = { items:new Map(), favs:new Map(), profile:defProfile(), filter:'all', occ:'hetkoznap', occResults:[], occFrom:null, busy:{} };
-let LOG = {wears:[], fb:[]}, CHAT = [], TODAY = null, ANALYSIS = null, INSPO = [];
-const K = {main:'gardrob.v1', log:'gardrob.log', chat:'gardrob.chat', today:'gardrob.today', analysis:'gardrob.analysis', or:'gardrob.openrouter', inspo:'gardrob.inspo'};
+const S = { sub:'ma', items:new Map(), favs:new Map(), profile:defProfile(), filter:'all', occ:'hetkoznap', occResults:[], occFrom:null, busy:{} };
+let LOG = {wears:[], fb:[]}, CHAT = [], TODAY = null, ANALYSIS = null, INSPO = [], TOMORROW = null, WEEK = null, TRIP = null;
+const K = {main:'gardrob.v1', log:'gardrob.log', chat:'gardrob.chat', today:'gardrob.today', analysis:'gardrob.analysis', or:'gardrob.openrouter', inspo:'gardrob.inspo', tomorrow:'gardrob.tomorrow', week:'gardrob.week', trip:'gardrob.trip'};
 const lsGet = (k, d) => { try{ const v = JSON.parse(localStorage.getItem(k) || 'null'); return v ?? d; }catch{ return d; } };
 const lsSet = (k, v) => { try{ localStorage.setItem(k, JSON.stringify(v)); return true; }catch{ toast('Megtelt a böngésző tárhelye. Törölj néhány ruhát.'); return false; } };
 function load(){
   const d = lsGet(K.main, {});
   (d.items||[]).forEach(i=>S.items.set(i.id,i)); (d.favs||[]).forEach(f=>S.favs.set(f.id,f));
   S.profile = {...defProfile(), ...(d.profile||{})}; S.profile.q = S.profile.q || {};
-  LOG = lsGet(K.log, {wears:[], fb:[]}); CHAT = lsGet(K.chat, []); TODAY = lsGet(K.today, null); ANALYSIS = lsGet(K.analysis, null); INSPO = lsGet(K.inspo, []);
+  LOG = lsGet(K.log, {wears:[], fb:[]}); CHAT = lsGet(K.chat, []); TODAY = lsGet(K.today, null); ANALYSIS = lsGet(K.analysis, null); INSPO = lsGet(K.inspo, []); TOMORROW = lsGet(K.tomorrow, null); WEEK = lsGet(K.week, null); TRIP = lsGet(K.trip, null);
 }
 const save = () => lsSet(K.main, {items:[...S.items.values()], favs:[...S.favs.values()], profile:S.profile});
 const saveLog = () => { LOG.wears = LOG.wears.slice(-60); LOG.fb = LOG.fb.slice(-60); lsSet(K.log, LOG); };
 const realItems = () => [...S.items.values()].sort((a,b)=>(b.ts||0)-(a.ts||0));
 const isDemo = () => S.items.size === 0;
 const pool = () => isDemo() ? SAMPLES : realItems();
-const byId = id => S.items.get(id) || SAMPLES.find(s=>s.id===id);
+const isDirty = it => !!it.dirty && it.dirty >= todayKey();
+const avail = () => pool().filter(i => !isDirty(i));
+const byId = id => S.items.get(id) || (S.shop?.item?.id === id ? S.shop.item : null) || SAMPLES.find(s=>s.id===id);
 const chip = (label, pressed, data, extra='') => `<button type="button" class="chip" aria-pressed="${pressed}" ${data}>${esc(label)}${extra}</button>`;
 
 // ---------- OpenRouter (free AI models) ----------
@@ -713,11 +773,19 @@ async function getWeather(){
     const r = g.results?.[0]; if(!r) throw {code:'city'};
     loc = S.profile.loc = {lat:r.latitude, lon:r.longitude, city:r.name}; save();
   }
-  const j = await (await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${loc.lat}&longitude=${loc.lon}&current=temperature_2m&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max,weather_code&timezone=auto&forecast_days=1`)).json();
-  W = {t:Date.now(), city:loc.city, now:Math.round(j.current.temperature_2m), max:Math.round(j.daily.temperature_2m_max[0]), min:Math.round(j.daily.temperature_2m_min[0]), rain:j.daily.precipitation_probability_max[0]??0, desc:WCODE(j.daily.weather_code[0])};
+  const j = await (await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${loc.lat}&longitude=${loc.lon}&current=temperature_2m&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max,weather_code&timezone=auto&forecast_days=7`)).json();
+  const days = j.daily.time.map((d,i)=>({d, city:loc.city, max:Math.round(j.daily.temperature_2m_max[i]), min:Math.round(j.daily.temperature_2m_min[i]), rain:j.daily.precipitation_probability_max[i]??0, desc:WCODE(j.daily.weather_code[i])}));
+  W = {t:Date.now(), ...days[0], now:Math.round(j.current.temperature_2m), days};
   return W;
 }
-const wxText = w => w ? `${w.city}: most ${w.now}°, ma ${w.min}–${w.max}°, ${w.desc}, eső esélye ${w.rain}%` : 'Az időjárás nem ismert.';
+const wxText = w => w ? `${w.city}: ${w.now!=null ? 'most ' + w.now + '°, ' : ''}${w.min}–${w.max}°, ${w.desc}, eső esélye ${w.rain}%` : 'Az időjárás nem ismert.';
+const dayWx = key => W?.days?.find(x=>x.d===key) || null;
+async function forecastFor(name, n){
+  const g = await (await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(name)}&count=1&language=hu`)).json();
+  const r = g.results?.[0]; if(!r) throw {code:'city'};
+  const j = await (await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${r.latitude}&longitude=${r.longitude}&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max,weather_code&timezone=auto&forecast_days=${Math.min(16, Math.max(1, n))}`)).json();
+  return {city:r.name, days: j.daily.time.map((d,i)=>({d, city:r.name, max:Math.round(j.daily.temperature_2m_max[i]), min:Math.round(j.daily.temperature_2m_min[i]), rain:j.daily.precipitation_probability_max[i]??0, desc:WCODE(j.daily.weather_code[i])}))};
+}
 const wxKey = w => !w ? ({nyar:'meleg', tel:'hideg'}[curSeason()] || 'enyhe') : w.rain >= 55 ? 'eso' : w.max >= 22 ? 'meleg' : w.max <= 9 ? 'hideg' : 'enyhe';
 function curSeason(){ const m = new Date().getMonth()+1; return m>=3&&m<=5?'tavasz':m>=6&&m<=8?'nyar':m>=9&&m<=11?'osz':'tel'; }
 const seasonsFor = w => w==='meleg' ? ['nyar'] : w==='hideg' ? ['tel'] : ['tavasz','osz'];
@@ -745,7 +813,7 @@ function wardrobeCtx(items){
   items.forEach((it,i)=>{ const c = 'R' + (i+1); code.set(it.id, c); back.set(c, it.id); });
   const lines = items.slice(0,150).map(it => { const L = lookOf(it);
     return [code.get(it.id), CAT_L[it.category] + ': ' + (TYPE_L[L.type]||''), it.name, it.colorName, [TEX_L[L.texture], (it.category==='felso'||it.category==='kabat') ? (L.sleeves==='rovid'?'rövid ujjú':'hosszú ujjú') : ''].filter(Boolean).join(', '),
-      (it.styles||[]).map(s=>STY_L[s]).join(', ') || '-', (it.seasons||[]).map(s=>SEA_L[s]).join(', ') || 'bármikor', it.formality||2].join(' | '); });
+      (it.styles||[]).map(s=>STY_L[s]).join(', ') || '-', (it.seasons||[]).map(s=>SEA_L[s]).join(', ') || 'bármikor', it.formality||2].join(' | ') + (isDirty(it) ? ' | MOSÁSBAN, most ne ajánld' : ''); });
   return {code, back, text:'Ruhatár (kód | kategória: fajta | név | szín | anyag | stílus | évszak | formalitás 1-5):\n' + lines.join('\n')};
 }
 function historyText(ctx){
@@ -783,12 +851,13 @@ function harmony(items){
   return {s:-3, note:'sok szín'};
 }
 function wpick(arr, temp=1.3){ if(!arr?.length) return null; const top = arr.slice(0,6); const w = top.map(x=>Math.exp(x._s/temp)); let r = Math.random()*w.reduce((a,b)=>a+b,0); for(let i=0;i<top.length;i++){ r -= w[i]; if(r<=0) return top[i]; } return top[0]; }
-function genQuick(items, occK, wxK, n=3){
+function genQuick(items, occK, wxK, n=3, opt={}){
   const occ = OCC.find(o=>o.k===occK), seasons = seasonsFor(wxK);
-  const recent = new Set(LOG.wears.slice(-2).flatMap(w=>w.ids));
+  const recent = opt.recent || new Set(LOG.wears.slice(-2).flatMap(w=>w.ids));
   const ctx = {occ, seasons, prof:S.profile, recent};
   const g = {}; for(const it of items){ (g[it.category] ||= []).push({...it, _s: itemScore(it, ctx) + Math.random()*0.6}); }
   for(const k in g) g[k].sort((a,b)=>b._s-a._s);
+  if(opt.must){ g[opt.must.category] = [{...opt.must, _s: 5}]; if(opt.must.category==='felso' || opt.must.category==='also') delete g.ruha; if(opt.must.category==='ruha'){ delete g.felso; delete g.also; } }
   const canSep = g.felso?.length && g.also?.length, canDress = g.ruha?.length;
   if(!canSep && !canDress) return {error:'Kell legalább egy felső és egy alsó, vagy egy ruha.'};
   const seen = new Map();
@@ -798,15 +867,15 @@ function genQuick(items, occK, wxK, n=3){
     const set = [...core];
     if(g.cipo) set.push(wpick(g.cipo));
     const cold = wxK==='hideg' || wxK==='eso';
-    if(g.kabat && (cold || (wxK==='enyhe' && Math.random()<.5))) set.push(wpick(g.kabat));
-    if(g.kieg && Math.random()<.4) set.push(wpick(g.kieg));
+    if(g.kabat && (cold || opt.must?.category==='kabat' || (wxK==='enyhe' && Math.random()<.5))) set.push(wpick(g.kabat));
+    if(g.kieg && (opt.must?.category==='kieg' || Math.random()<.4)) set.push(wpick(g.kieg));
     const h = harmony(set);
     const score = set.reduce((a,i)=>a+i._s,0)/set.length + h.s;
-    const key = core.map(i=>i.id).join('+');
+    const key = set.filter(i=>i.category!=='kieg').map(i=>i.id).join('+');
     if(!seen.has(key) || seen.get(key).score < score) seen.set(key, {set, core, score, h});
   }
   const sorted = [...seen.values()].sort((a,b)=>b.score-a.score), chosen = [], used = new Set();
-  for(const c of sorted){ if(chosen.length>=n) break; if(c.core.some(i=>used.has(i.id))) continue; chosen.push(c); c.core.forEach(i=>used.add(i.id)); }
+  for(const c of sorted){ if(chosen.length>=n) break; if(c.core.some(i=>used.has(i.id) && i.id!==opt.must?.id)) continue; chosen.push(c); c.core.forEach(i=>used.add(i.id)); }
   for(const c of sorted){ if(chosen.length>=n) break; if(!chosen.includes(c)) chosen.push(c); }
   return {outfits: chosen.map(c=>{
     const stc = {}; c.set.forEach(i=>(i.styles||[]).forEach(s=>stc[s]=(stc[s]||0)+1));
@@ -814,7 +883,8 @@ function genQuick(items, occK, wxK, n=3){
     return {itemIds:c.set.map(i=>i.id), title:`${main?STY_L[main]:'Kényelmes'} ${occ.l.toLowerCase()}`, why:`${cap(c.h.note)}, ${occ.l.toLowerCase()} alkalomra.`, tip:''};
   })};
 }
-const defaultOcc = () => { const d = new Date().getDay(), q = S.profile.q; if(d===0||d===6) return 'hetkoznap'; return (q.work==='business'||q.work==='smart') && !(q.week||[]).includes('home') ? 'munka' : 'hetkoznap'; };
+const occFor = date => { const d = date.getDay(), q = S.profile.q; if(d===0||d===6) return 'hetkoznap'; return (q.work==='business'||q.work==='smart') && !(q.week||[]).includes('home') ? 'munka' : 'hetkoznap'; };
+const defaultOcc = () => occFor(new Date());
 
 // ---------- outfit card ----------
 function syncViewmode(){ const mode = S.profile.view === 'foto' ? 'foto' : 'rajz'; document.querySelectorAll('.viewmode button').forEach(b=>b.setAttribute('aria-pressed', b.dataset.viewmode===mode)); }
@@ -832,10 +902,14 @@ function outfitHTML(o, {big=false, actions=''}={}){
 const DOWN_REASONS = ['Túl elegáns','Túl laza','Nem illenek a színek','Nem az én stílusom','Nem jó az időhöz','Mostanában hordtam'];
 async function makeToday(force){
   if(S.busy.today) return;
-  if(!force && TODAY?.d === todayKey() && TODAY.o) { renderToday(); return; }
+  if(!force && TODAY?.d === todayKey() && TODAY.o) { renderToday(); maybeTomorrow(); return; }
+  if(!force && TODAY?.d !== todayKey()){
+    const planned = (TOMORROW?.d === todayKey() && TOMORROW.o) ? TOMORROW.o : WEEK?.days?.find(x=>x.d===todayKey())?.o;
+    if(planned && planned.itemIds.every(id=>S.items.has(id) && !isDirty(S.items.get(id)))){ TODAY = {d:todayKey(), o:planned, worn:false, vote:null, err:''}; lsSet(K.today, TODAY); renderToday(); maybeTomorrow(); return; }
+  }
   S.busy.today = true; renderToday();
   let w = null; try{ w = await getWeather(); }catch{}
-  const items = pool(); let o = null, err = '';
+  const items = avail(); let o = null, err = '';
   if(aiReady() && !isDemo()){
     const ctx = wardrobeCtx(items);
     const days = ['vasárnap','hétfő','kedd','szerda','csütörtök','péntek','szombat'];
@@ -855,7 +929,7 @@ Csak JSON-t válaszolj: {"title":"rövid, ütős magyar cím","items":["R1","R5"
   }
   if(!o){ const r = genQuick(items, defaultOcc(), wxKey(w), 1); o = r.outfits?.[0] || null; if(!o) err = r.error; }
   TODAY = {d:todayKey(), o, worn:false, vote:null, err}; lsSet(K.today, TODAY);
-  S.busy.today = false; renderToday();
+  S.busy.today = false; renderToday(); maybeTomorrow();
 }
 function renderToday(){
   const d = new Date();
@@ -881,10 +955,251 @@ function feedback(v, r){
   LOG.fb.push({d:todayKey(), ids:TODAY.o.itemIds, v, r:r||''}); saveLog();
 }
 
+// ---------- TOMORROW (evening) ----------
+const tomorrowKey = () => dKey(addDays(1));
+function maybeTomorrow(){
+  if(new Date().getHours() >= 17 && !isDemo() && TOMORROW?.d !== tomorrowKey() && !S.busy.tomorrow) makeTomorrow(false);
+  else renderTomorrow();
+}
+async function makeTomorrow(force){
+  if(S.busy.tomorrow) return;
+  S.busy.tomorrow = true; renderTomorrow();
+  let w = null; try{ await getWeather(); w = dayWx(tomorrowKey()); }catch{}
+  const items = avail(); const occ = occFor(addDays(1)); let o = null, err = '';
+  if(aiReady()){
+    const ctx = wardrobeCtx(items);
+    const prompt = `Személyes stylist vagy. Állíts össze a felhasználónak EGY szettet holnapra (${dayLabel(tomorrowKey())}), a saját ruhatárából.
+Alkalom: ${OCC.find(x=>x.k===occ).l}. Holnapi időjárás: ${wxText(w)}.
+Ma ezt viseli: ${TODAY?.o ? TODAY.o.itemIds.map(id=>ctx.code.get(id)).join(', ') : 'nem tudjuk'} (holnap legyen más).
+${profileText()}
+
+${historyText(ctx)}
+${force && TOMORROW?.o ? 'Az előző ajánlatod helyett mást kér.' : ''}
+
+Szabályok: vagy egy "Ruha" kategóriájú darab, vagy egy felső és egy alsó. Cipőt is, ha van. Hidegben vagy esőben kabátot is, ha van. Csak a lista kódjait használd.
+${ctx.text}
+
+Csak JSON-t válaszolj: {"title":"rövid cím","items":["R1","R5"],"why":"1-2 mondat tegezve","tip":"egy styling tipp"}`;
+    try{ o = parseOutfit(await aiJson(prompt), ctx); }catch(e){ err = aiErrText(e); }
+  }
+  if(!o){ const r = genQuick(items, occ, wxKey(w), 1, {recent: new Set([...(TODAY?.o?.itemIds||[]), ...LOG.wears.slice(-2).flatMap(x=>x.ids)])}); o = r.outfits?.[0] || null; }
+  TOMORROW = {d:tomorrowKey(), o, w, err}; lsSet(K.tomorrow, TOMORROW);
+  S.busy.tomorrow = false; renderTomorrow();
+}
+function renderTomorrow(){
+  const el = $('#tomorrow-card'); if(!el) return;
+  const evening = new Date().getHours() >= 17;
+  if(S.busy.tomorrow){ el.innerHTML = '<div class="progress"><div class="spin"></div><div>Összerakom a holnapi szettet…</div></div>'; return; }
+  if(TOMORROW?.d === tomorrowKey() && TOMORROW.o){
+    el.innerHTML = '<h2 class="sec" style="margin:6px 0 10px">Holnapra</h2>' + outfitHTML({...TOMORROW.o, kicker: dayLabel(tomorrowKey()) + (TOMORROW.w ? ' · ' + TOMORROW.w.min + '–' + TOMORROW.w.max + '°, ' + TOMORROW.w.desc : '')}, {actions:'<button class="ghost" type="button" id="tomorrow-other">Mutass másikat holnapra</button>'});
+    return;
+  }
+  el.innerHTML = !isDemo() && !evening ? '<button class="ghost" type="button" id="tomorrow-go" style="width:100%">Mi legyen holnap?</button>' : '';
+}
+
+// ---------- WEEK planner ----------
+async function planWeek(){
+  if(S.busy.week) return;
+  S.busy.week = true; S.weekErr = ''; renderWeek();
+  try{ await getWeather(); }catch{}
+  const keys = [0,1,2,3,4,5,6].map(n=>dKey(addDays(n)));
+  const items = avail(); let plan = null;
+  if(aiReady()){
+    const ctx = wardrobeCtx(items);
+    const lines = keys.map(k=>{ const w = dayWx(k); return `${k} ${DAYN[new Date(k+'T12:00').getDay()]} | alkalom: ${OCC.find(o=>o.k===occFor(new Date(k+'T12:00'))).l} | ${w ? w.min+'–'+w.max+'°, '+w.desc+', eső '+w.rain+'%' : 'időjárás nem ismert'}`; }).join('\n');
+    const prompt = `Személyes stylist vagy. Tervezd meg a felhasználó következő 7 napjának szettjeit a saját ruhatárából.
+Napok:
+${lines}
+${profileText()}
+
+${historyText(ctx)}
+
+Szabályok: minden nap vagy egy "Ruha" kategóriájú darab, vagy egy felső és egy alsó; cipő, ha van; hideg vagy esős napon kabát, ha van. Ugyanazt a felsőt ne ismételd a héten, ha van elég; egy nadrág ismétlődhet, de ne egymás utáni napokon. Igazodj a napi alkalomhoz és időjáráshoz. Csak a lista kódjait használd.
+${ctx.text}
+
+Csak JSON-t válaszolj: {"days":[{"date":"${keys[0]}","title":"rövid cím","items":["R1","R2"],"why":"1 mondat"}]}`;
+    try{
+      const res = await aiJson(prompt);
+      const days = (Array.isArray(res?.days) ? res.days : []).map(x=>({d:String(x.date||''), o:parseOutfit(x, ctx)})).filter(x=>keys.includes(x.d) && x.o);
+      if(days.length >= 4) plan = keys.map(k => days.find(x=>x.d===k) || {d:k, o:null});
+      else S.weekErr = 'Az AI nem adott használható tervet, ezért szabály alapján terveztem.';
+    }catch(e){ S.weekErr = aiErrText(e) + ' Addig szabály alapján terveztem.'; }
+  }
+  if(!plan) plan = keys.map(k=>({d:k, o:null}));
+  const used = new Set(LOG.wears.slice(-2).flatMap(w=>w.ids));
+  for(const day of plan){
+    if(!day.o){ const r = genQuick(items, occFor(new Date(day.d+'T12:00')), wxKey(dayWx(day.d)), 1, {recent:new Set(used)}); day.o = r.outfits?.[0] || null; }
+    day.o?.itemIds.forEach(id=>{ const it = byId(id); if(it && it.category !== 'cipo') used.add(id); });
+  }
+  WEEK = {start:keys[0], days:plan}; lsSet(K.week, WEEK);
+  if(TODAY?.d === todayKey() && !TODAY.worn && plan[0]?.o){ TODAY = {d:todayKey(), o:plan[0].o, worn:false, vote:null, err:''}; lsSet(K.today, TODAY); }
+  if(plan[1]?.o){ TOMORROW = {d:plan[1].d, o:plan[1].o, w:dayWx(plan[1].d), err:''}; lsSet(K.tomorrow, TOMORROW); }
+  S.busy.week = false; renderWeek();
+}
+function renderWeek(){
+  $('#week-go').disabled = !!S.busy.week;
+  $('#week-go').textContent = WEEK ? 'Újratervezés' : 'Tervezd meg a hetem';
+  $('#week-status').innerHTML = S.busy.week ? '<div class="progress"><div class="spin"></div><div>Tervezem a hetedet… (fél perc is lehet)</div></div>' : S.weekErr ? `<p class="hint">${esc(S.weekErr)}</p>` : '';
+  if(isDemo()){ $('#week').innerHTML = '<p class="hint">Előbb töltsd fel a ruháidat a Szekrény fülön.</p>'; return; }
+  const days = (WEEK?.days||[]).filter(x=>x.d >= todayKey());
+  $('#week').innerHTML = days.map(x=>{ const w = dayWx(x.d); return `<div class="dayrow">${x.o ? outfitHTML({...x.o, kicker: dayLabel(x.d) + (w ? ' · ' + w.min + '–' + w.max + '°, ' + w.desc : '')}) : `<p class="hint">${esc(dayLabel(x.d))}: nem sikerült szettet összerakni.</p>`}</div>`; }).join('');
+}
+
+// ---------- TRIP packing ----------
+const TRIP_TYPES = [['varos','Városnézés'],['uzleti','Üzleti út'],['tenger','Tengerpart'],['tura','Túra'],['esemeny','Esküvő, rendezvény']];
+let tripType = 'varos';
+async function planTrip(){
+  if(S.busy.trip) return;
+  const city = $('#trip-city').value.trim(); const n = Math.min(14, Math.max(1, Math.round(+$('#trip-days').value || 3)));
+  if(!city){ toast('Add meg az úti célt.'); return; }
+  S.busy.trip = true; S.tripErr = ''; renderTrip();
+  let fc = null; try{ fc = await forecastFor(city, n); }catch{ S.tripErr = 'Ennek a helynek nem találom az időjárását, ezért átlagos időre terveztem. '; }
+  const items = avail(); const tl = TRIP_TYPES.find(x=>x[0]===tripType)[1];
+  const occ = tripType==='uzleti' ? 'munka' : tripType==='esemeny' ? 'esemeny' : tripType==='tura' ? 'sport' : 'hetkoznap';
+  const wxs = fc ? fc.days.slice(0, n) : [];
+  let res = null;
+  if(aiReady()){
+    const ctx = wardrobeCtx(items);
+    const prompt = `Személyes stylist vagy. A felhasználó ${n} napra utazik ide: ${city} (${tl}).
+Időjárás-előrejelzés: ${wxs.length ? wxs.map((w,i)=>`${i+1}. nap: ${w.min}–${w.max}°, ${w.desc}, eső ${w.rain}%`).join('; ') : 'nem ismert'}.
+${profileText()}
+
+Állíts össze egy kis kapszulagardróbot a saját ruháiból: a lehető legkevesebb darab, amiből minden napra kijön egy szett, és jól kombinálhatók. Adj napi szetteket is, és sorold fel, mit vigyen még (nem ruhadarab, pl. esernyő, vagy ami hiányzik a szekrényéből).
+${ctx.text}
+
+Csak JSON-t válaszolj: {"capsule":["R1","R2"],"days":[{"day":1,"title":"rövid cím","items":["R1","R2"]}],"extras":["esernyő"],"why":"1-2 mondat a kapszuláról"}`;
+    try{
+      const r = await aiJson(prompt);
+      const capsule = [...new Set((r?.capsule||[]).map(c=>ctx.back.get(String(c).trim().toUpperCase().replace(/[\[\]]/g,''))).filter(Boolean))];
+      const days = (r?.days||[]).map(x=>parseOutfit(x, ctx)).filter(Boolean).slice(0, n);
+      if(capsule.length && days.length) res = {capsule:[...new Set([...capsule, ...days.flatMap(d=>d.itemIds)])], days, extras:(r.extras||[]).map(String).slice(0,10), why:String(r.why||'')};
+      else S.tripErr += 'Az AI nem adott használható listát, ezért szabály alapján csomagoltam.';
+    }catch(e){ S.tripErr += aiErrText(e) + ' Addig szabály alapján csomagoltam.'; }
+  }
+  if(!res){
+    const days = []; const used = new Set();
+    for(let i=0;i<n;i++){ const w = wxs[i] || null; const r = genQuick(items, occ, wxKey(w), 1, {recent:new Set([...used].filter(id=>byId(id)?.category==='felso'))}); const o = r.outfits?.[0]; if(o){ days.push(o); o.itemIds.forEach(id=>used.add(id)); } }
+    const cold = wxs.some(w=>w.max <= 12), wet = wxs.some(w=>w.rain >= 50);
+    res = {capsule:[...used], days, extras:[wet ? 'esernyő' : null, cold ? 'sál, sapka' : null, tripType==='tenger' ? 'fürdőruha, napszemüveg' : null].filter(Boolean), why:''};
+  }
+  TRIP = {city: fc?.city || city, n, type:tripType, ...res, packed:[], at:todayKey()}; lsSet(K.trip, TRIP);
+  S.busy.trip = false; renderTrip();
+}
+function renderTrip(){
+  $('#trip-type').innerHTML = TRIP_TYPES.map(([k,l])=>chip(l, tripType===k, `data-triptype="${k}"`)).join('');
+  $('#trip-go').disabled = !!S.busy.trip;
+  $('#trip-status').innerHTML = S.busy.trip ? '<div class="progress"><div class="spin"></div><div>Csomagolok…</div></div>' : S.tripErr ? `<p class="hint">${esc(S.tripErr)}</p>` : '';
+  if(!TRIP){ $('#trip').innerHTML = ''; return; }
+  const its = TRIP.capsule.map(byId).filter(Boolean).sort((a,b)=>(CAT_ORDER[a.category]??9)-(CAT_ORDER[b.category]??9));
+  $('#trip').innerHTML = `<div class="panel"><h2 class="big">${esc(TRIP.city)}, ${TRIP.n} nap</h2>${TRIP.why ? `<p class="why">${esc(TRIP.why)}</p>` : ''}
+    <span class="sec">Bőröndbe (${its.length} darab)</span>
+    <div>${its.map(it=>`<label class="check"><input type="checkbox" data-pack="${esc(it.id)}" ${TRIP.packed.includes(it.id)?'checked':''}>${refChip(it)}</label>`).join('')}</div>
+    ${TRIP.extras?.length ? `<span class="sec">Ne felejtsd</span><ul class="alist">${TRIP.extras.map(x=>`<li>${esc(x)}</li>`).join('')}</ul>` : ''}</div>
+    ${TRIP.days.map((o,i)=>`<div class="dayrow">${outfitHTML({...o, kicker: (i+1) + '. nap'})}</div>`).join('')}`;
+}
+
+// ---------- MATCH: what goes with this item ----------
+async function matchItem(it){
+  const box = $('#f-match'); box.innerHTML = '<div class="status"><div class="spin"></div><div>Keresem, mihez illik…</div></div>';
+  const items = avail().filter(i=>i.id!==it.id).concat([it]); let outs = null, err = '';
+  let w = null; try{ w = await getWeather(); }catch{}
+  if(aiReady()){
+    const ctx = wardrobeCtx(items);
+    const prompt = `Személyes stylist vagy. Állíts össze 3 különböző szettet a felhasználó saját ruhatárából, amelyek MIND tartalmazzák ezt a darabot: ${ctx.code.get(it.id)} (${it.name}). Legyenek különböző alkalmakra (pl. hétköznap, munka, este).
+Időjárás most: ${wxText(w)}.
+${profileText()}
+
+Szabályok: vagy egy "Ruha" kategóriájú darab, vagy egy felső és egy alsó; cipő, ha van. Csak a lista kódjait használd.
+${ctx.text}
+
+Csak JSON-t válaszolj: {"outfits":[{"title":"rövid cím, benne az alkalom","items":["R1","R2"],"why":"1 mondat"}]}`;
+    try{ const r = await aiJson(prompt); outs = (r?.outfits||[]).map(o=>parseOutfit(o, ctx)).filter(o=>o && o.itemIds.includes(it.id)); if(!outs.length) outs = null; }
+    catch(e){ err = aiErrText(e); }
+  }
+  if(!outs) outs = uniqueOutfits(['hetkoznap','munka','randi'].flatMap(oc => (genQuick(items, oc, wxKey(w), 2, {must:it}).outfits||[]).map(o=>({...o, title: o.title}))), 3);
+  if(!editing || editing.id !== it.id) return;
+  box.innerHTML = (err ? `<p class="hint">${esc(err)}</p>` : '') + (outs.length ? outs.map(o=>outfitHTML(o)).join('') : '<p class="hint">Ehhez most nem találtam párt. Tölts fel több ruhát.</p>');
+}
+
+function uniqueOutfits(list, n){ const seen = new Set(), out = []; for(const o of list){ const k = [...o.itemIds].sort().join('+'); if(seen.has(k)) continue; seen.add(k); out.push(o); if(out.length >= n) break; } return out; }
+
+// ---------- WEAR STATS ----------
+function wearStats(){
+  const cnt = new Map(), last = new Map();
+  for(const w of LOG.wears) for(const id of w.ids){ cnt.set(id, (cnt.get(id)||0) + 1); if(!last.has(id) || last.get(id) < w.d) last.set(id, w.d); }
+  return {cnt, last};
+}
+function renderStats(){
+  const el = $('#stats'); if(!el) return;
+  const items = realItems(); const {cnt, last} = wearStats();
+  const days = new Set(LOG.wears.map(w=>w.d)).size;
+  if(!items.length){ el.innerHTML = '<p class="hint">Még nincsenek ruháid.</p>'; return; }
+  if(!days){ el.innerHTML = '<p class="hint">Amikor a Ma fülön az „Ezt veszem fel” gombra nyomsz, vagy egy ruhánál a „Ma viseltem” gombra, itt látod majd, mit hordasz a legtöbbet, mit soha, és mennyibe kerül egy-egy viselés.</p>'; return; }
+  const top = items.filter(i=>cnt.get(i.id)).sort((a,b)=>cnt.get(b.id)-cnt.get(a.id)).slice(0,5);
+  const never = items.filter(i=>!cnt.get(i.id));
+  const priced = items.filter(i=>i.price > 0).map(i=>({it:i, cpw: Math.round(i.price / Math.max(1, cnt.get(i.id)||0))})).sort((a,b)=>b.cpw-a.cpw).slice(0,5);
+  const fmt = n => n.toLocaleString('hu-HU');
+  el.innerHTML = `<p class="hint">${days} napot jegyeztél fel.</p>
+    ${top.length ? `<span class="sec">Legtöbbet hordott</span>${top.map(i=>`<div class="statrow">${refChip(i)}<span class="n">${cnt.get(i.id)}× · utoljára ${esc(last.get(i.id).slice(5).replace('-','.'))}.</span></div>`).join('')}` : ''}
+    ${never.length ? `<span class="sec">Még egyszer sem viselted (${never.length})</span><div>${never.slice(0,12).map(refChip).join(' ')}</div>` : ''}
+    ${priced.length ? `<span class="sec">Ár viselésenként</span>${priced.map(x=>`<div class="statrow">${refChip(x.it)}<span class="n">${fmt(x.cpw)} Ft / viselés</span></div>`).join('')}` : '<p class="hint">Ha egy ruhánál megadod az árát, azt is kiszámolom, mennyibe kerül egy-egy viselés.</p>'}`;
+}
+
+// ---------- SHOP assistant ----------
+async function shopEval(file){
+  let p; try{ p = await prep(file); }catch{ toast('Ezt a képet nem tudtam megnyitni.'); return; }
+  location.hash = 'szekreny';
+  const cn = nearestColor(p.hex);
+  let cand = {id:'shopnew', ts:Date.now(), img:p.dataUrl, name:`${cap(cn)} ruhadarab`, category:'felso', colorName:cn, colorHex:p.hex.toUpperCase(), styles:[], seasons:[], formality:2, shop:true};
+  S.shop = {item:cand, busy:true}; renderShop();
+  const items = realItems().filter(i=>i.id!=='shopnew');
+  if(aiReady()){
+    try{ let t = await aiJson(TAG_PROMPT(cand.colorHex), {images:[cand.img]}); if(Array.isArray(t)) t = t[0]; cand = {...applyTags(cand, t), id:'shopnew', shop:true}; S.shop.item = cand; renderShop(); }catch(e){ S.shop.err = aiErrText(e); }
+    if(!S.shop.err){
+      const ctx = wardrobeCtx(items);
+      const prompt = `Személyes stylist vagy. A felhasználó a boltban van, és ezen gondolkodik: ÚJ = ${cand.name} (${CAT_L[cand.category]}: ${TYPE_L[lookOf(cand).type]}, ${cand.colorName}, ${TEX_L[lookOf(cand).texture]}, ${cand.price ? cand.price + ' Ft' : 'ár nem ismert'}).
+Döntsd el, megéri-e megvenni a meglévő ruhatárához: hány jó szett jön ki belőle, illik-e a stílusához, nem duplikál-e valamit, amije már van.
+${profileText()}
+
+${ctx.text}
+
+Csak JSON-t válaszolj: {"verdict":"igen|talan|nem","why":"2-3 mondat tegezve, a meglévő darabokra kódokkal hivatkozva, pl. [R2]","similar":["kódok, amik nagyon hasonlítanak rá"],"outfits":[{"title":"rövid cím","items":["UJ","R1","R2"]}]}`;
+      try{
+        const r = await aiJson(prompt);
+        const ctx2 = {back:new Map([...ctx.back, ['UJ','shopnew'], ['ÚJ','shopnew']])};
+        S.shop.res = {verdict:['igen','talan','nem'].includes(r?.verdict) ? r.verdict : 'talan', why:String(r?.why||''), back:Object.fromEntries(ctx.back),
+          similar:(r?.similar||[]).map(c=>ctx.back.get(String(c).replace(/[\[\]\s]/g,''))).filter(Boolean), outfits:(r?.outfits||[]).map(o=>parseOutfit(o, ctx2)).filter(o=>o && o.itemIds.includes('shopnew'))};
+      }catch(e){ S.shop.err = aiErrText(e); }
+    }
+  }
+  if(!S.shop.res){
+    const outs = uniqueOutfits(['hetkoznap','munka','randi'].flatMap(oc=>genQuick(items.concat([cand]), oc, 'enyhe', 2, {must:cand}).outfits||[]), 3);
+    const similar = items.filter(i=>i.category===cand.category && lookOf(i).type===lookOf(cand).type && deltaE(i.colorHex, cand.colorHex) < 15).map(i=>i.id);
+    const partners = cand.category==='felso' ? items.filter(i=>i.category==='also').length : cand.category==='also' ? items.filter(i=>i.category==='felso').length : items.length;
+    S.shop.res = {verdict: similar.length ? 'nem' : partners >= 3 ? 'igen' : 'talan', why: similar.length ? 'Már van nagyon hasonló darabod.' : `Kb. ${partners} meglévő darabodhoz illeszthető.`, similar, outfits:outs};
+  }
+  S.shop.busy = false; renderShop();
+}
+function renderShop(){
+  const el = $('#shop'); const sh = S.shop;
+  if(!sh){ el.innerHTML = ''; return; }
+  const it = sh.item, r = sh.res;
+  const V = {igen:'Megéri', talan:'Talán', nem:'Inkább ne'};
+  el.innerHTML = `<div class="panel"><div class="row"><h2 class="sec">Megéri megvenni?</h2><button class="ghost" type="button" id="shop-close">Bezár</button></div>
+    <div class="pair"><div class="ph photo"><img src="${esc(it.img)}" alt="A kiszemelt ruha"><span class="lab">Fotó</span></div><div class="ph">${garmentSVG(it)}</div></div>
+    <b>${esc(it.name)}</b>
+    ${sh.busy ? '<div class="status"><div class="spin"></div><div>Összevetem a szekrényeddel…</div></div>' : ''}
+    ${sh.err ? `<p class="hint">${esc(sh.err)}</p>` : ''}
+    ${r ? `<p class="verdict ${r.verdict}">${V[r.verdict]}</p><p class="why">${formatAI(r.why, r.back)}</p>
+      ${r.similar?.length ? `<span class="sec">Ehhez hasonló már van</span><div>${r.similar.map(id=>byId(id)).filter(Boolean).map(refChip).join(' ')}</div>` : ''}
+      ${r.outfits?.length ? `<span class="sec">Így viselnéd</span>${r.outfits.map(o=>outfitHTML(o)).join('')}` : ''}
+      <div class="acts"><button class="primary" type="button" id="shop-buy">Megvettem, hozzáadom</button></div>` : ''}</div>`;
+}
+
 // ---------- other occasions ----------
 async function occGenerate(){
   if(S.busy.occ) return;
-  const items = pool(); const occ = OCC.find(o=>o.k===S.occ);
+  const items = avail(); const occ = OCC.find(o=>o.k===S.occ);
   let w = null; try{ w = await getWeather(); }catch{}
   S.busy.occ = true; S.occErr = ''; renderOcc();
   let outs = null;
@@ -920,9 +1235,9 @@ function renderOcc(){
 function renderCloset(){
   const n = S.items.size;
   $('#count').textContent = n ? `${n} darab` : 'mintaszekrény';
-  const list = pool(); const counts = {}; list.forEach(i=>counts[i.category]=(counts[i.category]||0)+1);
+  const list = pool(); const counts = {}; list.forEach(i=>counts[i.category]=(counts[i.category]||0)+1); const dirtyN = list.filter(isDirty).length;
   $('#filters').innerHTML = chip('Mind', S.filter==='all', 'data-filter="all"', ` <small>${list.length}</small>`) +
-    CATS.filter(([k])=>counts[k]).map(([k,l])=>chip(l, S.filter===k, `data-filter="${k}"`, ` <small>${counts[k]}</small>`)).join('');
+    CATS.filter(([k])=>counts[k]).map(([k,l])=>chip(l, S.filter===k, `data-filter="${k}"`, ` <small>${counts[k]}</small>`)).join('') + (dirtyN ? chip('Mosásban', S.filter==='dirty', 'data-filter="dirty"', ` <small>${dirtyN}</small>`) : '');
   const mode = S.profile.view === 'foto' ? 'foto' : 'rajz';
   syncViewmode();
   const B = [];
@@ -931,10 +1246,11 @@ function renderCloset(){
   if(undigit && !S.busy.digit) B.push(`<div class="banner"><div><b>${undigit} ruhád még nincs rendesen felismerve</b><p>Az AI megnézi a fotókat, kitölti a nevet, a fajtát, az anyagot, a stílust és az évszakot, és ebből készül a rajz.</p></div>${aiReady() ? `<button class="primary" type="button" id="digitize">Digitalizálás</button>` : `<a class="ghost" href="#profil">Belépés</a>`}</div>`);
   if(!undigit && all && aiReady() && !S.busy.digit) B.push(`<div class="row"><p class="hint" style="flex:1">Nem tetszenek a rajzok vagy a nevek? Az AI újra megnézi az összes fotót.</p><button class="ghost" type="button" id="redigitize">Újrafelismerés</button></div>`);
   $('#closet-banners').innerHTML = B.join('');
-  const shown = list.filter(i=>S.filter==='all'||i.category===S.filter);
+  renderShop();
+  const shown = list.filter(i=>S.filter==='all'||i.category===S.filter||(S.filter==='dirty'&&isDirty(i)));
   $('#closet').innerHTML = `<div class="grid">` + shown.map(it => `
     <button type="button" class="item" data-item="${esc(it.id)}">
-      ${it.demo ? '<span class="badge">Minta</span>' : it.check ? '<span class="badge warn">Ellenőrizd</span>' : ''}
+      ${it.demo ? '<span class="badge">Minta</span>' : it.check ? '<span class="badge warn">Ellenőrizd</span>' : isDirty(it) ? '<span class="badge wash">Mosásban</span>' : ''}
       ${mode==='foto' && it.img ? `<div class="ph photo"><img src="${esc(it.img)}" alt="${esc(it.name)}" loading="lazy"></div>` : `<div class="ph">${garmentSVG(it)}</div>`}
       <div class="meta"><div class="nm">${esc(it.name)}</div>
         <div class="sub"><span class="dot" style="background:${esc(it.colorHex)}"></span><span>${esc(TYPE_L[lookOf(it).type] || CAT_L[it.category] || '')}</span></div></div>
@@ -1075,6 +1391,10 @@ function openSheet(it){
   $('#f-name').value = it.name; $('#f-color').value = (it.colorHex||'#888888').toLowerCase(); $('#f-colorname').value = it.colorName||'';
   $('#f-form').value = it.formality||2; $('#f-del').textContent = 'Törlés';
   $('#f-photo-box').hidden = !it.img; if(it.img) $('#f-photo').src = it.img;
+  $('#f-price').value = it.price || ''; $('#f-match').innerHTML = '';
+  const {cnt, last} = wearStats(); const c = cnt.get(it.id) || 0;
+  $('#f-info').textContent = (isDirty(it) ? 'Mosásban (' + it.dirty.slice(5).replace('-','.') + '.-ig). ' : '') + (c ? `${c}× viselted, utoljára ${last.get(it.id).slice(5).replace('-','.')}.` + (it.price ? ` Egy viselés kb. ${Math.round(it.price/c).toLocaleString('hu-HU')} Ft.` : '') : 'Még nem jegyezted fel, hogy viselted.');
+  $('#f-dirty').textContent = isDirty(it) ? 'Kimosva' : 'Szennyesbe';
   renderSheet(); $('#sheet').hidden = false; document.body.classList.add('locked');
 }
 function renderSheet(){
@@ -1092,7 +1412,7 @@ const closeSheet = () => { $('#sheet').hidden = true; editing = null; document.b
 $('#f-color').addEventListener('input', e => { $('#f-colorname').value = nearestColor(e.target.value); if(editing) $('#f-ill').innerHTML = garmentSVG({...editing, colorHex:e.target.value}); });
 $('#itemForm').addEventListener('submit', e => {
   e.preventDefault(); if(!editing) return;
-  const it = {...editing, check:false, look:{...editing.look, manual:true}, name: $('#f-name').value.trim() || editing.name, colorHex: $('#f-color').value.toUpperCase(),
+  const it = {...editing, check:false, price: Math.max(0, Math.round(+$('#f-price').value || 0)) || undefined, look:{...editing.look, manual:true}, name: $('#f-name').value.trim() || editing.name, colorHex: $('#f-color').value.toUpperCase(),
     colorName: ($('#f-colorname').value.trim() || nearestColor($('#f-color').value)).toLowerCase(), formality: +$('#f-form').value};
   S.items.set(it.id, it); save(); closeSheet(); resetPicks(); renderAll(); toast('Mentve');
 });
@@ -1248,6 +1568,7 @@ function renderProfile(){
   if(c.key){ const opts = [['auto','Ingyenes (automatikus)'], ...(c.textModels||[]).map(m=>[m, m.replace(/:free$/,'') + ' (ingyenes)']), ['anthropic/claude-haiku-5.5','Pontos: Claude Haiku (fizetős)']];
     $('#aimodel').innerHTML = opts.map(([v,l])=>`<option value="${esc(v)}" ${(c.model||'auto')===v?'selected':''}>${esc(l)}</option>`).join(''); }
   renderInspo();
+  renderStats();
   renderAnalysis();
 }
 let profTimer = null;
@@ -1316,7 +1637,11 @@ addEventListener('hashchange', route);
 function renderAll(){
   $('#count').textContent = S.items.size ? `${S.items.size} darab` : 'mintaszekrény';
   syncViewmode();
-  if(view==='today'){ renderToday(); renderOcc(); }
+  if(view==='today'){
+    document.querySelectorAll('#maseg button').forEach(b=>b.setAttribute('aria-pressed', b.dataset.sub===S.sub));
+    $('#sub-ma').hidden = S.sub!=='ma'; $('#sub-het').hidden = S.sub!=='het'; $('#sub-ut').hidden = S.sub!=='ut';
+    if(S.sub==='ma'){ renderToday(); renderTomorrow(); renderOcc(); } if(S.sub==='het') renderWeek(); if(S.sub==='ut') renderTrip();
+  }
   if(view==='closet') renderCloset();
   if(view==='chat') renderChat();
   if(view==='profile') renderProfile();
@@ -1329,7 +1654,7 @@ document.addEventListener('click', e => {
   if(d.act==='close'){ closeSheet(); return; }
   if(d.filter){ const y = scrollY; S.filter = d.filter; renderCloset(); scrollTo(0, Math.min(y, document.body.scrollHeight)); return; }
   if(d.viewmode){ S.profile.view = d.viewmode; save(); renderAll(); return; }
-  if(d.item){ const it = S.items.get(d.item); if(it) openSheet(it); else toast('Ez mintadarab. Töltsd fel a saját ruháidat.'); return; }
+  if(d.item){ if(d.item==='shopnew') return; const it = S.items.get(d.item); if(it) openSheet(it); else toast('Ez mintadarab. Töltsd fel a saját ruháidat.'); return; }
   if(t.id==='digitize'){ digitizeAll(false); return; }
   if(t.id==='redigitize'){ digitizeAll(true); return; }
   if(d.fcat && editing){ editing.category = d.fcat; editing.look.type = DEF_TYPE[d.fcat]; renderSheet(); return; }
@@ -1339,6 +1664,16 @@ document.addEventListener('click', e => {
   if(d.fpocket && editing){ editing.look.pocket = !editing.look.pocket; renderSheet(); return; }
   if(d.fsty && editing){ const a = editing.styles ||= []; const i = a.indexOf(d.fsty); i>=0 ? a.splice(i,1) : a.push(d.fsty); renderSheet(); return; }
   if(d.fsea && editing){ const a = editing.seasons ||= []; const i = a.indexOf(d.fsea); i>=0 ? a.splice(i,1) : a.push(d.fsea); renderSheet(); return; }
+  if(d.sub){ S.sub = d.sub; renderAll(); if(d.sub==='het'){ getWeather().then(()=>renderWeek()).catch(()=>{}); } return; }
+  if(t.id==='tomorrow-go' || t.id==='tomorrow-other'){ makeTomorrow(t.id==='tomorrow-other'); return; }
+  if(t.id==='week-go'){ planWeek(); return; }
+  if(d.triptype){ tripType = d.triptype; renderTrip(); return; }
+  if(t.id==='trip-go'){ planTrip(); return; }
+  if(t.id==='f-match-go' && editing){ matchItem(S.items.get(editing.id) || editing); return; }
+  if(t.id==='f-wore' && editing){ const k = todayKey(); let w = LOG.wears.find(x=>x.d===k); if(!w){ w = {d:k, ids:[]}; LOG.wears.push(w); } if(!w.ids.includes(editing.id)) w.ids.push(editing.id); saveLog(); toast('Feljegyeztem'); openSheet(S.items.get(editing.id)); return; }
+  if(t.id==='f-dirty' && editing){ const it = S.items.get(editing.id); if(!it) return; if(isDirty(it)) delete it.dirty; else it.dirty = dKey(addDays(2)); save(); resetPicks(); toast(it.dirty ? 'Szennyesben: 3 napig nem ajánlom' : 'Újra ajánlható'); openSheet(it); renderCloset(); return; }
+  if(t.id==='shop-close'){ S.shop = null; renderShop(); return; }
+  if(t.id==='shop-buy' && S.shop?.item){ const it = {...S.shop.item, id:uid8(), ts:Date.now()}; delete it.shop; S.items.set(it.id, it); save(); S.shop = null; resetPicks(); renderAll(); toast('Hozzáadva a szekrényedhez'); return; }
   if(d.today){
     const a = d.today;
     if(a==='wear' && TODAY?.o){ TODAY.worn = true; LOG.wears = LOG.wears.filter(w=>w.d!==todayKey()); LOG.wears.push({d:todayKey(), ids:TODAY.o.itemIds}); saveLog(); lsSet(K.today, TODAY); renderToday(); toast('Feljegyeztem. Jó napot!'); }
@@ -1371,7 +1706,7 @@ document.addEventListener('click', e => {
   }
   if(t.id==='analyze'){ analyze(); return; }
   if(t.id==='backup'){
-    const data = {app:'gardrob', v:1, at:new Date().toISOString()}; for(const k of ['main','log','chat','today','analysis','inspo']) data[k] = lsGet(K[k], null);
+    const data = {app:'gardrob', v:1, at:new Date().toISOString()}; for(const k of ['main','log','chat','today','analysis','inspo','tomorrow','week','trip']) data[k] = lsGet(K[k], null);
     const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([JSON.stringify(data)], {type:'application/json'})); a.download = 'gardrob-mentes-' + todayKey() + '.json';
     document.body.append(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(a.href), 4000); toast('Mentés letöltve'); return; }
   if(d.inspoChat){ if(!aiReady()){ toast('Ehhez lépj be OpenRouterrel a Profil fülön.'); return; } inspoToChat(d.inspoChat); return; }
@@ -1388,10 +1723,12 @@ $('#file').addEventListener('change', e => { addFiles(e.target.files).finally(()
 let inspoThen = null;
 document.addEventListener('click', e => { const l = e.target.closest('label[for="inspofile"]'); if(l) inspoThen = l.dataset.inspoThen || null; }, true);
 $('#inspofile').addEventListener('change', e => { addInspo(e.target.files, inspoThen).finally(()=>{ e.target.value=''; inspoThen = null; }); });
+$('#shopfile').addEventListener('change', e => { const file = e.target.files?.[0]; e.target.value = ''; if(file) shopEval(file); });
+document.addEventListener('change', e => { const id = e.target.dataset?.pack; if(!id || !TRIP) return; TRIP.packed = e.target.checked ? [...new Set([...TRIP.packed, id])] : TRIP.packed.filter(x=>x!==id); lsSet(K.trip, TRIP); });
 $('#restorefile').addEventListener('change', async e => {
   const file = e.target.files?.[0]; e.target.value = ''; if(!file) return;
   try{ const data = JSON.parse(await file.text()); if(data?.app !== 'gardrob' || !data.main) throw 0;
-    for(const k of ['main','log','chat','today','analysis','inspo']) if(data[k] != null) lsSet(K[k], data[k]);
+    for(const k of ['main','log','chat','today','analysis','inspo','tomorrow','week','trip']) if(data[k] != null) lsSet(K[k], data[k]);
     S.items.clear(); S.favs.clear(); load(); renderAll(); toast(`Visszatöltve: ${S.items.size} ruha`); }
   catch{ toast('Ez nem egy Gardrób-mentés.'); }
 });
