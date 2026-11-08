@@ -25,6 +25,10 @@
   --scrim:rgba(0,0,0,.6); --shadow:0 1px 2px rgba(0,0,0,.3),0 10px 28px rgba(0,0,0,.35); color-scheme:dark;
 }
 *{box-sizing:border-box}
+html,body{overscroll-behavior:none}
+html,button,a,label,input,textarea,select,.chip,.item{touch-action:manipulation}
+body.locked{overflow:hidden}
+.sheet{overscroll-behavior:contain}
 [hidden]{display:none!important}
 body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.45;-webkit-tap-highlight-color:transparent}
 body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
@@ -866,8 +870,9 @@ function renderCloset(){
   document.querySelectorAll('#viewmode button').forEach(b=>b.setAttribute('aria-pressed', b.dataset.viewmode===mode));
   const B = [];
   if(isDemo()) B.push(`<div class="banner"><div><b>Ez egy mintaszekrény</b><p>Fotózd le a ruháidat egyesével, és töltsd fel őket. Az AI felismeri a darabot, és egységes rajz készül róla. Amint feltöltöd az elsőt, a minták eltűnnek.</p></div></div>`);
-  const undigit = realItems().filter(i=>!i.look?.ai).length;
+  const undigit = realItems().filter(i=>!i.look?.ai).length, all = realItems().filter(i=>i.img).length;
   if(undigit && !S.busy.digit) B.push(`<div class="banner"><div><b>${undigit} ruhád még nincs rendesen felismerve</b><p>Az AI megnézi a fotókat, kitölti a nevet, a fajtát, az anyagot, a stílust és az évszakot, és ebből készül a rajz.</p></div>${aiReady() ? `<button class="primary" type="button" id="digitize">Digitalizálás</button>` : `<a class="ghost" href="#profil">Belépés</a>`}</div>`);
+  if(!undigit && all && aiReady() && !S.busy.digit) B.push(`<div class="row"><p class="hint" style="flex:1">Nem tetszenek a rajzok vagy a nevek? Az AI újra megnézi az összes fotót.</p><button class="ghost" type="button" id="redigitize">Újrafelismerés</button></div>`);
   $('#closet-banners').innerHTML = B.join('');
   const shown = list.filter(i=>S.filter==='all'||i.category===S.filter);
   $('#closet').innerHTML = `<div class="grid">` + shown.map(it => `
@@ -956,8 +961,8 @@ async function addFiles(files){
   } else { prog.innerHTML = ''; toast(`${added.length} ruha hozzáadva. Lépj be OpenRouterrel, hogy az AI felismerje őket.`); }
   renderCloset();
 }
-async function digitizeAll(){
-  const todo = realItems().filter(i=>!i.look?.ai && i.img);
+async function digitizeAll(again){
+  const todo = realItems().filter(i=>(again || !i.look?.ai) && i.img);
   if(!todo.length) return;
   S.busy.digit = true; renderCloset();
   const prog = $('#progress');
@@ -974,7 +979,7 @@ function openSheet(it){
   $('#f-name').value = it.name; $('#f-color').value = (it.colorHex||'#888888').toLowerCase(); $('#f-colorname').value = it.colorName||'';
   $('#f-form').value = it.formality||2; $('#f-del').textContent = 'Törlés';
   const ph = $('#f-photo'); ph.hidden = !it.img; if(it.img) ph.src = it.img;
-  renderSheet(); $('#sheet').hidden = false;
+  renderSheet(); $('#sheet').hidden = false; document.body.classList.add('locked');
 }
 function renderSheet(){
   const e = editing, L = e.look;
@@ -987,7 +992,7 @@ function renderSheet(){
   $('#f-styles').innerHTML = STYLES.map(([k,l])=>chip(l, (e.styles||[]).includes(k), `data-fsty="${k}"`)).join('');
   $('#f-seasons').innerHTML = SEASONS.map(([k,l])=>chip(l, (e.seasons||[]).includes(k), `data-fsea="${k}"`)).join('');
 }
-const closeSheet = () => { $('#sheet').hidden = true; editing = null; };
+const closeSheet = () => { $('#sheet').hidden = true; editing = null; document.body.classList.remove('locked'); };
 $('#f-color').addEventListener('input', e => { $('#f-colorname').value = nearestColor(e.target.value); if(editing) $('#f-ill').innerHTML = garmentSVG({...editing, colorHex:e.target.value}); });
 $('#itemForm').addEventListener('submit', e => {
   e.preventDefault(); if(!editing) return;
@@ -1150,10 +1155,11 @@ document.addEventListener('click', e => {
   const t = e.target.closest('button,[data-act]'); if(!t) return;
   const d = t.dataset;
   if(d.act==='close'){ closeSheet(); return; }
-  if(d.filter){ S.filter = d.filter; renderCloset(); return; }
+  if(d.filter){ const y = scrollY; S.filter = d.filter; renderCloset(); scrollTo(0, Math.min(y, document.body.scrollHeight)); return; }
   if(d.viewmode){ S.profile.view = d.viewmode; save(); renderCloset(); return; }
   if(d.item){ const it = S.items.get(d.item); if(it) openSheet(it); else toast('Ez mintadarab. Töltsd fel a saját ruháidat.'); return; }
-  if(t.id==='digitize'){ digitizeAll(); return; }
+  if(t.id==='digitize'){ digitizeAll(false); return; }
+  if(t.id==='redigitize'){ digitizeAll(true); return; }
   if(d.fcat && editing){ editing.category = d.fcat; editing.look.type = DEF_TYPE[d.fcat]; renderSheet(); return; }
   if(d.ftype && editing){ editing.look.type = d.ftype; if(d.ftype==='farmer') editing.look.texture = 'farmer'; renderSheet(); return; }
   if(d.ftex && editing){ editing.look.texture = d.ftex; renderSheet(); return; }
