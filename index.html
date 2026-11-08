@@ -156,6 +156,8 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 input[type=password]{width:100%;border:1px solid var(--line);background:var(--surface);border-radius:12px;padding:11px 12px;font-size:16px}
 .panel .acts{display:flex;gap:8px;flex-wrap:wrap}
 .hint a{color:var(--accent)}
+details summary{cursor:pointer}
+details[open]{display:flex;flex-direction:column;gap:8px}
 .tools{display:flex;gap:8px;flex-wrap:wrap}
 .tools .ghost{min-width:48px}
 .or{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:12px;font-family:var(--f-mono);text-transform:uppercase;letter-spacing:.08em}
@@ -208,12 +210,18 @@ input[type=password]{width:100%;border:1px solid var(--line);background:var(--su
       <div class="me" id="me"></div>
     </div>
     <div class="panel" id="ai-panel" hidden>
-      <h2 class="sec">AI felpróbálás · Google Gemini</h2>
-      <p class="hint">A felöltöztetett képet a Google képgenerálója készíti. Ehhez kell egy saját API-kulcs: lépj be a <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">Google AI Studióba</a>, nyomj a „Create API key” gombra, és másold be ide. A kulcs csak ezen a telefonon tárolódik. A fotód és a ruhák képei generáláskor a Google-höz kerülnek.</p>
-      <input type="password" id="gkey" placeholder="API-kulcs (AIza…)" autocomplete="off" spellcheck="false">
-      <select id="gmodel" aria-label="Képmodell" hidden></select>
-      <div class="acts"><button type="button" class="primary" id="gsave">Mentés és ellenőrzés</button><button type="button" class="ghost danger" id="gdel" hidden>Kulcs törlése</button></div>
-      <p class="hint" id="gstatus"></p>
+      <h2 class="sec">AI felpróbálás · OpenRouter</h2>
+      <p class="hint">A felöltöztetett képet egy képgeneráló modell készíti az OpenRouteren keresztül. A képeket az OpenRouter egyenlegedből fizeted (általában néhány cent képenként). A legegyszerűbb, ha belépsz. A fotód és a ruhák képei generáláskor az OpenRouterhez és a kiválasztott modellhez kerülnek.</p>
+      <button type="button" class="primary" id="orlogin">Belépés OpenRouterrel</button>
+      <details><summary class="hint">Vagy másolj be egy kulcsot</summary>
+        <p class="hint">Az <a href="https://openrouter.ai/settings/keys" target="_blank" rel="noopener">OpenRouter kulcsainál</a> hozz létre egy kulcsot, és állíts be rá költési limitet (pl. 2 $). A kulcs csak ezen a telefonon tárolódik.</p>
+        <input type="password" id="orkey" placeholder="API-kulcs (sk-or-…)" autocomplete="off" spellcheck="false">
+        <div class="acts" style="margin-top:8px"><button type="button" class="ghost" id="orsave">Mentés és ellenőrzés</button></div>
+      </details>
+      <label class="sec" for="ormodel" id="ormodel-l" hidden>Modell</label>
+      <select id="ormodel" hidden></select>
+      <div class="acts"><button type="button" class="ghost danger" id="ordel" hidden>Kijelentkezés</button></div>
+      <p class="hint" id="orstatus"></p>
     </div>
     <div class="panel">
       <h2 class="sec">A stílusod</h2>
@@ -815,7 +823,7 @@ function renderMe(){
   const el = $('#me');
   $('#ai-panel').hidden = IS_CLAUDE;
   if(IS_CLAUDE){
-    el.innerHTML = `<div class="ph">${PERSON_SVG}</div><div><p class="hint">Az AI-os felpróbálás (te a szettben) a telefonos webes változatban működik, mert ahhoz a Google képgenerálóját kell meghívni, a claude.ai pedig ezt nem engedi.</p>
+    el.innerHTML = `<div class="ph">${PERSON_SVG}</div><div><p class="hint">Az AI-os felpróbálás (te a szettben) a telefonos webes változatban működik, mert ahhoz az OpenRoutert kell meghívni, a claude.ai pedig ezt nem engedi.</p>
       <div class="acts"><a class="ghost btnlabel" href="${PAGES_URL}" target="_blank" rel="noopener">Megnyitás</a></div></div>`;
     return;
   }
@@ -828,7 +836,7 @@ function renderMe(){
       <div><p class="hint">Egész alakos, szemből készült, éles fotó, jó fényben. Erről készül a kép, amin a szettet viseled.</p>
       <div class="acts"><label class="primary btnlabel" for="mefile">Fotó feltöltése</label></div></div>`;
   }
-  renderGem();
+  renderOR();
 }
 async function setMePhoto(file){
   let p; try{ p = await prep(file, 1024); }catch{ toast('Ezt a képet nem tudtam megnyitni.'); return; }
@@ -836,97 +844,133 @@ async function setMePhoto(file){
   renderMe(); await put('photo', S.me); toast('Fotó elmentve');
 }
 
-// ---------- Gemini settings ----------
-const GEM_KEY = 'gardrob.gemini';
-const GEM_API = 'https://generativelanguage.googleapis.com/v1beta';
-function gemCfg(){ try{ return JSON.parse(localStorage.getItem(GEM_KEY) || 'null') || {}; }catch{ return {}; } }
-function gemSetCfg(c){ try{ localStorage.setItem(GEM_KEY, JSON.stringify(c)); return true; }catch{ toast('Nem tudtam elmenteni a kulcsot ebben a böngészőben.'); return false; } }
-function renderGem(){
-  const c = gemCfg(); const sel = $('#gmodel'); const st = $('#gstatus');
-  if(document.activeElement !== $('#gkey')) $('#gkey').value = c.key ? '••••••••' + c.key.slice(-4) : '';
+// ---------- OpenRouter settings ----------
+const OR_KEY = 'gardrob.openrouter';
+const OR_API = 'https://openrouter.ai/api/v1';
+function orCfg(){ try{ return JSON.parse(localStorage.getItem(OR_KEY) || 'null') || {}; }catch{ return {}; } }
+function orSetCfg(c){ try{ localStorage.setItem(OR_KEY, JSON.stringify(c)); return true; }catch{ toast('Nem tudtam elmenteni a kulcsot ebben a böngészőben.'); return false; } }
+function renderOR(){
+  const c = orCfg(); const sel = $('#ormodel'); const st = $('#orstatus');
+  if(document.activeElement !== $('#orkey')) $('#orkey').value = c.key ? '••••••••' + c.key.slice(-4) : '';
   const models = c.models || [];
-  sel.hidden = !models.length;
+  sel.hidden = !models.length; $("#ormodel-l").hidden = !models.length;
   sel.innerHTML = models.map(m=>`<option value="${esc(m.id)}" ${m.id===c.model?'selected':''}>${esc(m.label)}</option>`).join('');
-  $('#gdel').hidden = !c.key;
-  if(!st.dataset.busy) st.textContent = c.key && c.model ? `Kész. Modell: ${c.model}` : 'Nincs még kulcs megadva.';
+  $('#ordel').hidden = !c.key;
+  $('#orlogin').hidden = !!c.key;
+  if(!st.dataset.busy) st.textContent = c.key && c.model ? `Kész. Modell: ${c.model}` : 'Még nincs összekötve.';
 }
-function rankModel(id){ return (/nano-banana|flash-image/i.test(id)?3:0) + (/pro/i.test(id)?1:0) - (/lite/i.test(id)?1:0) - (/preview|exp/i.test(id)?.5:0); }
-async function gemModels(key){
-  const r = await fetch(`${GEM_API}/models?pageSize=200`, {headers:{'x-goog-api-key': key}});
+function rankModel(id){
+  return (/gemini|nano-banana/i.test(id)?4:0) + (/gpt-image/i.test(id)?3:0) + (/seedream|kontext/i.test(id)?2:0)
+    - (/lite|mini|preview/i.test(id)?.5:0);
+}
+async function orModels(key){
+  const r = await fetch(`${OR_API}/images/models`, {headers:{'Authorization': 'Bearer ' + key}});
   const j = await r.json().catch(()=>({}));
   if(!r.ok) throw {status: r.status, message: j?.error?.message};
-  return (j.models||[])
-    .filter(m => (m.supportedGenerationMethods||[]).includes('generateContent') && /image/i.test(m.name) && !/imagen/i.test(m.name))
-    .map(m => ({id: m.name.replace(/^models\//,''), label: (m.displayName || m.name.replace(/^models\//,''))}))
+  return (j.data||[])
+    .filter(m => (m.architecture?.input_modalities||[]).includes('image'))
+    .map(m => {
+      const sp = m.supported_parameters || {};
+      const refMax = sp.input_references?.type==='range' ? Number(sp.input_references.max)||4 : 4;
+      const ar = sp.aspect_ratio?.type==='enum' && (sp.aspect_ratio.values||[]).includes('3:4');
+      return {id: m.id, label: m.name || m.id, refMax, ar};
+    })
     .sort((a,b) => rankModel(b.id)-rankModel(a.id) || b.id.localeCompare(a.id));
 }
-function gemErrText(e){
+async function orKeyCheck(key){
+  const r = await fetch(`${OR_API}/key`, {headers:{'Authorization': 'Bearer ' + key}});
+  if(r.status===401) throw {status:401};
+}
+function orErrText(e){
   const m = String(e?.message||'');
-  if(e?.status===400 && /key/i.test(m)) return 'Hibás API-kulcs. Másold be újra az AI Studióból.';
-  if(e?.status===401 || e?.status===403) return 'A kulcs nem fér hozzá a képgeneráláshoz. Nézd meg az AI Studióban, be van-e kapcsolva a számlázás.';
-  if(e?.status===429) return 'Elfogyott a keret, vagy túl sok volt a kérés. Próbáld újra később.';
-  if(e?.status===404) return 'Ez a modell már nem érhető el. Mentsd el újra a kulcsot, és válassz másik modellt.';
-  if(e?.blocked) return 'A Google nem készítette el ezt a képet. Próbálj másik fotót vagy szettet.';
-  if(e instanceof TypeError) return 'Nem értem el a Google-t. Ellenőrizd a netet.';
+  if(e?.status===401) return 'Hibás vagy letiltott kulcs. Lépj be újra, vagy másolj be új kulcsot.';
+  if(e?.status===402) return 'Elfogyott az OpenRouter-egyenleged. Töltsd fel itt: openrouter.ai/credits';
+  if(e?.status===403) return 'Az OpenRouter ezt a kérést elutasította (tartalomszűrő). Próbálj másik fotót vagy szettet.';
+  if(e?.status===413) return 'Túl nagyok a képek. Próbáld kevesebb darabos szettel.';
+  if(e?.status===429) return 'Túl sok kérés. Várj egy kicsit, és próbáld újra.';
+  if(e?.status===502) return 'A modell most nem tudta elkészíteni a képet (ezt nem számolják fel). Próbáld újra, vagy válassz másik modellt.';
+  if(e?.status===503 || e?.status===529) return 'A modell túlterhelt. Próbáld újra kicsit később, vagy válassz másikat.';
+  if(e?.status===400) return 'A modell nem fogadta el a kérést' + (m ? ': ' + m : '.') + ' Próbálj másik modellt.';
+  if(e?.empty) return 'A modell nem adott vissza képet. Próbáld újra, vagy válassz másik modellt.';
+  if(e instanceof TypeError) return 'Nem értem el az OpenRoutert. Ellenőrizd a netet.';
   return 'Nem sikerült: ' + (m || 'ismeretlen hiba');
 }
-async function gemSave(){
-  const raw = $('#gkey').value.trim(); const c = gemCfg();
-  const key = raw.startsWith('••') ? c.key : raw;
-  const st = $('#gstatus');
-  if(!key){ st.textContent = 'Másold be az API-kulcsot.'; return; }
-  st.dataset.busy = '1'; st.textContent = 'Kulcs ellenőrzése…';
+async function orConnect(key){
+  const st = $('#orstatus');
+  st.dataset.busy = '1'; st.textContent = 'Kapcsolat ellenőrzése…';
   try{
-    const models = await gemModels(key);
-    if(!models.length){ st.textContent = 'A kulcs jó, de nem találtam hozzá képgeneráló modellt.'; return; }
-    const keep = models.some(m=>m.id===$('#gmodel').value) ? $('#gmodel').value : models[0].id;
-    gemSetCfg({key, model: keep, models}); $('#gkey').blur();
-    delete st.dataset.busy; renderGem(); toast('Kulcs elmentve');
-  }catch(e){ st.textContent = gemErrText(e); }
+    await orKeyCheck(key);
+    const models = await orModels(key);
+    if(!models.length){ st.textContent = 'A kulcs jó, de nem találtam fotót fogadó képmodellt.'; return; }
+    const prev = orCfg().model;
+    const keep = models.some(m=>m.id===prev) ? prev : models[0].id;
+    orSetCfg({key, model: keep, models}); $('#orkey').blur();
+    delete st.dataset.busy; renderOR(); toast('OpenRouter összekötve');
+  }catch(e){ st.textContent = orErrText(e); }
   finally{ delete st.dataset.busy; }
+}
+function orSave(){
+  const raw = $('#orkey').value.trim(); const key = raw.startsWith('••') ? orCfg().key : raw;
+  if(!key){ $('#orstatus').textContent = 'Másold be a kulcsot, vagy használd a belépés gombot.'; return; }
+  orConnect(key);
+}
+// OpenRouter login for browser apps (OAuth PKCE): the key comes back to this page, no copy-paste.
+const b64url = buf => btoa(String.fromCharCode(...new Uint8Array(buf))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+async function orLogin(){
+  const verifier = b64url(crypto.getRandomValues(new Uint8Array(32)));
+  const challenge = b64url(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(verifier)));
+  try{ localStorage.setItem('gardrob.pkce', verifier); }catch{ toast('Ebben a böngészőben nem megy a belépés. Másold be a kulcsot.'); return; }
+  const cb = location.origin + location.pathname;
+  location.href = `https://openrouter.ai/auth?callback_url=${encodeURIComponent(cb)}&code_challenge=${challenge}&code_challenge_method=S256`;
+}
+async function orHandleCallback(){
+  const code = new URLSearchParams(location.search).get('code'); if(!code) return;
+  let verifier = null; try{ verifier = localStorage.getItem('gardrob.pkce'); localStorage.removeItem('gardrob.pkce'); }catch{}
+  history.replaceState(null, '', location.pathname + '#stilus');
+  if(!verifier) return;
+  try{
+    const r = await fetch(`${OR_API}/auth/keys`, {method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({code, code_verifier: verifier, code_challenge_method: 'S256'})});
+    const j = await r.json().catch(()=>({}));
+    if(!r.ok || !j.key) throw {status: r.status, message: j?.error?.message};
+    route(); await orConnect(j.key);
+  }catch(e){ toast('A belépés nem sikerült. Próbáld újra, vagy másold be a kulcsot.'); }
 }
 
 // ---------- AI try-on ----------
 const CAT_EN = {felso:'top', also:'bottoms (trousers/skirt)', ruha:'dress / one-piece', kabat:'outerwear (coat/jacket)', cipo:'shoes', kieg:'accessory (bag/belt/jewellery)'};
-const b64 = u => String(u).split(',')[1] || '';
-const mimeOf = u => (/^data:([^;]+);/.exec(u)||[])[1] || 'image/jpeg';
 const T = {o:null, ctl:null, url:null};
-function tryPrompt(its){
-  return `Virtual try-on. The first image is a photo of a real person. The other images are clothing items from their own wardrobe.
+function tryPrompt(its, withPhoto){
+  return `Virtual try-on. Reference image 1 is a photo of a real person. ${withPhoto.length ? `Reference images 2–${withPhoto.length+1} are clothing items from their own wardrobe, in this order: ${withPhoto.map(it=>it.name).join('; ')}.` : ''}
 Create one photorealistic, full-body photo of THE SAME PERSON wearing ALL of these items together as one outfit:
-${its.map((it,i)=>`${i+1}. ${it.name} — ${CAT_EN[it.category]||'garment'}, colour ${it.colorName} (${it.colorHex})`).join('\n')}
-Keep the person's face, hair, skin tone, body shape and proportions exactly as in their photo. Keep a natural standing pose and a clean, simple background with soft daylight.
-Keep each garment's colour, pattern, fabric and cut faithful to its reference image; ignore the reference images' backgrounds, hangers and mannequins.
+${its.map((it,i)=>`${i+1}. ${it.name} — ${CAT_EN[it.category]||'garment'}, colour ${it.colorName} (${it.colorHex})${it.img && withPhoto.includes(it) ? '' : ' (no reference photo; use a simple, plain version)'}`).join('\n')}
+Keep the person's face, hair, skin tone, body shape and proportions exactly as in their photo. Natural standing pose, clean simple background, soft daylight.
+Keep each garment's colour, pattern, fabric and cut faithful to its reference image; ignore the references' backgrounds, hangers and mannequins.
 Do not add clothing items that are not listed (plain basics underneath are fine if needed).`;
 }
-async function gemTryOn(its, signal){
-  const c = gemCfg();
-  const parts = [{text: tryPrompt(its)}, {text: 'Photo of the person:'}, {inline_data:{mime_type: mimeOf(S.me.img), data: b64(S.me.img)}}];
-  its.forEach((it,i) => {
-    if(it.img) parts.push({text: `Clothing item ${i+1}: ${it.name}`}, {inline_data:{mime_type: mimeOf(it.img), data: b64(it.img)}});
-    else parts.push({text: `Clothing item ${i+1} has no photo: imagine a simple ${it.colorName} ${CAT_EN[it.category]||'garment'} (${it.colorHex}).`});
-  });
-  const r = await fetch(`${GEM_API}/models/${encodeURIComponent(c.model)}:generateContent`, {
-    method:'POST', signal,
-    headers:{'Content-Type':'application/json', 'x-goog-api-key': c.key},
-    body: JSON.stringify({contents:[{role:'user', parts}], generationConfig:{responseModalities:['TEXT','IMAGE']}}),
-  });
+async function orTryOn(its, signal){
+  const c = orCfg(); const m = (c.models||[]).find(x=>x.id===c.model) || {refMax:4, ar:false};
+  const withPhoto = its.filter(it=>it.img).slice(0, Math.max(0, (m.refMax||4) - 1));
+  const refs = [S.me.img, ...withPhoto.map(it=>it.img)].map(url => ({type:'image_url', image_url:{url}}));
+  const body = {model: c.model, prompt: tryPrompt(its, withPhoto), input_references: refs, n: 1};
+  if(m.ar) body.aspect_ratio = '3:4';
+  const r = await fetch(`${OR_API}/images`, {method:'POST', signal,
+    headers:{'Content-Type':'application/json', 'Authorization':'Bearer ' + c.key, 'X-Title':'Gardrob'},
+    body: JSON.stringify(body)});
   const j = await r.json().catch(()=>({}));
   if(!r.ok) throw {status: r.status, message: j?.error?.message};
-  const ps = j?.candidates?.[0]?.content?.parts || [];
-  const img = ps.find(p => p.inlineData || p.inline_data);
-  if(!img) throw {blocked: true, message: j?.promptFeedback?.blockReason || j?.candidates?.[0]?.finishReason || ''};
-  const d = img.inlineData || img.inline_data;
-  return `data:${d.mimeType || d.mime_type || 'image/png'};base64,${d.data}`;
+  const d = (j.data||[])[0];
+  if(!d?.b64_json) throw {empty: true};
+  return {url: `data:${d.media_type || 'image/png'};base64,${d.b64_json}`, cost: j?.usage?.cost};
 }
 function openTry(o){
   if(IS_CLAUDE){ toast('A felpróbálás a webes változatban működik (Stílusom fül).'); return; }
   T.o = o; T.url = null;
   $('#try-title').textContent = o.title || 'Felpróbálás';
   $('#tryon').hidden = false;
-  const c = gemCfg();
+  const c = orCfg();
   if(!S.me || !c.key || !c.model){
-    $('#stage').innerHTML = `<div class="hint" style="padding:24px;text-align:center">${!S.me ? 'Előbb tölts fel magadról egy egész alakos fotót.' : 'Add meg a Google Gemini API-kulcsodat.'}<br>Mindkettőt a Stílusom fülön teheted meg.</div>`;
+    $('#stage').innerHTML = `<div class="hint" style="padding:24px;text-align:center">${!S.me ? 'Előbb tölts fel magadról egy egész alakos fotót.' : 'Kösd össze az appot az OpenRouterrel.'}<br>Mindkettőt a Stílusom fülön teheted meg.</div>`;
     $('#try-hint').textContent = '';
     $('#try-tools').innerHTML = `<a class="primary btnlabel" href="#stilus" data-act="close-try">Beállítás</a>`;
     return;
@@ -936,19 +980,19 @@ function openTry(o){
 async function runTry(){
   const its = T.o.itemIds.map(byId).filter(Boolean).sort((a,b)=>(CAT_ORDER[a.category]??9)-(CAT_ORDER[b.category]??9));
   T.ctl?.abort(); T.ctl = new AbortController(); const ctl = T.ctl;
-  $('#stage').innerHTML = `<div class="status" style="padding:24px"><div class="spin"></div><div>Öltöztetlek… ez 10–40 másodperc.</div></div>`;
+  $('#stage').innerHTML = `<div class="status" style="padding:24px"><div class="spin"></div><div>Öltöztetlek… ez 10–60 másodperc.</div></div>`;
   $('#try-hint').textContent = '';
   $('#try-tools').innerHTML = `<button type="button" class="ghost" data-try="stop">Leállítás</button>`;
   try{
-    const url = await gemTryOn(its, ctl.signal);
+    const {url, cost} = await orTryOn(its, ctl.signal);
     if(ctl.signal.aborted || $('#tryon').hidden) return;
     T.url = url;
     $('#stage').innerHTML = `<img src="${esc(url)}" alt="Te a szettben: ${esc(T.o.title||'')}">`;
-    $('#try-hint').textContent = 'Ha nem tetszik, kérj újat: minden generálás kicsit más lesz.';
+    $('#try-hint').textContent = (typeof cost === 'number' ? `Ez a kép kb. $${cost.toFixed(3)} volt. ` : '') + 'Ha nem tetszik, kérj újat: minden generálás kicsit más.';
     $('#try-tools').innerHTML = `<button type="button" class="ghost" data-try="again">Újra</button><a class="primary btnlabel" href="${esc(url)}" download="gardrob-szett.png">Letöltés</a>`;
   }catch(e){
     if(e?.name === 'AbortError' || ctl.signal.aborted) return;
-    $('#stage').innerHTML = `<div class="hint" style="padding:24px;text-align:center">${esc(gemErrText(e))}</div>`;
+    $('#stage').innerHTML = `<div class="hint" style="padding:24px;text-align:center">${esc(orErrText(e))}</div>`;
     $('#try-tools').innerHTML = `<button type="button" class="ghost" data-try="again">Újra</button>`;
   }
 }
@@ -1004,8 +1048,9 @@ document.addEventListener('click', e => {
   if(d.tryf){ const o = S.favs.get(d.tryf); if(o) openTry(o); return; }
   if(d.try==='again'){ runTry(); return; }
   if(d.try==='stop'){ closeTry(); return; }
-  if(t.id==='gsave'){ gemSave(); return; }
-  if(t.id==='gdel'){ try{ localStorage.removeItem(GEM_KEY); }catch{} $('#gkey').value=''; renderGem(); toast('Kulcs törölve'); return; }
+  if(t.id==='orsave'){ orSave(); return; }
+  if(t.id==='orlogin'){ orLogin(); return; }
+  if(t.id==='ordel'){ try{ localStorage.removeItem(OR_KEY); }catch{} $('#orkey').value=''; renderOR(); toast('Kijelentkeztél'); return; }
   if(t.id==='me-del'){ S.me = null; remove('photo'); renderMe(); toast('Fotó törölve'); return; }
   if(d.filter){ S.filter = d.filter; renderCloset(); return; }
   if(d.item){ const it = S.items.get(d.item); if(it) openSheet(it); else toast('Ez mintadarab. Töltsd fel a saját ruháidat a + gombbal.'); return; }
@@ -1032,8 +1077,8 @@ function toggleColor(list, other, n){ const a = S.profile[list]; const i = a.ind
   saveProfile(); renderStyle(); S.results = []; }
 $('#p-about').addEventListener('input', e => { S.profile.about = e.target.value.slice(0,1500); saveProfile(); });
 $('#file').addEventListener('change', e => { const f = e.target.files; addFiles(f).finally(()=>{ e.target.value=''; }); });
-$('#gmodel').addEventListener('change', e => { const c = gemCfg(); if(c.key){ c.model = e.target.value; gemSetCfg(c); renderGem(); } });
-$('#gkey').addEventListener('focus', e => { if(e.target.value.startsWith('••')) e.target.value = ''; });
+$('#ormodel').addEventListener('change', e => { const c = orCfg(); if(c.key){ c.model = e.target.value; orSetCfg(c); renderOR(); } });
+$('#orkey').addEventListener('focus', e => { if(e.target.value.startsWith('••')) e.target.value = ''; });
 $('#mefile').addEventListener('change', e => { const f = e.target.files?.[0]; if(f) setMePhoto(f).finally(()=>{ e.target.value=''; }); });
 $('#inspofile').addEventListener('change', e => { const f = e.target.files; inspoFiles(f).finally(()=>{ e.target.value=''; }); });
 addEventListener('keydown', e => { if(e.key!=='Escape') return; if(!$('#sheet').hidden) closeSheet(); if(!$('#tryon').hidden) closeTry(); });
@@ -1049,5 +1094,6 @@ function renderAll(){
 
 route();
 boot();
+if(!IS_CLAUDE) orHandleCallback();
 })();
 </script>

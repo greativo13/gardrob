@@ -7,7 +7,7 @@ Telefonra készült ruhatár-app: feltöltöd a ruháidat, és a stílusod alapj
 - **Szekrény**: lefotózod a ruháidat, és felcímkézi őket (kategória, szín, stílus, évszak, formalitás).
 - **Szettek**: 3 szettet ajánl alkalomhoz és időjáráshoz, amiket el is menthetsz.
 - **Inspirációs képből**: feltöltesz 1–4 képet (Pinterest, Insta), és a saját ruháidból rakja össze a hasonló szettet.
-- **Felpróbálás** (csak a GitHub Pages változatban): feltöltesz magadról egy egész alakos fotót, és a Google Gemini valósághű képet készít rólad a szettben. Saját, ingyenes AI Studio API-kulcs kell hozzá, ami csak a telefonodon tárolódik.
+- **Felpróbálás** (csak a GitHub Pages változatban): feltöltesz magadról egy egész alakos fotót, és egy képgeneráló modell az OpenRouteren keresztül valósághű képet készít rólad a szettben. Belépsz OpenRouterrel (vagy bemásolsz egy kulcsot), és az OpenRouter egyenlegedből fizeted.
 
 ## Két változat
 
@@ -17,7 +17,7 @@ Telefonra készült ruhatár-app: feltöltöd a ruháidat, és a stílusod alapj
 | Ruhák felismerése fotóból | Claude | színt felismer, a többit te állítod be |
 | Stylist | Claude vagy gyors mód | gyors mód (szabályalapú) |
 | Inspiráció | Claude elemzi a képet | a kép színei alapján válogat |
-| Felpróbálás (AI-kép rólad a szettben) | nem érhető el | Google Gemini, saját API-kulccsal |
+| Felpróbálás (AI-kép rólad a szettben) | nem érhető el | OpenRouter (belépéssel vagy saját kulccsal) |
 | Mentés | Claude-fiókban, privátan | csak az adott böngészőben |
 
 ## Fejlesztés
