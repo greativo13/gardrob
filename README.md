@@ -7,7 +7,7 @@ Telefonra készült ruhatár-app: feltöltöd a ruháidat, és a stílusod alapj
 - **Ma**: napi szettajánló az időjárás, a heted és a visszajelzéseid alapján. Jelölheted, hogy felvetted, illetve tetszett-e vagy sem, és ebből tanul.
 - **Szekrény**: lefotózod a ruháidat, az AI felismeri őket, és mindegyikről egységes stílusú rajz készül (fajta, szín, anyag és minta alapján). A fotó is megmarad.
 - **Stylist**: chat egy személyes stylisttal, aki ismeri a szekrényedet. Küldhetsz neki inspirációs képet is.
-- **Profil**: rövid kérdőív rólad, kedvelt stílusok és színek, valamint szekrény-elemzés (mi hiányzik, mit érdemes venni).
+- **Profil**: rövid kérdőív rólad, kedvelt stílusok és színek, inspirációs fal (az AI a képekből tanulja meg az ízlésedet, és „Szett ebből” gombbal a saját ruháidból rakja össze a hasonló lookot), valamint szekrény-elemzés.
 
 ## Hol fut
 

@@ -137,6 +137,16 @@ details[open]{display:flex;flex-direction:column;gap:8px}
 .gap b{font-size:14.5px}
 .foot{font-family:var(--f-mono);font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);text-align:center;margin:6px 0 0}
 
+/* inspiration board */
+.inspo-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
+.inspo-card{background:var(--sunk);border-radius:14px;overflow:hidden;display:flex;flex-direction:column}
+.inspo-card img{width:100%;aspect-ratio:3/4;object-fit:cover;display:block}
+.inspo-card .body{padding:8px 10px 10px;display:flex;flex-direction:column;gap:6px;flex:1}
+.inspo-card .look{font-size:12.5px;line-height:1.35;color:var(--ink);margin:0}
+.inspo-card .look.muted{color:var(--muted)}
+.inspo-card .acts{margin-top:auto;display:grid;grid-template-columns:1fr auto;gap:6px}
+.inspo-card .acts .ghost{padding:7px 8px;font-size:13px}
+.taste{background:var(--sunk);border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:8px}
 /* nav, fab, sheet */
 nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:6;background:var(--surface);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px)}
 nav.tabs .in{max-width:760px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr)}
@@ -178,6 +188,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
       <h2 class="sec">Más alkalomra</h2>
       <div class="chips" id="occ"></div>
       <button class="ghost" id="occ-go" type="button">Mutass szetteket</button>
+      <label class="ghost" for="inspofile" data-inspo-then="chat">Szett inspirációs képből</label>
     </div>
     <div id="occ-status"></div>
     <div class="view" id="occ-results"></div>
@@ -224,6 +235,13 @@ input[type=range]{width:100%;accent-color:var(--accent)}
       <h2 class="sec" style="margin-top:6px">Ezeket kerülöd</h2>
       <div class="swatches" id="p-avoid"></div>
     </div>
+    <div class="panel" id="inspo-panel">
+      <div class="row"><h2 class="sec">Inspirációk</h2><label class="ghost" for="inspofile">+ Kép</label></div>
+      <p class="hint">Tölts fel olyan outfit-képeket, amik tetszenek (Pinterest, Insta, képernyőkép). Az AI kiolvassa belőlük a stílust, és a stylist ebből tanulja meg, mit szeretsz.</p>
+      <div id="taste"></div>
+      <div id="inspo-status"></div>
+      <div class="inspo-grid" id="inspo-grid"></div>
+    </div>
     <div class="panel" id="analysis-panel">
       <div class="row"><h2 class="sec">Szekrény-elemzés</h2><button class="ghost" id="analyze" type="button">Elemzés</button></div>
       <div id="analysis"></div>
@@ -250,6 +268,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 </label>
 <input class="vh" type="file" id="file" accept="image/*" multiple>
 <input class="vh" type="file" id="chatimg" accept="image/*">
+<input class="vh" type="file" id="inspofile" accept="image/*" multiple>
 
 <nav class="tabs" aria-label="Fő menü"><div class="in gut">
   <a href="#ma" data-view="today"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>Ma</a>
@@ -540,15 +559,15 @@ const SAMPLES = [
 // ---------- state & storage ----------
 const defProfile = () => ({styles:[], likeColors:[], avoidColors:[], about:'', q:{}, view:'rajz'});
 const S = { items:new Map(), favs:new Map(), profile:defProfile(), filter:'all', occ:'hetkoznap', occResults:[], occFrom:null, busy:{} };
-let LOG = {wears:[], fb:[]}, CHAT = [], TODAY = null, ANALYSIS = null;
-const K = {main:'gardrob.v1', log:'gardrob.log', chat:'gardrob.chat', today:'gardrob.today', analysis:'gardrob.analysis', or:'gardrob.openrouter'};
+let LOG = {wears:[], fb:[]}, CHAT = [], TODAY = null, ANALYSIS = null, INSPO = [];
+const K = {main:'gardrob.v1', log:'gardrob.log', chat:'gardrob.chat', today:'gardrob.today', analysis:'gardrob.analysis', or:'gardrob.openrouter', inspo:'gardrob.inspo'};
 const lsGet = (k, d) => { try{ const v = JSON.parse(localStorage.getItem(k) || 'null'); return v ?? d; }catch{ return d; } };
 const lsSet = (k, v) => { try{ localStorage.setItem(k, JSON.stringify(v)); return true; }catch{ toast('Megtelt a böngésző tárhelye. Törölj néhány ruhát.'); return false; } };
 function load(){
   const d = lsGet(K.main, {});
   (d.items||[]).forEach(i=>S.items.set(i.id,i)); (d.favs||[]).forEach(f=>S.favs.set(f.id,f));
   S.profile = {...defProfile(), ...(d.profile||{})}; S.profile.q = S.profile.q || {};
-  LOG = lsGet(K.log, {wears:[], fb:[]}); CHAT = lsGet(K.chat, []); TODAY = lsGet(K.today, null); ANALYSIS = lsGet(K.analysis, null);
+  LOG = lsGet(K.log, {wears:[], fb:[]}); CHAT = lsGet(K.chat, []); TODAY = lsGet(K.today, null); ANALYSIS = lsGet(K.analysis, null); INSPO = lsGet(K.inspo, []);
 }
 const save = () => lsSet(K.main, {items:[...S.items.values()], favs:[...S.favs.values()], profile:S.profile});
 const saveLog = () => { LOG.wears = LOG.wears.slice(-60); LOG.fb = LOG.fb.slice(-60); lsSet(K.log, LOG); };
@@ -682,6 +701,7 @@ function profileText(){
   if(p.likeColors.length) L.push('Kedvenc színek: ' + p.likeColors.join(', '));
   if(p.avoidColors.length) L.push('Kerülendő színek: ' + p.avoidColors.join(', '));
   if(p.about) L.push('Magáról írta: "' + p.about.slice(0,600) + '"');
+  const t = tasteText(); if(t) L.push(t);
   return L.length ? 'A felhasználóról:\n' + L.join('\n') : 'A felhasználóról még nem tudunk semmit.';
 }
 function wardrobeCtx(items){
@@ -1063,6 +1083,77 @@ async function attachChatImg(file){
   catch{ toast('Ezt a képet nem tudtam megnyitni.'); }
 }
 
+// ---------- INSPIRATION BOARD ----------
+const INSPO_PROMPT = n => `${n} inspirációs outfit-képet kapsz, ebben a sorrendben. A felhasználó azért mentette el őket, mert tetszik neki ez a stílus.
+Mindegyikről adj adatokat ugyanabban a sorrendben. Csak egy JSON tömböt válaszolj, pontosan ${n} elemmel:
+[{"look":"1 mondat magyarul: mi a look lényege (sziluett, hangulat, kulcsdarabok)","styles":["legfeljebb 3: laza, minimal, elegans, uzleti, utcai, sportos, bohem, romantikus"],"colors":["2-4 magyar színnév, kisbetűvel"],"pieces":["2-5 kulcsdarab magyarul, pl. bő szövetnadrág, oversized ing"]}]`;
+function tally(list){ const c = {}; list.forEach(x => { if(x) c[x] = (c[x]||0) + 1; }); return Object.entries(c).sort((a,b)=>b[1]-a[1]).map(e=>e[0]); }
+function tasteData(){
+  const d = INSPO.filter(i=>i.desc);
+  return {n:d.length, styles: tally(d.flatMap(i=>i.desc.styles||[])).filter(s=>STY_L[s]).slice(0,3), colors: tally(d.flatMap(i=>(i.desc.colors||[]).map(c=>String(c).toLowerCase()))).slice(0,5),
+    pieces: tally(d.flatMap(i=>(i.desc.pieces||[]).map(c=>String(c).toLowerCase()))).slice(0,8), looks: d.slice(-8).map(i=>i.desc.look).filter(Boolean)};
+}
+function tasteText(){
+  const t = tasteData(); if(!t.n) return '';
+  return `Az inspirációs képei alapján ezt szereti (${t.n} kép):
+- Stílus: ${t.styles.map(s=>STY_L[s]).join(', ') || '-'}; színek: ${t.colors.join(', ') || '-'}
+- Visszatérő darabok: ${t.pieces.join(', ') || '-'}
+- Lookok: ${t.looks.join(' | ')}`;
+}
+async function prepThumb(file, max){
+  const im = await loadImg(file); const k = Math.min(1, max/Math.max(im.naturalWidth, im.naturalHeight));
+  const c = document.createElement('canvas'); c.width = Math.round(im.naturalWidth*k); c.height = Math.round(im.naturalHeight*k);
+  c.getContext('2d').drawImage(im, 0, 0, c.width, c.height); return c.toDataURL('image/jpeg', .78);
+}
+async function describeInspo(list){
+  const per = 4; let lastErr = null;
+  for(let i=0;i<list.length;i+=per){
+    const chunk = list.slice(i, i+per);
+    $('#inspo-status').innerHTML = `<div class="status"><div class="spin"></div><div>Az AI nézi az inspirációidat… (${Math.min(i+per, list.length)}/${list.length})</div></div>`;
+    try{
+      const res = await aiJson(INSPO_PROMPT(chunk.length), {images: chunk.map(x=>x.img)});
+      const arr = Array.isArray(res) ? res : Array.isArray(res?.items) ? res.items : [];
+      chunk.forEach((x,j)=>{ const d = arr[j]; if(d && typeof d === 'object') x.desc = {look:String(d.look||'').slice(0,240), styles:(Array.isArray(d.styles)?d.styles:[]).filter(s=>STY_L[s]).slice(0,3),
+        colors:(Array.isArray(d.colors)?d.colors:[]).map(String).slice(0,4), pieces:(Array.isArray(d.pieces)?d.pieces:[]).map(String).slice(0,5)}; });
+      lsSet(K.inspo, INSPO); renderInspo();
+    }catch(e){ lastErr = e; if(['limit','auth','no_ai'].includes(e?.code)) break; }
+  }
+  $('#inspo-status').innerHTML = lastErr ? `<p class="hint">${esc(aiErrText(lastErr))}</p>` : '';
+  resetPicks();
+}
+async function addInspo(files, then){
+  files = [...files].filter(f => !f.type || f.type.startsWith('image/')).slice(0, 8);
+  if(!files.length) return;
+  const added = [];
+  for(const f of files){ try{ added.push({id:uid8(), ts:Date.now()+added.length, img: await prepThumb(f, 560), thumb: await prepThumb(f, 320), desc:null}); }catch{} }
+  if(!added.length){ toast('Ezeket a képeket nem tudtam megnyitni.'); return; }
+  INSPO = [...INSPO, ...added].slice(-16);
+  if(!lsSet(K.inspo, INSPO)){ INSPO = INSPO.slice(-8); lsSet(K.inspo, INSPO); }
+  if(then === 'chat'){ inspoToChat(added[0].id); if(aiReady()) describeInspo(added); return; }
+  renderInspo();
+  if(aiReady()) await describeInspo(added);
+  else $('#inspo-status').innerHTML = '<p class="hint">Mentettem a képeket. Lépj be OpenRouterrel (lent), hogy az AI ki is olvassa belőlük a stílusodat.</p>';
+}
+function inspoToChat(id){
+  const x = INSPO.find(i=>i.id===id); if(!x) return;
+  chatImg = {dataUrl: x.img, thumb: x.thumb};
+  location.hash = 'stylist';
+  setTimeout(()=>sendChat('Rakj össze ehhez hasonló szettet a saját ruháimból. Ha valami hiányzik hozzá, mondd meg, mit vegyek.'), 50);
+}
+function renderInspo(){
+  const t = tasteData();
+  $('#taste').innerHTML = t.n ? `<div class="taste"><span class="sec">Amit a képeid alapján szeretsz</span>
+    <div class="chips">${t.styles.map(s=>`<span class="chip">${esc(STY_L[s])}</span>`).join('')}${t.colors.map(c=>{ const h = COLORS.find(x=>x[0]===c)?.[1]; return `<span class="chip">${h?`<span class="dot" style="background:${h}"></span>`:''}${esc(c)}</span>`; }).join('')}</div>
+    ${t.pieces.length ? `<p class="hint">Visszatérő darabok: ${esc(t.pieces.join(', '))}</p>` : ''}</div>` : '';
+  const list = [...INSPO].sort((a,b)=>b.ts-a.ts);
+  $('#inspo-grid').innerHTML = list.length ? list.map(x => `<div class="inspo-card"><img src="${esc(x.thumb)}" alt="Inspirációs kép" loading="lazy">
+    <div class="body"><p class="look${x.desc?'':' muted'}">${esc(x.desc?.look || (aiReady() ? 'Még nincs elemezve.' : 'Belépés után elemzem.'))}</p>
+    <div class="acts"><button type="button" class="ghost" data-inspo-chat="${esc(x.id)}">Szett ebből</button><button type="button" class="ghost danger" data-inspo-del="${esc(x.id)}" aria-label="Törlés">✕</button></div></div></div>`).join('')
+    : '<p class="hint">Még nincs inspirációs képed.</p>';
+  const undescribed = INSPO.filter(i=>!i.desc);
+  if(undescribed.length && aiReady() && !$('#inspo-status').innerHTML) $('#inspo-status').innerHTML = `<div class="row"><p class="hint" style="flex:1">${undescribed.length} kép még nincs elemezve.</p><button class="ghost" type="button" id="inspo-describe">Elemzés</button></div>`;
+}
+
 // ---------- PROFILE ----------
 function renderProfile(){
   const q = S.profile.q;
@@ -1077,6 +1168,7 @@ function renderProfile(){
   if(document.activeElement !== $('#orkey')) $('#orkey').value = c.key ? '••••••••' + c.key.slice(-4) : '';
   $('#ordel').hidden = !c.key; $('#orlogin').hidden = !!c.key;
   if(!st.dataset.busy) st.textContent = c.key ? ((c.textModels||[]).length ? `Összekötve. Ingyenes AI: ${c.textModels[0]}` : 'Összekötve, de most nincs elérhető ingyenes képet értő modell.') : 'Még nincs összekötve.';
+  renderInspo();
   renderAnalysis();
 }
 let profTimer = null;
@@ -1198,6 +1290,9 @@ document.addEventListener('click', e => {
     save(); resetPicks(); renderProfile(); return;
   }
   if(t.id==='analyze'){ analyze(); return; }
+  if(d.inspoChat){ if(!aiReady()){ toast('Ehhez lépj be OpenRouterrel a Profil fülön.'); return; } inspoToChat(d.inspoChat); return; }
+  if(d.inspoDel){ INSPO = INSPO.filter(i=>i.id!==d.inspoDel); lsSet(K.inspo, INSPO); resetPicks(); renderInspo(); return; }
+  if(t.id==='inspo-describe'){ $('#inspo-status').innerHTML=''; describeInspo(INSPO.filter(i=>!i.desc)); return; }
   if(t.id==='orlogin'){ orLogin(); return; }
   if(t.id==='orsave'){ const raw = $('#orkey').value.trim(); const key = raw.startsWith('••') ? orCfg().key : raw; if(!key){ $('#orstatus').textContent = 'Másold be a kulcsot.'; return; } orConnect(key); return; }
   if(t.id==='ordel'){ try{ localStorage.removeItem(K.or); }catch{} $('#orkey').value=''; renderProfile(); toast('Kijelentkeztél'); return; }
@@ -1206,6 +1301,9 @@ $('#city').addEventListener('change', e => { S.profile.q.city = e.target.value.t
 $('#p-about').addEventListener('input', e => { S.profile.about = e.target.value.slice(0,1500); saveProfileSoon(); });
 $('#orkey').addEventListener('focus', e => { if(e.target.value.startsWith('••')) e.target.value = ''; });
 $('#file').addEventListener('change', e => { addFiles(e.target.files).finally(()=>{ e.target.value=''; }); });
+let inspoThen = null;
+document.addEventListener('click', e => { const l = e.target.closest('label[for="inspofile"]'); if(l) inspoThen = l.dataset.inspoThen || null; }, true);
+$('#inspofile').addEventListener('change', e => { addInspo(e.target.files, inspoThen).finally(()=>{ e.target.value=''; inspoThen = null; }); });
 $('#chatimg').addEventListener('change', e => { const f = e.target.files?.[0]; if(f) attachChatImg(f); e.target.value=''; });
 $('#composer').addEventListener('submit', e => { e.preventDefault(); sendChat($('#chat-in').value); });
 $('#chat-in').addEventListener('keydown', e => { if(e.key==='Enter' && !e.shiftKey && !matchMedia('(pointer:coarse)').matches){ e.preventDefault(); sendChat(e.target.value); } });
