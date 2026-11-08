@@ -211,8 +211,11 @@ details[open]{display:flex;flex-direction:column;gap:8px}
       <div class="me" id="me"></div>
     </div>
     <div class="panel" id="ai-panel" hidden>
-      <h2 class="sec">AI felpróbálás · OpenRouter</h2>
-      <p class="hint">A felöltöztetett képet egy képgeneráló modell készíti az OpenRouteren keresztül. A képeket az OpenRouter egyenlegedből fizeted (általában néhány cent képenként). A legegyszerűbb, ha belépsz. A fotód és a ruhák képei generáláskor az OpenRouterhez és a kiválasztott modellhez kerülnek.</p>
+      <h2 class="sec">AI felpróbálás</h2>
+      <div class="seg" id="trymode"><button type="button" data-mode="free">Ingyenes</button><button type="button" data-mode="or">OpenRouter</button></div>
+      <div id="free-section" class="field"><p class="hint">A FASHN VTON nyílt modell fut ingyen a Hugging Face-en. Felsőt, alsót és egyrészes ruhát ad rád (cipőt, kabátot, kiegészítőt nem). Egy szett kb. 30–90 másodperc. Van napi ingyenes keret: ha elfogy, próbáld később, vagy válts OpenRouterre. A fotód és a ruhák képei a Hugging Face-hez kerülnek.</p></div>
+      <div id="or-section" class="field">
+      <p class="hint">A felöltöztetett képet egy képgeneráló modell készíti az OpenRouteren keresztül. A teljes szettet egyben adja rád, de fizetős. A képeket az OpenRouter egyenlegedből fizeted (általában néhány cent képenként). A legegyszerűbb, ha belépsz. A fotód és a ruhák képei generáláskor az OpenRouterhez és a kiválasztott modellhez kerülnek.</p>
       <button type="button" class="primary" id="orlogin">Belépés OpenRouterrel</button>
       <details><summary class="hint">Vagy másolj be egy kulcsot</summary>
         <p class="hint">Az <a href="https://openrouter.ai/settings/keys" target="_blank" rel="noopener">OpenRouter kulcsainál</a> hozz létre egy kulcsot, és állíts be rá költési limitet (pl. 2 $). A kulcs csak ezen a telefonon tárolódik.</p>
@@ -223,6 +226,7 @@ details[open]{display:flex;flex-direction:column;gap:8px}
       <select id="ormodel" hidden></select>
       <div class="acts"><button type="button" class="ghost danger" id="ordel" hidden>Kijelentkezés</button></div>
       <p class="hint" id="orstatus"></p>
+      </div>
     </div>
     <div class="panel">
       <h2 class="sec">A stílusod</h2>
@@ -851,6 +855,9 @@ const OR_API = 'https://openrouter.ai/api/v1';
 function orCfg(){ try{ return JSON.parse(localStorage.getItem(OR_KEY) || 'null') || {}; }catch{ return {}; } }
 function orSetCfg(c){ try{ localStorage.setItem(OR_KEY, JSON.stringify(c)); return true; }catch{ toast('Nem tudtam elmenteni a kulcsot ebben a böngészőben.'); return false; } }
 function renderOR(){
+  const mode = tryMode();
+  document.querySelectorAll('#trymode button').forEach(b=>b.setAttribute('aria-pressed', b.dataset.mode===mode));
+  $('#free-section').hidden = mode!=='free'; $('#or-section').hidden = mode!=='or';
   const c = orCfg(); const sel = $('#ormodel'); const st = $('#orstatus');
   if(document.activeElement !== $('#orkey')) $('#orkey').value = c.key ? '••••••••' + c.key.slice(-4) : '';
   const models = c.models || [];
@@ -938,6 +945,62 @@ async function orHandleCallback(){
   }catch(e){ toast('A belépés nem sikerült. Próbáld újra, vagy másold be a kulcsot.'); }
 }
 
+// ---------- free try-on (FASHN VTON on Hugging Face) ----------
+const MODE_KEY = 'gardrob.tryon';
+function tryMode(){ try{ return (JSON.parse(localStorage.getItem(MODE_KEY)||'null')||{}).mode || 'free'; }catch{ return 'free'; } }
+function setTryMode(m){ try{ localStorage.setItem(MODE_KEY, JSON.stringify({mode:m})); }catch{} }
+const HF_ROOT = 'https://fashn-ai-fashn-vton-1-5.hf.space/gradio_api';
+const dataUrlToBlob = async u => (await fetch(u)).blob();
+async function hfUpload(blob, name, signal){
+  const fd = new FormData(); fd.append('files', blob, name);
+  const r = await fetch(HF_ROOT + '/upload', {method:'POST', body:fd, signal});
+  const j = await r.json().catch(()=>null);
+  if(!r.ok || !Array.isArray(j)) throw {hf:true, status:r.status, message: JSON.stringify(j||'')};
+  return j[0];
+}
+const fileData = path => ({path, meta:{_type:'gradio.FileData'}, orig_name: String(path).split('/').pop()});
+async function hfCall(data, signal){
+  const r1 = await fetch(HF_ROOT + '/call/try_on', {method:'POST', signal, headers:{'Content-Type':'application/json'}, body: JSON.stringify({data})});
+  if(!r1.ok) throw {hf:true, status:r1.status};
+  const {event_id} = await r1.json();
+  const txt = await (await fetch(HF_ROOT + '/call/try_on/' + event_id, {signal})).text();
+  let ev = null, dat = null;
+  for(const block of txt.split(/\r?\n\r?\n/)){
+    const e = /^event:\s*(.+)$/m.exec(block)?.[1]?.trim(); const d = /^data:\s*(.*)$/m.exec(block)?.[1];
+    if(e === 'complete' || e === 'error'){ ev = e; dat = d; }
+  }
+  if(ev === 'complete'){ const out = JSON.parse(dat)?.[0]; if(out?.path) return out; }
+  let msg = ''; try{ msg = JSON.parse(dat); }catch{ msg = dat || ''; }
+  throw {hf:true, message: typeof msg === 'string' ? msg : JSON.stringify(msg)};
+}
+async function hfTryOn(its, signal, onStep){
+  const withImg = c => its.find(i => i.category === c && i.img);
+  const dress = withImg('ruha');
+  const steps = dress ? [[dress, 'one-pieces']] : [[withImg('felso'), 'tops'], [withImg('also'), 'bottoms']].filter(s => s[0]);
+  if(!steps.length) throw {nopiece:true};
+  let person = await hfUpload(await dataUrlToBlob(S.me.img), 'person.jpg', signal);
+  let out = null;
+  for(let i=0;i<steps.length;i++){
+    const [it, cat] = steps[i];
+    onStep(i+1, steps.length, it);
+    const g = await hfUpload(await dataUrlToBlob(it.img), 'garment.jpg', signal);
+    out = await hfCall([fileData(person), fileData(g), cat, 'flat-lay', 30, 1.5, Math.floor(Math.random()*1e6), true], signal);
+    person = out.path;
+  }
+  const blob = await (await fetch(out.url, {signal})).blob();
+  const used = new Set(steps.map(s=>s[0].id));
+  return {url: URL.createObjectURL(blob), skipped: its.filter(i=>!used.has(i.id))};
+}
+function hfErrText(e){
+  const m = String(e?.message||'');
+  if(e?.nopiece) return 'Ehhez a szetthez nincs lefotózott felső, alsó vagy ruha. A mintadarabokat és a fotó nélküli ruhákat nem tudom rád adni.';
+  if(/quota|gpu|zerogpu|exceeded/i.test(m)) return 'Elfogyott a mai ingyenes Hugging Face-keret. Próbáld később, vagy válts OpenRouterre a Stílusom fülön.';
+  if(e?.status === 503 || /sleep|paused|building|runtime/i.test(m)) return 'Az ingyenes modell most nem fut. Próbáld pár perc múlva, vagy válts OpenRouterre.';
+  if(e?.status === 413) return 'Túl nagy a fotó. Próbálj kisebbet.';
+  if(e instanceof TypeError) return 'Nem értem el a Hugging Face-t. Ellenőrizd a netet.';
+  return 'Nem sikerült' + (m ? ': ' + m.slice(0,160) : '.') + ' Próbáld újra, vagy válts OpenRouterre.';
+}
+
 // ---------- AI try-on ----------
 const CAT_EN = {felso:'top', also:'bottoms (trousers/skirt)', ruha:'dress / one-piece', kabat:'outerwear (coat/jacket)', cipo:'shoes', kieg:'accessory (bag/belt/jewellery)'};
 const T = {o:null, ctl:null, url:null};
@@ -969,9 +1032,9 @@ function openTry(o){
   T.o = o; T.url = null;
   $('#try-title').textContent = o.title || 'Felpróbálás';
   $('#tryon').hidden = false;
-  const c = orCfg();
-  if(!S.me || !c.key || !c.model){
-    $('#stage').innerHTML = `<div class="hint" style="padding:24px;text-align:center">${!S.me ? 'Előbb tölts fel magadról egy egész alakos fotót.' : 'Kösd össze az appot az OpenRouterrel.'}<br>Mindkettőt a Stílusom fülön teheted meg.</div>`;
+  const c = orCfg(); const free = tryMode() === 'free';
+  if(!S.me || (!free && (!c.key || !c.model))){
+    $('#stage').innerHTML = `<div class="hint" style="padding:24px;text-align:center">${!S.me ? 'Előbb tölts fel magadról egy egész alakos fotót.' : 'Kösd össze az appot az OpenRouterrel, vagy válaszd az ingyenes módot.'}<br>Mindkettőt a Stílusom fülön teheted meg.</div>`;
     $('#try-hint').textContent = '';
     $('#try-tools').innerHTML = `<a class="primary btnlabel" href="#stilus" data-act="close-try">Beállítás</a>`;
     return;
@@ -981,19 +1044,23 @@ function openTry(o){
 async function runTry(){
   const its = T.o.itemIds.map(byId).filter(Boolean).sort((a,b)=>(CAT_ORDER[a.category]??9)-(CAT_ORDER[b.category]??9));
   T.ctl?.abort(); T.ctl = new AbortController(); const ctl = T.ctl;
-  $('#stage').innerHTML = `<div class="status" style="padding:24px"><div class="spin"></div><div>Öltöztetlek… ez 10–60 másodperc.</div></div>`;
+  const free = tryMode() === 'free';
+  const busy = t => $('#stage').innerHTML = `<div class="status" style="padding:24px"><div class="spin"></div><div>${esc(t)}</div></div>`;
+  busy(free ? 'Kapcsolódás az ingyenes modellhez…' : 'Öltöztetlek… ez 10–60 másodperc.');
   $('#try-hint').textContent = '';
   $('#try-tools').innerHTML = `<button type="button" class="ghost" data-try="stop">Leállítás</button>`;
   try{
-    const {url, cost} = await orTryOn(its, ctl.signal);
+    let url, cost, skipped = [];
+    if(free){ ({url, skipped} = await hfTryOn(its, ctl.signal, (i,n,it) => { if(!ctl.signal.aborted) busy(`${i}/${n}: ${it.name} felvétele… (darabonként kb. 30 mp, sorban állással több)`); })); }
+    else ({url, cost} = await orTryOn(its, ctl.signal));
     if(ctl.signal.aborted || $('#tryon').hidden) return;
     T.url = url;
     $('#stage').innerHTML = `<img src="${esc(url)}" alt="Te a szettben: ${esc(T.o.title||'')}">`;
-    $('#try-hint').textContent = (typeof cost === 'number' ? `Ez a kép kb. $${cost.toFixed(3)} volt. ` : '') + 'Ha nem tetszik, kérj újat: minden generálás kicsit más.';
+    $('#try-hint').textContent = (typeof cost === 'number' ? `Ez a kép kb. $${cost.toFixed(3)} volt. ` : '') + (skipped.length ? `Az ingyenes modell ezeket nem tudja rád adni: ${skipped.map(i=>i.name).join(', ')}. ` : '') + 'Ha nem tetszik, kérj újat: minden generálás kicsit más.';
     $('#try-tools').innerHTML = `<button type="button" class="ghost" data-try="again">Újra</button><a class="primary btnlabel" href="${esc(url)}" download="gardrob-szett.png">Letöltés</a>`;
   }catch(e){
     if(e?.name === 'AbortError' || ctl.signal.aborted) return;
-    $('#stage').innerHTML = `<div class="hint" style="padding:24px;text-align:center">${esc(orErrText(e))}</div>`;
+    $('#stage').innerHTML = `<div class="hint" style="padding:24px;text-align:center">${esc(free ? hfErrText(e) : orErrText(e))}</div>`;
     $('#try-tools').innerHTML = `<button type="button" class="ghost" data-try="again">Újra</button>`;
   }
 }
@@ -1049,6 +1116,7 @@ document.addEventListener('click', e => {
   if(d.tryf){ const o = S.favs.get(d.tryf); if(o) openTry(o); return; }
   if(d.try==='again'){ runTry(); return; }
   if(d.try==='stop'){ closeTry(); return; }
+  if(d.mode){ setTryMode(d.mode); renderOR(); return; }
   if(t.id==='orsave'){ orSave(); return; }
   if(t.id==='orlogin'){ orLogin(); return; }
   if(t.id==='ordel'){ try{ localStorage.removeItem(OR_KEY); }catch{} $('#orkey').value=''; renderOR(); toast('Kijelentkeztél'); return; }
