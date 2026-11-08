@@ -152,7 +152,10 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 .missing{margin:0;font-size:13.5px}
 .missing b{font-family:var(--f-mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:500;margin-right:6px}
 .stage{position:relative;width:100%;display:flex;justify-content:center;background:var(--sunk);border-radius:14px;overflow:hidden;touch-action:none;min-height:200px;align-items:center}
-.stage canvas{display:block;max-width:100%;max-height:60vh;width:auto;height:auto;touch-action:none}
+.stage img{display:block;max-width:100%;max-height:64vh;object-fit:contain}
+input[type=password]{width:100%;border:1px solid var(--line);background:var(--surface);border-radius:12px;padding:11px 12px;font-size:16px}
+.panel .acts{display:flex;gap:8px;flex-wrap:wrap}
+.hint a{color:var(--accent)}
 .tools{display:flex;gap:8px;flex-wrap:wrap}
 .tools .ghost{min-width:48px}
 .or{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:12px;font-family:var(--f-mono);text-transform:uppercase;letter-spacing:.08em}
@@ -203,6 +206,14 @@ input[type=range]{width:100%;accent-color:var(--accent)}
     <div class="panel">
       <h2 class="sec">Rólad egy fotó</h2>
       <div class="me" id="me"></div>
+    </div>
+    <div class="panel" id="ai-panel" hidden>
+      <h2 class="sec">AI felpróbálás · Google Gemini</h2>
+      <p class="hint">A felöltöztetett képet a Google képgenerálója készíti. Ehhez kell egy saját API-kulcs: lépj be a <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">Google AI Studióba</a>, nyomj a „Create API key” gombra, és másold be ide. A kulcs csak ezen a telefonon tárolódik. A fotód és a ruhák képei generáláskor a Google-höz kerülnek.</p>
+      <input type="password" id="gkey" placeholder="API-kulcs (AIza…)" autocomplete="off" spellcheck="false">
+      <select id="gmodel" aria-label="Képmodell" hidden></select>
+      <div class="acts"><button type="button" class="primary" id="gsave">Mentés és ellenőrzés</button><button type="button" class="ghost danger" id="gdel" hidden>Kulcs törlése</button></div>
+      <p class="hint" id="gstatus"></p>
     </div>
     <div class="panel">
       <h2 class="sec">A stílusod</h2>
@@ -284,15 +295,9 @@ input[type=range]{width:100%;accent-color:var(--accent)}
   <div class="sheet">
     <div class="grab"></div>
     <div class="row"><h2 class="sec" id="try-title">Felpróbálás</h2><button type="button" class="ghost" data-act="close-try">Kész</button></div>
-    <div class="stage" id="stage"><canvas id="cv" width="10" height="10" aria-label="Te a szettben"></canvas></div>
-    <p class="hint" id="try-hint">Koppints egy darabra, és húzd a helyére. A gombokkal méretezed. Képernyőképpel elmentheted.</p>
-    <div class="chips" id="try-layers"></div>
-    <div class="tools">
-      <button type="button" class="ghost" data-try="smaller" aria-label="Kisebb">−</button>
-      <button type="button" class="ghost" data-try="bigger" aria-label="Nagyobb">+</button>
-      <button type="button" class="ghost" data-try="hide">Elrejt</button>
-      <button type="button" class="ghost" data-try="reset">Alaphelyzet</button>
-    </div>
+    <div class="stage" id="stage"></div>
+    <p class="hint" id="try-hint"></p>
+    <div class="tools" id="try-tools"></div>
   </div>
 </div>
 <div id="toast" hidden></div>
@@ -354,6 +359,8 @@ const S = {
   me:null, inspo:[], inspoLook:'',
 };
 const FULL_URL = 'https://claude.ai/artifact/MFbHHKaWnuPbGvCXkRHL9k';
+const PAGES_URL = 'https://greativo13.github.io/gardrob/';
+const IS_CLAUDE = !!(window.claude && typeof window.claude.use === 'function');
 let db = null, uidv = null, sample = null, sampleLimits = null, aiOff = false;
 
 function month(){ return new Date().getMonth() + 1; }
@@ -725,7 +732,7 @@ function outfitCard(o, saved){
     ${o.tip?`<p class="tip">${esc(o.tip)}</p>`:''}
     ${o.missing?`<p class="missing"><b>Ehhez vennék</b>${esc(o.missing)}</p>`:''}
     <div class="acts">
-      <button type="button" class="ghost" ${saved ? `data-tryf="${esc(o.id)}"` : `data-tryr="${esc(o._i)}"`}>Felpróbálom</button>
+      ${IS_CLAUDE ? '' : `<button type="button" class="ghost" ${saved ? `data-tryf="${esc(o.id)}"` : `data-tryr="${esc(o._i)}"`}>Felpróbálom</button>`}
       ${saved
       ? `<button type="button" class="ghost danger" data-unfav="${esc(o.id)}">Eltávolítás</button>`
       : `<button type="button" class="ghost" data-fav="${esc(o._i)}">♥ Mentés</button>`}</div>
@@ -803,156 +810,149 @@ async function detectStyle(){
 }
 
 // ---------- me photo ----------
-const DEF_BODY = {top:.04, shoulderY:.19, shoulderL:.36, shoulderR:.64, waistY:.42, hipY:.5, hipL:.37, hipR:.63, kneeY:.72, ankleY:.92, footY:.97, centerX:.5};
-const BODY_PROMPT = `Egy ember egész alakos fotója. Add meg a testpontok helyét a kép méretéhez viszonyítva (0 = bal vagy felső szél, 1 = jobb vagy alsó szél; a "bal" a kép bal oldala).
-Csak JSON-t válaszolj, minden érték 0 és 1 közötti szám:
-{"top":fejtető y,"shoulderY":vállak y,"shoulderL":bal váll x,"shoulderR":jobb váll x,"waistY":derék y,"hipY":csípő y,"hipL":csípő bal széle x,"hipR":csípő jobb széle x,"kneeY":térd y,"ankleY":boka y,"footY":talp y,"centerX":test közepe x}
-Ha valamelyik testrész nem látszik, becsüld meg az arányok alapján.`;
-function validBody(b){
-  if(!b || typeof b !== 'object') return null; const o = {};
-  for(const k of Object.keys(DEF_BODY)){ const v = Number(b[k]); if(!(v >= 0 && v <= 1)) return null; o[k] = v; }
-  if(!(o.top < o.shoulderY && o.shoulderY < o.waistY && o.waistY <= o.hipY && o.hipY < o.kneeY && o.kneeY < o.ankleY && o.ankleY <= o.footY)) return null;
-  if(!(o.shoulderL < o.shoulderR && o.hipL < o.hipR)) return null;
-  return o;
-}
 const PERSON_SVG = `<svg viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="16" r="9" fill="var(--line)"/><path d="M34 30 Q50 26 66 30 L70 58 L62 58 L60 94 L52 94 L50 62 L48 94 L40 94 L38 58 L30 58 Z" fill="var(--line)"/></svg>`;
 function renderMe(){
   const el = $('#me');
+  $('#ai-panel').hidden = IS_CLAUDE;
+  if(IS_CLAUDE){
+    el.innerHTML = `<div class="ph">${PERSON_SVG}</div><div><p class="hint">Az AI-os felpróbálás (te a szettben) a telefonos webes változatban működik, mert ahhoz a Google képgenerálóját kell meghívni, a claude.ai pedig ezt nem engedi.</p>
+      <div class="acts"><a class="ghost btnlabel" href="${PAGES_URL}" target="_blank" rel="noopener">Megnyitás</a></div></div>`;
+    return;
+  }
   if(S.me){
     el.innerHTML = `<div class="ph"><img src="${esc(S.me.img)}" alt="A fotód"></div>
-      <div><p class="hint">${S.me.auto ? 'Kész! Claude bejelölte a testarányaidat, a szetteknél nyomj a „Felpróbálom” gombra.' : 'Kész! A szetteknél nyomj a „Felpróbálom” gombra. A darabokat kézzel is a helyükre húzhatod.'}</p>
+      <div><p class="hint">Kész! A szetteknél nyomj a „Felpróbálom” gombra.</p>
       <div class="acts"><label class="ghost btnlabel" for="mefile">Csere</label><button type="button" class="ghost danger" id="me-del">Törlés</button></div></div>`;
   } else {
     el.innerHTML = `<div class="ph">${PERSON_SVG}</div>
-      <div><p class="hint">Egész alakos, szemből készült fotó, lehetőleg testhez simuló ruhában, sima háttér előtt. Erre rakom rá a szetteket.</p>
+      <div><p class="hint">Egész alakos, szemből készült, éles fotó, jó fényben. Erről készül a kép, amin a szettet viseled.</p>
       <div class="acts"><label class="primary btnlabel" for="mefile">Fotó feltöltése</label></div></div>`;
   }
+  renderGem();
 }
 async function setMePhoto(file){
-  const el = $('#me'); const busy = t => el.innerHTML = `<div class="ph">${PERSON_SVG}</div><div class="status"><div class="spin"></div><div>${esc(t)}</div></div>`;
-  busy('Fotó feldolgozása…');
-  let p; try{ p = await prep(file, 640); }catch{ toast('Ezt a képet nem tudtam megnyitni.'); renderMe(); return; }
-  let body = null;
-  if(sample && !aiOff && sampleLimits?.images){
-    busy('Claude megkeresi a vállad, derekad és bokád…');
-    try{ body = validBody(await sample.json(BODY_PROMPT, {images:[p.blob]})); }catch(e){ handleSampleErr(e); }
-  }
-  S.me = {img: p.dataUrl, body: body || DEF_BODY, auto: !!body, ts: Date.now()};
+  let p; try{ p = await prep(file, 1024); }catch{ toast('Ezt a képet nem tudtam megnyitni.'); return; }
+  S.me = {img: p.dataUrl, ts: Date.now()};
   renderMe(); await put('photo', S.me); toast('Fotó elmentve');
 }
 
-// ---------- try-on montage ----------
-const imgCache = new Map();
-function loadSrc(src){ if(!imgCache.has(src)) imgCache.set(src, new Promise((res,rej)=>{ const im = new Image(); im.onload = ()=>res(im); im.onerror = rej; im.src = src; })); return imgCache.get(src); }
-function cropAlpha(c){
-  const x = c.getContext('2d',{willReadFrequently:true}); const {width:w, height:h} = c; const d = x.getImageData(0,0,w,h).data;
-  let x0=w, y0=h, x1=-1, y1=-1;
-  for(let j=0;j<h;j++) for(let i=0;i<w;i++) if(d[(j*w+i)*4+3] > 16){ if(i<x0)x0=i; if(i>x1)x1=i; if(j<y0)y0=j; if(j>y1)y1=j; }
-  if(x1 < 0) return c;
-  const o = document.createElement('canvas'); o.width = x1-x0+1; o.height = y1-y0+1;
-  o.getContext('2d').drawImage(c, x0, y0, o.width, o.height, 0, 0, o.width, o.height); return o;
+// ---------- Gemini settings ----------
+const GEM_KEY = 'gardrob.gemini';
+const GEM_API = 'https://generativelanguage.googleapis.com/v1beta';
+function gemCfg(){ try{ return JSON.parse(localStorage.getItem(GEM_KEY) || 'null') || {}; }catch{ return {}; } }
+function gemSetCfg(c){ try{ localStorage.setItem(GEM_KEY, JSON.stringify(c)); return true; }catch{ toast('Nem tudtam elmenteni a kulcsot ebben a böngészőben.'); return false; } }
+function renderGem(){
+  const c = gemCfg(); const sel = $('#gmodel'); const st = $('#gstatus');
+  if(document.activeElement !== $('#gkey')) $('#gkey').value = c.key ? '••••••••' + c.key.slice(-4) : '';
+  const models = c.models || [];
+  sel.hidden = !models.length;
+  sel.innerHTML = models.map(m=>`<option value="${esc(m.id)}" ${m.id===c.model?'selected':''}>${esc(m.label)}</option>`).join('');
+  $('#gdel').hidden = !c.key;
+  if(!st.dataset.busy) st.textContent = c.key && c.model ? `Kész. Modell: ${c.model}` : 'Nincs még kulcs megadva.';
 }
-function removeBg(im){
-  const k = Math.min(1, 380/Math.max(im.naturalWidth, im.naturalHeight));
-  const w = Math.max(1, Math.round(im.naturalWidth*k)), h = Math.max(1, Math.round(im.naturalHeight*k));
-  const c = document.createElement('canvas'); c.width = w; c.height = h;
-  const x = c.getContext('2d',{willReadFrequently:true}); x.drawImage(im,0,0,w,h);
-  const id = x.getImageData(0,0,w,h), d = id.data;
-  const corners = [0, w-1, (h-1)*w, h*w-1].map(p=>[d[p*4],d[p*4+1],d[p*4+2]]);
-  const nearBg = o => corners.some(c=>Math.hypot(d[o]-c[0], d[o+1]-c[1], d[o+2]-c[2]) < 80);
-  const seen = new Uint8Array(w*h); const st = [];
-  for(let i=0;i<w;i++){ st.push(i,i, (h-1)*w+i,(h-1)*w+i); }
-  for(let j=0;j<h;j++){ st.push(j*w,j*w, j*w+w-1,j*w+w-1); }
-  let removed = 0;
-  while(st.length){
-    const par = st.pop(), p = st.pop(); if(seen[p]) continue;
-    const o = p*4, q = par*4;
-    if(Math.hypot(d[o]-d[q], d[o+1]-d[q+1], d[o+2]-d[q+2]) > 22 || !nearBg(o)) continue;
-    seen[p] = 1; removed++;
-    const xx = p % w, yy = (p / w) | 0;
-    if(xx>0) st.push(p-1,p); if(xx<w-1) st.push(p+1,p); if(yy>0) st.push(p-w,p); if(yy<h-1) st.push(p+w,p);
-  }
-  if(removed < w*h*0.03 || removed > w*h*0.97) return c;
-  for(let p=0;p<w*h;p++) if(seen[p]) d[p*4+3] = 0;
-  x.putImageData(id,0,0); return cropAlpha(c);
+function rankModel(id){ return (/nano-banana|flash-image/i.test(id)?3:0) + (/pro/i.test(id)?1:0) - (/lite/i.test(id)?1:0) - (/preview|exp/i.test(id)?.5:0); }
+async function gemModels(key){
+  const r = await fetch(`${GEM_API}/models?pageSize=200`, {headers:{'x-goog-api-key': key}});
+  const j = await r.json().catch(()=>({}));
+  if(!r.ok) throw {status: r.status, message: j?.error?.message};
+  return (j.models||[])
+    .filter(m => (m.supportedGenerationMethods||[]).includes('generateContent') && /image/i.test(m.name) && !/imagen/i.test(m.name))
+    .map(m => ({id: m.name.replace(/^models\//,''), label: (m.displayName || m.name.replace(/^models\//,''))}))
+    .sort((a,b) => rankModel(b.id)-rankModel(a.id) || b.id.localeCompare(a.id));
 }
-const cutCache = new Map();
-async function cutout(it){
-  const key = it.id + (it.img ? it.img.length : it.colorHex);
-  if(cutCache.has(key)) return cutCache.get(key);
-  let c;
-  if(it.img){ try{ c = removeBg(await loadSrc(it.img)); }catch{ c = null; } }
-  if(!c){
-    c = document.createElement('canvas'); c.width = c.height = 300; const x = c.getContext('2d'); x.scale(3,3);
-    x.fillStyle = it.colorHex || '#999'; x.strokeStyle = 'rgba(0,0,0,.3)'; x.lineWidth = 1;
-    const p = new Path2D(SIL[it.category] || SIL.felso); x.fill(p); x.stroke(p); c = cropAlpha(c);
-  }
-  cutCache.set(key, c); return c;
+function gemErrText(e){
+  const m = String(e?.message||'');
+  if(e?.status===400 && /key/i.test(m)) return 'Hibás API-kulcs. Másold be újra az AI Studióból.';
+  if(e?.status===401 || e?.status===403) return 'A kulcs nem fér hozzá a képgeneráláshoz. Nézd meg az AI Studióban, be van-e kapcsolva a számlázás.';
+  if(e?.status===429) return 'Elfogyott a keret, vagy túl sok volt a kérés. Próbáld újra később.';
+  if(e?.status===404) return 'Ez a modell már nem érhető el. Mentsd el újra a kulcsot, és válassz másik modellt.';
+  if(e?.blocked) return 'A Google nem készítette el ezt a képet. Próbálj másik fotót vagy szettet.';
+  if(e instanceof TypeError) return 'Nem értem el a Google-t. Ellenőrizd a netet.';
+  return 'Nem sikerült: ' + (m || 'ismeretlen hiba');
 }
-const LAYER_Z = {also:1, ruha:1, cipo:2, felso:3, kabat:4, kieg:5};
-function place(it, src, W, H, b){
-  const sw = (b.shoulderR-b.shoulderL)*W, hw = (b.hipR-b.hipL)*W, cx = b.centerX*W;
-  const box = {
-    felso: [b.shoulderY-.03, b.hipY+.07, sw*1.6, cx],
-    kabat: [b.shoulderY-.035, b.hipY+.16, sw*1.75, cx],
-    also:  [b.waistY-.01, b.ankleY+.01, hw*1.5, cx],
-    ruha:  [b.shoulderY-.03, b.ankleY, Math.max(sw, hw)*1.7, cx],
-    cipo:  [b.ankleY-.03, Math.min(b.footY+.01, .995), hw*1.25, cx],
-    kieg:  [b.hipY-.09, b.hipY+.12, sw*.6, b.hipR*W + sw*.15],
-  }[it.category] || [b.shoulderY, b.hipY, sw, cx];
-  const top = box[0]*H, bh = (box[1]-box[0])*H, bw = box[2];
-  const s = Math.min(bw/src.width, bh/src.height);
-  const w = src.width*s, h = src.height*s;
-  return {x: box[3]-w/2, y: it.category==='cipo' ? top+bh-h : top, w, h};
-}
-const T = {open:false, photo:null, W:0, H:0, layers:[], sel:-1, drag:null};
-async function openTry(o){
-  if(!S.me){ toast('Előbb tölts fel magadról egy fotót a Stílusom fülön.'); location.hash = 'stilus'; return; }
-  const its = o.itemIds.map(byId).filter(Boolean);
-  $('#try-title').textContent = o.title || 'Felpróbálás';
-  $('#tryon').hidden = false; T.open = true; T.layers = []; T.sel = -1;
-  $('#try-layers').innerHTML = '<div class="status"><div class="spin"></div><div>Darabok kivágása…</div></div>';
+async function gemSave(){
+  const raw = $('#gkey').value.trim(); const c = gemCfg();
+  const key = raw.startsWith('••') ? c.key : raw;
+  const st = $('#gstatus');
+  if(!key){ st.textContent = 'Másold be az API-kulcsot.'; return; }
+  st.dataset.busy = '1'; st.textContent = 'Kulcs ellenőrzése…';
   try{
-    T.photo = await loadSrc(S.me.img); T.W = T.photo.naturalWidth; T.H = T.photo.naturalHeight;
-    const cv = $('#cv'); cv.width = T.W; cv.height = T.H;
-    const b = validBody(S.me.body) || DEF_BODY;
-    const srcs = await Promise.all(its.map(cutout));
-    T.layers = its.map((it,i)=>({it, src:srcs[i], hidden:false, ...place(it, srcs[i], T.W, T.H, b)}))
-      .sort((a,c)=>(LAYER_Z[a.it.category]??9)-(LAYER_Z[c.it.category]??9));
-  }catch{ toast('Nem sikerült betölteni a fotót.'); }
-  drawTry(); renderTryChips();
+    const models = await gemModels(key);
+    if(!models.length){ st.textContent = 'A kulcs jó, de nem találtam hozzá képgeneráló modellt.'; return; }
+    const keep = models.some(m=>m.id===$('#gmodel').value) ? $('#gmodel').value : models[0].id;
+    gemSetCfg({key, model: keep, models}); $('#gkey').blur();
+    delete st.dataset.busy; renderGem(); toast('Kulcs elmentve');
+  }catch(e){ st.textContent = gemErrText(e); }
+  finally{ delete st.dataset.busy; }
 }
-function closeTry(){ $('#tryon').hidden = true; T.open = false; T.drag = null; }
-function drawTry(){
-  const cv = $('#cv'), x = cv.getContext('2d'); x.clearRect(0,0,cv.width,cv.height);
-  if(!T.photo) return;
-  x.drawImage(T.photo, 0, 0, T.W, T.H);
-  T.layers.forEach((L,i)=>{ if(L.hidden) return;
-    x.save(); x.shadowColor = 'rgba(0,0,0,.25)'; x.shadowBlur = 6; x.shadowOffsetY = 2; x.drawImage(L.src, L.x, L.y, L.w, L.h); x.restore();
-    if(i === T.sel){ x.save(); x.setLineDash([6,5]); x.lineWidth = Math.max(1.5, T.W/300); x.strokeStyle = '#2E3FCF'; x.strokeRect(L.x, L.y, L.w, L.h); x.restore(); }
+
+// ---------- AI try-on ----------
+const CAT_EN = {felso:'top', also:'bottoms (trousers/skirt)', ruha:'dress / one-piece', kabat:'outerwear (coat/jacket)', cipo:'shoes', kieg:'accessory (bag/belt/jewellery)'};
+const b64 = u => String(u).split(',')[1] || '';
+const mimeOf = u => (/^data:([^;]+);/.exec(u)||[])[1] || 'image/jpeg';
+const T = {o:null, ctl:null, url:null};
+function tryPrompt(its){
+  return `Virtual try-on. The first image is a photo of a real person. The other images are clothing items from their own wardrobe.
+Create one photorealistic, full-body photo of THE SAME PERSON wearing ALL of these items together as one outfit:
+${its.map((it,i)=>`${i+1}. ${it.name} — ${CAT_EN[it.category]||'garment'}, colour ${it.colorName} (${it.colorHex})`).join('\n')}
+Keep the person's face, hair, skin tone, body shape and proportions exactly as in their photo. Keep a natural standing pose and a clean, simple background with soft daylight.
+Keep each garment's colour, pattern, fabric and cut faithful to its reference image; ignore the reference images' backgrounds, hangers and mannequins.
+Do not add clothing items that are not listed (plain basics underneath are fine if needed).`;
+}
+async function gemTryOn(its, signal){
+  const c = gemCfg();
+  const parts = [{text: tryPrompt(its)}, {text: 'Photo of the person:'}, {inline_data:{mime_type: mimeOf(S.me.img), data: b64(S.me.img)}}];
+  its.forEach((it,i) => {
+    if(it.img) parts.push({text: `Clothing item ${i+1}: ${it.name}`}, {inline_data:{mime_type: mimeOf(it.img), data: b64(it.img)}});
+    else parts.push({text: `Clothing item ${i+1} has no photo: imagine a simple ${it.colorName} ${CAT_EN[it.category]||'garment'} (${it.colorHex}).`});
   });
+  const r = await fetch(`${GEM_API}/models/${encodeURIComponent(c.model)}:generateContent`, {
+    method:'POST', signal,
+    headers:{'Content-Type':'application/json', 'x-goog-api-key': c.key},
+    body: JSON.stringify({contents:[{role:'user', parts}], generationConfig:{responseModalities:['TEXT','IMAGE']}}),
+  });
+  const j = await r.json().catch(()=>({}));
+  if(!r.ok) throw {status: r.status, message: j?.error?.message};
+  const ps = j?.candidates?.[0]?.content?.parts || [];
+  const img = ps.find(p => p.inlineData || p.inline_data);
+  if(!img) throw {blocked: true, message: j?.promptFeedback?.blockReason || j?.candidates?.[0]?.finishReason || ''};
+  const d = img.inlineData || img.inline_data;
+  return `data:${d.mimeType || d.mime_type || 'image/png'};base64,${d.data}`;
 }
-function renderTryChips(){
-  $('#try-layers').innerHTML = T.layers.map((L,i)=>chip(L.it.name + (L.hidden ? ' (rejtve)' : ''), i===T.sel, `data-tsel="${i}"`)).join('');
-  document.querySelector('[data-try="hide"]').textContent = T.layers[T.sel]?.hidden ? 'Mutat' : 'Elrejt';
+function openTry(o){
+  if(IS_CLAUDE){ toast('A felpróbálás a webes változatban működik (Stílusom fül).'); return; }
+  T.o = o; T.url = null;
+  $('#try-title').textContent = o.title || 'Felpróbálás';
+  $('#tryon').hidden = false;
+  const c = gemCfg();
+  if(!S.me || !c.key || !c.model){
+    $('#stage').innerHTML = `<div class="hint" style="padding:24px;text-align:center">${!S.me ? 'Előbb tölts fel magadról egy egész alakos fotót.' : 'Add meg a Google Gemini API-kulcsodat.'}<br>Mindkettőt a Stílusom fülön teheted meg.</div>`;
+    $('#try-hint').textContent = '';
+    $('#try-tools').innerHTML = `<a class="primary btnlabel" href="#stilus" data-act="close-try">Beállítás</a>`;
+    return;
+  }
+  runTry();
 }
-function toPx(e){ const cv = $('#cv'), r = cv.getBoundingClientRect(); return {x:(e.clientX-r.left)*cv.width/r.width, y:(e.clientY-r.top)*cv.height/r.height}; }
-$('#cv').addEventListener('pointerdown', e => {
-  const p = toPx(e);
-  for(let i=T.layers.length-1;i>=0;i--){ const L = T.layers[i];
-    if(!L.hidden && p.x>=L.x && p.x<=L.x+L.w && p.y>=L.y && p.y<=L.y+L.h){
-      T.sel = i; T.drag = {dx:p.x-L.x, dy:p.y-L.y}; $('#cv').setPointerCapture(e.pointerId); drawTry(); renderTryChips(); e.preventDefault(); return; } }
-  T.sel = -1; drawTry(); renderTryChips();
-});
-$('#cv').addEventListener('pointermove', e => { if(!T.drag) return; const L = T.layers[T.sel]; if(!L) return; const p = toPx(e); L.x = p.x-T.drag.dx; L.y = p.y-T.drag.dy; drawTry(); });
-['pointerup','pointercancel'].forEach(ev => $('#cv').addEventListener(ev, () => { T.drag = null; }));
-function tryTool(k){
-  if(k==='reset'){ const b = validBody(S.me?.body) || DEF_BODY; T.layers.forEach(L=>Object.assign(L, place(L.it, L.src, T.W, T.H, b), {hidden:false})); drawTry(); renderTryChips(); return; }
-  const L = T.layers[T.sel]; if(!L){ toast('Előbb koppints egy darabra.'); return; }
-  if(k==='hide'){ L.hidden = !L.hidden; }
-  else { const f = k==='bigger' ? 1.08 : 1/1.08; const cx = L.x+L.w/2, cy = L.y+L.h/2; L.w *= f; L.h *= f; L.x = cx-L.w/2; L.y = cy-L.h/2; }
-  drawTry(); renderTryChips();
+async function runTry(){
+  const its = T.o.itemIds.map(byId).filter(Boolean).sort((a,b)=>(CAT_ORDER[a.category]??9)-(CAT_ORDER[b.category]??9));
+  T.ctl?.abort(); T.ctl = new AbortController(); const ctl = T.ctl;
+  $('#stage').innerHTML = `<div class="status" style="padding:24px"><div class="spin"></div><div>Öltöztetlek… ez 10–40 másodperc.</div></div>`;
+  $('#try-hint').textContent = '';
+  $('#try-tools').innerHTML = `<button type="button" class="ghost" data-try="stop">Leállítás</button>`;
+  try{
+    const url = await gemTryOn(its, ctl.signal);
+    if(ctl.signal.aborted || $('#tryon').hidden) return;
+    T.url = url;
+    $('#stage').innerHTML = `<img src="${esc(url)}" alt="Te a szettben: ${esc(T.o.title||'')}">`;
+    $('#try-hint').textContent = 'Ha nem tetszik, kérj újat: minden generálás kicsit más lesz.';
+    $('#try-tools').innerHTML = `<button type="button" class="ghost" data-try="again">Újra</button><a class="primary btnlabel" href="${esc(url)}" download="gardrob-szett.png">Letöltés</a>`;
+  }catch(e){
+    if(e?.name === 'AbortError' || ctl.signal.aborted) return;
+    $('#stage').innerHTML = `<div class="hint" style="padding:24px;text-align:center">${esc(gemErrText(e))}</div>`;
+    $('#try-tools').innerHTML = `<button type="button" class="ghost" data-try="again">Újra</button>`;
+  }
 }
+function closeTry(){ T.ctl?.abort(); $('#tryon').hidden = true; }
 
 // ---------- inspiration ----------
 async function inspoFiles(files){
@@ -1002,8 +1002,10 @@ document.addEventListener('click', e => {
   if(d.act==='clear-inspo'){ S.inspo = []; S.inspoLook = ''; S.results = []; quickGenerate(); return; }
   if(d.tryr!==undefined){ const o = S.results[+d.tryr]; if(o) openTry(o); return; }
   if(d.tryf){ const o = S.favs.get(d.tryf); if(o) openTry(o); return; }
-  if(d.tsel!==undefined){ T.sel = +d.tsel; drawTry(); renderTryChips(); return; }
-  if(d.try){ tryTool(d.try); return; }
+  if(d.try==='again'){ runTry(); return; }
+  if(d.try==='stop'){ closeTry(); return; }
+  if(t.id==='gsave'){ gemSave(); return; }
+  if(t.id==='gdel'){ try{ localStorage.removeItem(GEM_KEY); }catch{} $('#gkey').value=''; renderGem(); toast('Kulcs törölve'); return; }
   if(t.id==='me-del'){ S.me = null; remove('photo'); renderMe(); toast('Fotó törölve'); return; }
   if(d.filter){ S.filter = d.filter; renderCloset(); return; }
   if(d.item){ const it = S.items.get(d.item); if(it) openSheet(it); else toast('Ez mintadarab. Töltsd fel a saját ruháidat a + gombbal.'); return; }
@@ -1030,6 +1032,8 @@ function toggleColor(list, other, n){ const a = S.profile[list]; const i = a.ind
   saveProfile(); renderStyle(); S.results = []; }
 $('#p-about').addEventListener('input', e => { S.profile.about = e.target.value.slice(0,1500); saveProfile(); });
 $('#file').addEventListener('change', e => { const f = e.target.files; addFiles(f).finally(()=>{ e.target.value=''; }); });
+$('#gmodel').addEventListener('change', e => { const c = gemCfg(); if(c.key){ c.model = e.target.value; gemSetCfg(c); renderGem(); } });
+$('#gkey').addEventListener('focus', e => { if(e.target.value.startsWith('••')) e.target.value = ''; });
 $('#mefile').addEventListener('change', e => { const f = e.target.files?.[0]; if(f) setMePhoto(f).finally(()=>{ e.target.value=''; }); });
 $('#inspofile').addEventListener('change', e => { const f = e.target.files; inspoFiles(f).finally(()=>{ e.target.value=''; }); });
 addEventListener('keydown', e => { if(e.key!=='Escape') return; if(!$('#sheet').hidden) closeSheet(); if(!$('#tryon').hidden) closeTry(); });
