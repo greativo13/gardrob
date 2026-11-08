@@ -4,21 +4,19 @@ Telefonra készült ruhatár-app: feltöltöd a ruháidat, és a stílusod alapj
 
 ## Funkciók
 
-- **Szekrény**: lefotózod a ruháidat, egységes hátteret kapnak, és az AI felcímkézi őket (kategória, szín, stílus, évszak, formalitás).
-- **Szettek**: 3 szettet ajánl alkalomhoz és időjáráshoz, amiket el is menthetsz.
-- **Inspirációs képből**: feltöltesz 1–4 képet (Pinterest, Insta), és a saját ruháidból rakja össze a hasonló szettet.
-- **Felpróbálás** (csak a GitHub Pages változatban): feltöltesz magadról egy egész alakos fotót, és valósághű képet kapsz magadról a szettben. Két mód van: **ingyenes** (a nyílt FASHN VTON 1.5 modell a Hugging Face-en; felsőt, alsót és egyrészes ruhát tud, napi kerettel) és **OpenRouter** (fizetős, a teljes szettet egyben adja rád; belépsz OpenRouterrel vagy bemásolsz egy kulcsot).
+- **Ma**: napi szettajánló az időjárás, a heted és a visszajelzéseid alapján. Jelölheted, hogy felvetted, illetve tetszett-e vagy sem, és ebből tanul.
+- **Szekrény**: lefotózod a ruháidat, az AI felismeri őket, és mindegyikről egységes stílusú rajz készül (fajta, szín, anyag és minta alapján). A fotó is megmarad.
+- **Stylist**: chat egy személyes stylisttal, aki ismeri a szekrényedet. Küldhetsz neki inspirációs képet is.
+- **Profil**: rövid kérdőív rólad, kedvelt stílusok és színek, valamint szekrény-elemzés (mi hiányzik, mit érdemes venni).
 
 ## Hol fut
 
-A teljes app a webes változat: **https://greativo13.github.io/gardrob/**
+**https://greativo13.github.io/gardrob/**: telefonra készült webapp, az adatok csak abban a böngészőben vannak, ahol feltöltötted őket.
 
-- A ruhák fotóiról a böngészőben eltávolítja a hátteret, és egyforma, világos háttérre teszi őket.
-- Az AI-címkézéshez, a stylisthoz és az inspirációhoz ingyenes OpenRouter-belépés kell. Ingyenes, képet értő modelleket használ, napi kerettel.
-- A felpróbálás ingyenes (FASHN VTON a Hugging Face-en), vagy fizetős OpenRouteren keresztül.
-- Az adatok csak abban a böngészőben mentődnek, ahol feltöltötted őket.
+- Az AI az OpenRouter ingyenes, képet értő modelljeit használja (ingyenes belépéssel, napi kerettel). Belépés nélkül szabályalapú ajánló működik.
+- Időjárás: Open-Meteo (ingyenes, kulcs nélkül).
 
-A [claude.ai-os változat](https://claude.ai/artifact/MFbHHKaWnuPbGvCXkRHL9k) régebbi, és a webes appra irányít.
+A korábbi [claude.ai-os változat](https://claude.ai/artifact/MFbHHKaWnuPbGvCXkRHL9k) már nem frissül, a webes appra irányít.
 
 ## Fejlesztés
 

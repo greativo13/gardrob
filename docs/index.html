@@ -5,38 +5,34 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Figtree:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap">
 <style>
-/* Layout: egyoszlopos telefonos app — sticky fejléc, görgethető nézet, alsó fülsor, lebegő feltöltés gomb */
+/* Layout: egyoszlopos telefonos app — sticky fejléc, görgethető nézet, alsó fülsor */
 :root{
-  --bg:#ECEEF1; --surface:#FFFFFF; --sunk:#E3E6EA; --ink:#15171C; --muted:#5B6270; --line:#D2D7DE;
-  --accent:#2E3FCF; --on-accent:#FFFFFF; --tag:#F2C230; --tag-ink:#3A2C00; --danger:#C2362B;
-  --sil-line:rgba(21,23,28,.28); --scrim:rgba(14,16,22,.42);
-  --shadow:0 1px 2px rgba(20,24,40,.06),0 10px 28px rgba(20,24,40,.09);
+  --bg:#ECEEF1; --surface:#FFFFFF; --sunk:#E3E6EA; --paper:#F2F1EC; --ink:#15171C; --muted:#5B6270; --line:#D2D7DE;
+  --accent:#2E3FCF; --on-accent:#FFFFFF; --tag:#F2C230; --tag-ink:#3A2C00; --danger:#C2362B; --good:#2F7D4E;
+  --scrim:rgba(14,16,22,.42); --shadow:0 1px 2px rgba(20,24,40,.06),0 10px 28px rgba(20,24,40,.09);
   --f-display:'Bricolage Grotesque','Segoe UI',system-ui,sans-serif;
   --f-body:'Figtree',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
   --f-mono:'IBM Plex Mono',ui-monospace,Menlo,Consolas,monospace;
   --r:16px;
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
-  --bg:#111318; --surface:#1A1D24; --sunk:#232730; --ink:#ECEEF2; --muted:#9CA3B0; --line:#2D323C;
-  --accent:#8E9BFF; --on-accent:#0E1235; --tag:#E9B92E; --tag-ink:#2A1F00; --danger:#FF7A6E;
-  --sil-line:rgba(236,238,242,.32); --scrim:rgba(0,0,0,.6);
-  --shadow:0 1px 2px rgba(0,0,0,.3),0 10px 28px rgba(0,0,0,.35); color-scheme:dark;
+  --bg:#111318; --surface:#1A1D24; --sunk:#232730; --paper:#E9E7E1; --ink:#ECEEF2; --muted:#9CA3B0; --line:#2D323C;
+  --accent:#8E9BFF; --on-accent:#0E1235; --tag:#E9B92E; --tag-ink:#2A1F00; --danger:#FF7A6E; --good:#6FCF97;
+  --scrim:rgba(0,0,0,.6); --shadow:0 1px 2px rgba(0,0,0,.3),0 10px 28px rgba(0,0,0,.35); color-scheme:dark;
 }}
 :root[data-theme="dark"]{
-  --bg:#111318; --surface:#1A1D24; --sunk:#232730; --ink:#ECEEF2; --muted:#9CA3B0; --line:#2D323C;
-  --accent:#8E9BFF; --on-accent:#0E1235; --tag:#E9B92E; --tag-ink:#2A1F00; --danger:#FF7A6E;
-  --sil-line:rgba(236,238,242,.32); --scrim:rgba(0,0,0,.6);
-  --shadow:0 1px 2px rgba(0,0,0,.3),0 10px 28px rgba(0,0,0,.35); color-scheme:dark;
+  --bg:#111318; --surface:#1A1D24; --sunk:#232730; --paper:#E9E7E1; --ink:#ECEEF2; --muted:#9CA3B0; --line:#2D323C;
+  --accent:#8E9BFF; --on-accent:#0E1235; --tag:#E9B92E; --tag-ink:#2A1F00; --danger:#FF7A6E; --good:#6FCF97;
+  --scrim:rgba(0,0,0,.6); --shadow:0 1px 2px rgba(0,0,0,.3),0 10px 28px rgba(0,0,0,.35); color-scheme:dark;
 }
 *{box-sizing:border-box}
 [hidden]{display:none!important}
 body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.45;-webkit-tap-highlight-color:transparent}
 body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
 button,input,select,textarea{font:inherit;color:inherit}
-button{cursor:pointer}
+button,label[for]{cursor:pointer}
 :focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .vh{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
-
 .gut{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
 header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
 header.top .gut{display:flex;align-items:baseline;justify-content:space-between;gap:12px;padding-block:14px 10px;max-width:760px;margin:0 auto}
@@ -45,12 +41,12 @@ header.top .gut{display:flex;align-items:baseline;justify-content:space-between;
 .count{font-family:var(--f-mono);font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
 main{max-width:760px;margin:0 auto;padding-block:4px calc(96px + env(safe-area-inset-bottom,0px))}
 .view{display:flex;flex-direction:column;gap:14px}
-h2.sec,.sec{display:block;font-family:var(--f-mono);font-weight:500;font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:0}
+.sec{display:block;font-family:var(--f-mono);font-weight:500;font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:0}
 .panel{background:var(--surface);border-radius:var(--r);padding:16px;display:flex;flex-direction:column;gap:10px;box-shadow:var(--shadow)}
 .hint{margin:0;color:var(--muted);font-size:13.5px}
+.hint a,.foot a{color:var(--accent)}
 .row{display:flex;align-items:center;justify-content:space-between;gap:10px}
-
-/* chips */
+h2.big{font-family:var(--f-display);font-weight:800;font-size:24px;letter-spacing:-.01em;margin:0;line-height:1.15;text-wrap:balance}
 .chips{display:flex;flex-wrap:wrap;gap:8px}
 .chips.scroll{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;margin-inline:-16px;padding-inline:16px;padding-block:2px}
 .chips.scroll::-webkit-scrollbar{display:none}
@@ -58,223 +54,205 @@ h2.sec,.sec{display:block;font-family:var(--f-mono);font-weight:500;font-size:11
 .chip small{font-family:var(--f-mono);font-size:11px;color:var(--muted)}
 .chip[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--bg)}
 .chip[aria-pressed="true"] small{color:inherit;opacity:.7}
-
-/* closet grid */
-.banner{display:flex;gap:12px;align-items:flex-start;background:var(--surface);border:1.5px dashed var(--tag);border-radius:var(--r);padding:14px}
+.banner{display:flex;gap:12px;align-items:center;background:var(--surface);border:1.5px dashed var(--tag);border-radius:var(--r);padding:14px}
 .banner b{display:block;margin-bottom:2px}
 .banner p{margin:0;color:var(--muted);font-size:13.5px}
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
-.item{position:relative;text-align:left;border:0;padding:0;background:var(--surface);border-radius:var(--r);overflow:hidden;box-shadow:var(--shadow);display:flex;flex-direction:column}
-.ph{aspect-ratio:3/4;max-width:100%;background:var(--sunk);display:grid;place-items:center;overflow:hidden}
-.ph img{width:100%;height:100%;object-fit:cover;display:block}
-.ph svg{width:72%;height:72%}
-.meta{padding:9px 11px 11px;display:flex;flex-direction:column;gap:4px;min-width:0}
-.meta .nm{font-weight:600;font-size:14px;line-height:1.25;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.meta .sub{display:flex;align-items:center;gap:6px;font-family:var(--f-mono);font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
-.dot{width:11px;height:11px;border-radius:50%;border:1px solid var(--sil-line);flex:none}
-.badge{position:absolute;top:8px;left:8px;font-family:var(--f-mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;background:var(--tag);color:var(--tag-ink);padding:3px 7px;border-radius:6px}
-.form-dots{display:inline-flex;gap:2px;margin-left:auto}
-.form-dots i{width:5px;height:5px;border-radius:50%;background:var(--line)}
-.form-dots i.on{background:var(--ink)}
-.empty{color:var(--muted);text-align:center;padding:40px 0}
+.banner > div{flex:1;min-width:0}
+.primary{border:0;background:var(--accent);color:var(--on-accent);font-weight:700;border-radius:12px;padding:12px 18px;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:8px}
+.primary.big{width:100%;padding:15px;font-size:16px}
+.primary:disabled,.ghost:disabled{opacity:.55}
+.ghost{border:1px solid var(--line);background:transparent;border-radius:12px;padding:9px 14px;font-weight:600;font-size:14px;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:6px}
+.danger{color:var(--danger);border-color:color-mix(in srgb,var(--danger) 45%,transparent)}
+.acts{display:flex;gap:8px;flex-wrap:wrap}
+.seg{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;background:var(--sunk);border-radius:12px;padding:4px;gap:4px}
+.seg button{border:0;background:transparent;border-radius:9px;padding:8px 6px;font-weight:600;font-size:14px;color:var(--muted)}
+.seg button[aria-pressed="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.12)}
+input[type=text],input[type=password],textarea,select{width:100%;border:1px solid var(--line);background:var(--surface);border-radius:12px;padding:11px 12px;font-size:16px}
+textarea{resize:vertical;min-height:84px}
+details summary{cursor:pointer}
+details[open]{display:flex;flex-direction:column;gap:8px}
+.status{display:flex;gap:12px;align-items:center;color:var(--muted);font-size:14px}
 .progress{display:flex;gap:12px;align-items:center;background:var(--surface);border-radius:var(--r);padding:14px;box-shadow:var(--shadow)}
 .spin{width:20px;height:20px;border-radius:50%;border:2.5px solid var(--line);border-top-color:var(--accent);animation:spin .8s linear infinite;flex:none}
 @keyframes spin{to{transform:rotate(360deg)}}
 
-/* buttons */
-.primary{border:0;background:var(--accent);color:var(--on-accent);font-weight:700;border-radius:12px;padding:12px 18px}
-.primary.big{width:100%;padding:15px;font-size:16px}
-.primary:disabled{opacity:.55}
-.ghost{border:1px solid var(--line);background:transparent;border-radius:12px;padding:9px 14px;font-weight:600;font-size:14px}
-.danger{color:var(--danger);border-color:color-mix(in srgb,var(--danger) 45%,transparent)}
-.seg{display:grid;grid-template-columns:1fr 1fr;background:var(--sunk);border-radius:12px;padding:4px;gap:4px}
-.seg button{border:0;background:transparent;border-radius:9px;padding:9px 6px;font-weight:600;font-size:14px;color:var(--muted)}
-.seg button[aria-pressed="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.12)}
-input[type=text],textarea,select{width:100%;border:1px solid var(--line);background:var(--surface);border-radius:12px;padding:11px 12px;font-size:16px}
-textarea{resize:vertical;min-height:92px}
+/* illustrations */
+.ill{width:100%;height:100%;display:block}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
+.item{position:relative;text-align:left;border:0;padding:0;background:var(--surface);border-radius:var(--r);overflow:hidden;box-shadow:var(--shadow);display:flex;flex-direction:column}
+.ph{aspect-ratio:3/4;max-width:100%;background:var(--paper);display:grid;place-items:center;overflow:hidden;padding:12%}
+.ph.photo{padding:0}
+.ph img{width:100%;height:100%;object-fit:cover;display:block}
+.meta{padding:9px 11px 11px;display:flex;flex-direction:column;gap:4px;min-width:0}
+.meta .nm{font-weight:600;font-size:14px;line-height:1.25;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.meta .sub{display:flex;align-items:center;gap:6px;font-family:var(--f-mono);font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);min-width:0}
+.meta .sub span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dot{width:11px;height:11px;border-radius:50%;border:1px solid var(--line);flex:none}
+.badge{position:absolute;top:8px;left:8px;font-family:var(--f-mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;background:var(--tag);color:var(--tag-ink);padding:3px 7px;border-radius:6px}
 
 /* outfits */
 .outfit{background:var(--surface);border-radius:var(--r);padding:16px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:12px}
 .outfit h3{font-family:var(--f-display);font-weight:800;font-size:21px;letter-spacing:-.01em;margin:0;text-wrap:balance;line-height:1.15}
-.outfit .kicker{font-family:var(--f-mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.kicker{font-family:var(--f-mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
 .lay{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
-.lay .tile{position:relative;aspect-ratio:3/4;max-width:100%;border-radius:12px;overflow:hidden;background:var(--sunk);display:grid;place-items:center}
-.lay .tile img{width:100%;height:100%;object-fit:cover}
-.lay .tile svg{width:70%;height:70%}
-.lay .tile span{position:absolute;left:6px;bottom:6px;right:6px;font-size:11px;font-weight:600;background:color-mix(in srgb,var(--surface) 86%,transparent);border-radius:6px;padding:2px 6px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lay.big{grid-template-columns:repeat(2,1fr)}
+.tile{position:relative;aspect-ratio:3/4;max-width:100%;border-radius:12px;overflow:hidden;background:var(--paper);display:grid;place-items:center;padding:10%}
+.tile span{position:absolute;left:6px;bottom:6px;right:6px;font-size:11px;font-weight:600;color:#15171C;background:rgba(255,255,255,.82);border-radius:6px;padding:2px 6px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .why{margin:0;font-size:14.5px}
 .tip{margin:0;font-size:13.5px;color:var(--muted);border-left:2px solid var(--tag);padding-left:10px}
-.acts{display:flex;gap:8px;flex-wrap:wrap}
-.status{display:flex;gap:12px;align-items:center;color:var(--muted);font-size:14px}
+.wx{display:inline-flex;gap:8px;align-items:center;font-size:14px;color:var(--muted)}
+.wx b{color:var(--ink);font-weight:700}
+.vote{display:grid;grid-template-columns:1fr auto auto;gap:8px}
+.vote .ghost{min-width:48px;font-size:17px}
+.done{color:var(--good);font-weight:700;font-size:14px}
 
-/* style */
+/* chat */
+.msgs{display:flex;flex-direction:column;gap:10px}
+.msg{max-width:88%;padding:10px 13px;border-radius:16px;font-size:14.5px;line-height:1.45;white-space:pre-wrap;overflow-wrap:anywhere}
+.msg.me{align-self:flex-end;background:var(--accent);color:var(--on-accent);border-bottom-right-radius:5px}
+.msg.ai{align-self:flex-start;background:var(--surface);box-shadow:var(--shadow);border-bottom-left-radius:5px}
+.msg img.att{display:block;max-width:140px;border-radius:10px;margin-bottom:6px}
+.ref{display:inline-flex;align-items:center;gap:6px;vertical-align:middle;background:var(--sunk);border-radius:10px;padding:2px 8px 2px 2px;margin:2px 0;font-size:13px;font-weight:600;white-space:nowrap;max-width:100%}
+.ref i{display:inline-block;width:26px;height:32px;background:var(--paper);border-radius:7px;padding:3px;flex:none}
+.ref em{font-style:normal;overflow:hidden;text-overflow:ellipsis}
+#view-chat{min-height:calc(100dvh - 190px - env(safe-area-inset-bottom,0px))}
+#view-chat .composer{margin-top:auto}
+.composer{position:sticky;bottom:calc(66px + env(safe-area-inset-bottom,0px));display:flex;gap:8px;align-items:flex-end;background:var(--bg);padding-block:8px}
+.composer textarea{min-height:46px;max-height:140px;resize:none;border-radius:22px;padding:12px 16px}
+.composer .ghost,.composer .primary{border-radius:50%;width:46px;height:46px;padding:0;flex:none}
+.composer svg{width:22px;height:22px}
+.attprev{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted)}
+.attprev img{width:44px;height:56px;object-fit:cover;border-radius:8px}
+
+/* profile */
+.q{display:flex;flex-direction:column;gap:7px}
 .swatches{display:flex;flex-wrap:wrap;gap:10px}
-.sw{width:34px;height:34px;border-radius:50%;border:1px solid var(--sil-line);padding:0;position:relative}
+.sw{width:34px;height:34px;border-radius:50%;border:1px solid var(--line);padding:0}
 .sw[aria-pressed="true"]{box-shadow:0 0 0 2px var(--surface),0 0 0 4px var(--accent)}
-.bars{display:flex;flex-direction:column;gap:7px}
-.bar{display:grid;grid-template-columns:92px 1fr 28px;align-items:center;gap:10px;font-size:13.5px}
-.bar .tr{height:10px;background:var(--sunk);border-radius:6px;overflow:hidden}
-.bar .tr i{display:block;height:100%;background:var(--accent);border-radius:6px}
-.bar .n{font-family:var(--f-mono);font-size:12px;color:var(--muted);text-align:right;font-variant-numeric:tabular-nums}
+.alist{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:6px;font-size:14.5px}
+.gap{display:flex;flex-direction:column;gap:2px}
+.gap b{font-size:14.5px}
 .foot{font-family:var(--f-mono);font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);text-align:center;margin:6px 0 0}
 
-/* nav + fab */
+/* nav, fab, sheet */
 nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:6;background:var(--surface);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px)}
-nav.tabs .in{max-width:760px;margin:0 auto;display:grid;grid-template-columns:repeat(3,1fr)}
-nav.tabs a{display:flex;flex-direction:column;align-items:center;gap:3px;padding:9px 4px 10px;color:var(--muted);text-decoration:none;font-size:12px;font-weight:600}
+nav.tabs .in{max-width:760px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr)}
+nav.tabs a{display:flex;flex-direction:column;align-items:center;gap:3px;padding:9px 2px 10px;color:var(--muted);text-decoration:none;font-size:12px;font-weight:600}
 nav.tabs a svg{width:24px;height:24px}
 nav.tabs a[aria-current="page"]{color:var(--accent)}
-.fab{position:fixed;right:calc(16px + env(safe-area-inset-right,0px));bottom:calc(76px + env(safe-area-inset-bottom,0px));z-index:6;display:flex;align-items:center;gap:8px;background:var(--accent);color:var(--on-accent);border-radius:999px;padding:13px 18px 13px 14px;font-weight:700;box-shadow:0 8px 24px color-mix(in srgb,var(--accent) 40%,transparent);cursor:pointer}
+.fab{position:fixed;right:calc(16px + env(safe-area-inset-right,0px));bottom:calc(76px + env(safe-area-inset-bottom,0px));z-index:6;display:flex;align-items:center;gap:8px;background:var(--accent);color:var(--on-accent);border-radius:999px;padding:13px 18px 13px 14px;font-weight:700;box-shadow:0 8px 24px color-mix(in srgb,var(--accent) 40%,transparent)}
 .fab svg{width:22px;height:22px}
-
-/* sheet */
 .sheet-wrap{position:fixed;inset:0;z-index:20;display:flex;align-items:flex-end;justify-content:center}
 .scrim{position:absolute;inset:0;background:var(--scrim)}
 .sheet{position:relative;width:100%;max-width:560px;max-height:92%;overflow-y:auto;background:var(--surface);border-radius:22px 22px 0 0;padding:10px 16px calc(18px + env(safe-area-inset-bottom,0px));padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:14px;animation:up .22s ease-out}
 @keyframes up{from{transform:translateY(30px);opacity:.4}}
 .grab{width:40px;height:4px;border-radius:4px;background:var(--line);margin:0 auto}
-.sheet-head{display:grid;grid-template-columns:96px 1fr;gap:14px;align-items:start}
+.sheet-head{display:grid;grid-template-columns:110px 1fr;gap:14px;align-items:start}
 .sheet-head .ph{border-radius:12px}
+.sheet-head .photo-mini{width:44px;height:56px;border-radius:8px;object-fit:cover;margin-top:8px}
 .field{display:flex;flex-direction:column;gap:7px}
 .colorrow{display:flex;gap:10px;align-items:center}
 .colorrow input[type=color]{width:46px;height:42px;border:1px solid var(--line);border-radius:10px;padding:2px;background:var(--surface);flex:none}
 input[type=range]{width:100%;accent-color:var(--accent)}
 .rlab{display:flex;justify-content:space-between;font-family:var(--f-mono);font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
-.sheet .acts{position:sticky;bottom:calc(-18px - env(safe-area-inset-bottom,0px));background:var(--surface);padding-block:10px 0}
-.sheet .acts .primary{flex:1}
-
-/* me photo, inspiration, try-on */
-.me{display:grid;grid-template-columns:88px 1fr;gap:14px;align-items:center}
-.me .ph{border-radius:12px}
-.me .acts{margin-top:8px}
-.btnlabel{display:inline-flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;text-align:center}
-.inspo{display:flex;gap:8px;overflow-x:auto;padding-bottom:2px}
-.inspo img{width:64px;height:84px;object-fit:cover;border-radius:10px;flex:none}
-.missing{margin:0;font-size:13.5px}
-.missing b{font-family:var(--f-mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:500;margin-right:6px}
-.stage{position:relative;width:100%;display:flex;justify-content:center;background:var(--sunk);border-radius:14px;overflow:hidden;touch-action:none;min-height:200px;align-items:center}
-.stage img{display:block;max-width:100%;max-height:64vh;object-fit:contain}
-input[type=password]{width:100%;border:1px solid var(--line);background:var(--surface);border-radius:12px;padding:11px 12px;font-size:16px}
-.panel .acts{display:flex;gap:8px;flex-wrap:wrap}
-.hint a{color:var(--accent)}
-details summary{cursor:pointer}
-details[open]{display:flex;flex-direction:column;gap:8px}
-.tools{display:flex;gap:8px;flex-wrap:wrap}
-.tools .ghost{min-width:48px}
-.or{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:12px;font-family:var(--f-mono);text-transform:uppercase;letter-spacing:.08em}
-.or::before,.or::after{content:"";flex:1;height:1px;background:var(--line)}
-.foot a{color:var(--accent)}
+.sheet .acts.sticky{position:sticky;bottom:calc(-18px - env(safe-area-inset-bottom,0px));background:var(--surface);padding-block:10px 0}
+.sheet .acts.sticky .primary{flex:1}
 #toast{position:fixed;left:50%;bottom:calc(140px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:30;background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:12px;font-size:14px;font-weight:500;max-width:calc(100% - 32px);width:max-content;box-shadow:var(--shadow)}
 @media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
 </style>
 
 <header class="top"><div class="gut">
   <h1 class="brand">Gard<span>ró</span>b</h1>
-  <div class="count" id="count">betöltés…</div>
+  <div class="count" id="count"></div>
 </div></header>
 
 <main class="gut">
-  <section class="view" id="view-closet">
-    <div id="progress"></div>
-    <div class="chips scroll" id="filters" role="toolbar" aria-label="Szűrés kategóriára"></div>
-    <div id="closet"></div>
-  </section>
-
-  <section class="view" id="view-outfits" hidden>
+  <section class="view" id="view-today">
+    <div class="row"><div><div class="kicker" id="today-date"></div><h2 class="big">Mai szetted</h2></div><div class="wx" id="wx"></div></div>
+    <div id="today-banners" class="view"></div>
+    <div id="today-card"></div>
     <div class="panel">
-      <h2 class="sec">Hova mész?</h2>
+      <h2 class="sec">Más alkalomra</h2>
       <div class="chips" id="occ"></div>
-      <h2 class="sec">Milyen idő van?</h2>
-      <div class="chips" id="wx"></div>
-      <div class="field" id="extra-wrap" hidden>
-        <label class="sec" for="extra">Különleges kérés (nem kötelező)</label>
-        <input type="text" id="extra" placeholder="pl. legyen benne a zöld ruha" autocomplete="off">
-      </div>
-      <div class="seg" id="engine" hidden>
-        <button type="button" data-engine="ai">AI stylist</button>
-        <button type="button" data-engine="quick">Gyors</button>
-      </div>
-      <button class="primary big" id="go" type="button">Szettek összeállítása</button>
-      <div class="or">vagy</div>
-      <label class="ghost btnlabel" for="inspofile">Inspirációs képből</label>
-      <p class="hint">Küldj 1–4 képet (Pinterest, Insta, képernyőkép), és a saját ruháidból rakom össze a hasonló szettet.</p>
+      <button class="ghost" id="occ-go" type="button">Mutass szetteket</button>
     </div>
-    <div id="status"></div>
-    <div class="view" id="results"></div>
-    <h2 class="sec" style="margin-top:8px">Mentett szettek</h2>
+    <div id="occ-status"></div>
+    <div class="view" id="occ-results"></div>
+    <h2 class="sec" style="margin-top:6px">Mentett szettek</h2>
     <div class="view" id="favs"></div>
   </section>
 
-  <section class="view" id="view-style" hidden>
+  <section class="view" id="view-closet" hidden>
+    <div id="progress"></div>
+    <div id="closet-banners" class="view"></div>
+    <div class="row">
+      <div class="chips scroll" id="filters" style="flex:1;margin-right:0" role="toolbar" aria-label="Szűrés kategóriára"></div>
+    </div>
+    <div class="seg" id="viewmode" style="max-width:220px"><button type="button" data-viewmode="rajz">Rajz</button><button type="button" data-viewmode="foto">Fotó</button></div>
+    <div id="closet"></div>
+  </section>
+
+  <section class="view" id="view-chat" hidden>
+    <div id="chat-intro"></div>
+    <div class="msgs" id="msgs"></div>
+    <div id="chat-status"></div>
+    <div class="attprev" id="attprev" hidden></div>
+    <form class="composer" id="composer" autocomplete="off">
+      <label class="ghost" for="chatimg" aria-label="Kép csatolása"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="11" r="2"/><path d="m21 17-5-5-9 9"/></svg></label>
+      <textarea id="chat-in" rows="1" placeholder="Kérdezd a stylistot…" aria-label="Üzenet"></textarea>
+      <button class="primary" type="submit" aria-label="Küldés"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+    </form>
+  </section>
+
+  <section class="view" id="view-profile" hidden>
+    <div class="panel" id="qpanel">
+      <h2 class="sec">Rólad</h2>
+      <p class="hint">Ezekből dolgozik a stylist. Bármikor módosíthatod.</p>
+      <div id="qs" class="view"></div>
+      <div class="field"><label class="sec" for="city">Város (az időjáráshoz)</label><input type="text" id="city" placeholder="pl. Budapest"></div>
+      <div class="field"><label class="sec" for="p-about">Mit kerülsz, mire figyeljen?</label>
+        <textarea id="p-about" rows="3" placeholder="pl. nem hordok rövidnadrágot, szeretem a földszíneket, pénteken lazább a dress code"></textarea></div>
+    </div>
     <div class="panel">
-      <h2 class="sec">Rólad egy fotó</h2>
-      <div class="me" id="me"></div>
-    </div>
-    <div class="panel" id="ai-panel" hidden>
-      <h2 class="sec">AI · OpenRouter-fiók</h2>
-      <p class="hint">Lépj be ingyenes OpenRouter-fiókkal. Utána ingyenes AI-modellek címkézik a ruháidat, állítják össze a szetteket és elemzik az inspirációs képeket. Ehhez nem kell egyenleg, de van napi keret.</p>
-      <button type="button" class="primary" id="orlogin">Belépés OpenRouterrel</button>
-      <details><summary class="hint">Vagy másolj be egy kulcsot</summary>
-        <p class="hint">Az <a href="https://openrouter.ai/settings/keys" target="_blank" rel="noopener">OpenRouter kulcsainál</a> hozz létre egy kulcsot, és állíts be rá költési limitet (pl. 2 $). A kulcs csak ezen a telefonon tárolódik.</p>
-        <input type="password" id="orkey" placeholder="API-kulcs (sk-or-…)" autocomplete="off" spellcheck="false">
-        <div class="acts" style="margin-top:8px"><button type="button" class="ghost" id="orsave">Mentés és ellenőrzés</button></div>
-      </details>
-      <div class="acts"><button type="button" class="ghost danger" id="ordel" hidden>Kijelentkezés</button></div>
-      <p class="hint" id="orstatus"></p>
-    </div>
-    <div class="panel" id="try-panel" hidden>
-      <h2 class="sec">Felpróbálás</h2>
-      <div class="seg" id="trymode"><button type="button" data-mode="free">Ingyenes</button><button type="button" data-mode="or">OpenRouter (fizetős)</button></div>
-      <div id="free-section" class="field"><p class="hint">A FASHN VTON nyílt modell fut ingyen a Hugging Face-en, ehhez belépés sem kell. Felsőt, alsót és egyrészes ruhát ad rád (cipőt, kabátot, kiegészítőt nem). Egy szett kb. 30–90 másodperc. Van napi keret: ha elfogy, próbáld később. A fotód és a ruhák képei a Hugging Face-hez kerülnek.</p></div>
-      <div id="or-section" class="field">
-        <p class="hint">Egy képgeneráló modell a teljes szettet egyben adja rád, cipővel és kabáttal együtt. Az OpenRouter-egyenlegedből fizeted, általában néhány cent egy kép. Ehhez a fenti belépés kell.</p>
-        <label class="sec" for="ormodel" id="ormodel-l" hidden>Képmodell</label>
-        <select id="ormodel" hidden></select>
-      </div>
-    </div>
-    <div class="panel">
-      <h2 class="sec">A stílusod</h2>
-      <p class="hint">Válassz 1–3 irányt. Ezek alapján súlyozom a szetteket.</p>
+      <h2 class="sec">Kedvelt stílusok</h2>
       <div class="chips" id="p-styles"></div>
-    </div>
-    <div class="panel">
-      <h2 class="sec">Kedvenc színek</h2>
+      <h2 class="sec" style="margin-top:6px">Kedvenc színek</h2>
       <div class="swatches" id="p-like"></div>
       <h2 class="sec" style="margin-top:6px">Ezeket kerülöd</h2>
       <div class="swatches" id="p-avoid"></div>
     </div>
-    <div class="panel">
-      <label class="sec" for="p-about">Mesélj magadról</label>
-      <textarea id="p-about" rows="4" placeholder="pl. szeretem a bő szabást, nem hordok magassarkút, irodában dolgozom, de pénteken lazább a dress code"></textarea>
-      <p class="hint">Ezt az AI stylist olvassa, amikor szettet állít össze.</p>
+    <div class="panel" id="analysis-panel">
+      <div class="row"><h2 class="sec">Szekrény-elemzés</h2><button class="ghost" id="analyze" type="button">Elemzés</button></div>
+      <div id="analysis"></div>
     </div>
     <div class="panel">
-      <div class="row"><h2 class="sec">A szekrényed stílusa</h2><button class="ghost" id="detect" type="button">Felismerés</button></div>
-      <div class="bars" id="bars"></div>
-      <p class="hint" id="detect-out"></p>
+      <h2 class="sec">AI · OpenRouter-fiók</h2>
+      <p class="hint">Lépj be ingyenes OpenRouter-fiókkal. Ingyenes AI-modellek címkézik és rajzolják meg a ruháidat, és ők a stylist is. Egyenleg nem kell, de van napi keret.</p>
+      <button type="button" class="primary" id="orlogin">Belépés OpenRouterrel</button>
+      <details><summary class="hint">Vagy másolj be egy kulcsot</summary>
+        <p class="hint">Az <a href="https://openrouter.ai/settings/keys" target="_blank" rel="noopener">OpenRouter kulcsainál</a> hozz létre egy kulcsot. A kulcs csak ezen a telefonon tárolódik.</p>
+        <input type="password" id="orkey" placeholder="API-kulcs (sk-or-…)" autocomplete="off" spellcheck="false">
+        <div class="acts"><button type="button" class="ghost" id="orsave">Mentés és ellenőrzés</button></div>
+      </details>
+      <div class="acts"><button type="button" class="ghost danger" id="ordel" hidden>Kijelentkezés</button></div>
+      <p class="hint" id="orstatus"></p>
     </div>
-    <p class="foot" id="storage-note"></p>
+    <p class="foot">Mentés: ebben a böngészőben</p>
   </section>
 </main>
 
-<label class="fab" id="fab" for="file">
+<label class="fab" id="fab" for="file" hidden>
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
   Ruha feltöltése
 </label>
 <input class="vh" type="file" id="file" accept="image/*" multiple>
-<input class="vh" type="file" id="mefile" accept="image/*">
-<input class="vh" type="file" id="inspofile" accept="image/*" multiple>
+<input class="vh" type="file" id="chatimg" accept="image/*">
 
 <nav class="tabs" aria-label="Fő menü"><div class="in gut">
-  <a href="#szekreny" data-view="closet">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 7a2 2 0 1 1 2-2c0 1-2 1.5-2 3v1"/><path d="M12 9 3 15.5c-.8.6-.4 1.5.5 1.5h17c.9 0 1.3-.9.5-1.5L12 9Z"/></svg>
-    Szekrény</a>
-  <a href="#szettek" data-view="outfits">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.8 4.2L18 9l-4.2 1.8L12 15l-1.8-4.2L6 9l4.2-1.8z"/><path d="M18.5 15l.8 1.8 1.7.7-1.7.8-.8 1.7-.7-1.7-1.8-.8 1.8-.7z"/></svg>
-    Szettek</a>
-  <a href="#stilus" data-view="style">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="8.5" cy="10" r="1.3"/><circle cx="12.5" cy="7.5" r="1.3"/><circle cx="16" cy="11" r="1.3"/><path d="M12 21c-1.5 0-2-1.2-1.4-2.3.7-1.3.2-2.7-1.6-2.7"/></svg>
-    Stílusom</a>
+  <a href="#ma" data-view="today"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>Ma</a>
+  <a href="#szekreny" data-view="closet"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 7a2 2 0 1 1 2-2c0 1-2 1.5-2 3v1"/><path d="M12 9 3 15.5c-.8.6-.4 1.5.5 1.5h17c.9 0 1.3-.9.5-1.5L12 9Z"/></svg>Szekrény</a>
+  <a href="#stylist" data-view="chat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16v11H9l-5 4z"/><path d="M8 10h8M8 13h5"/></svg>Stylist</a>
+  <a href="#profil" data-view="profile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg>Profil</a>
 </div></nav>
 
 <div class="sheet-wrap" id="sheet" hidden>
@@ -282,7 +260,7 @@ details[open]{display:flex;flex-direction:column;gap:8px}
   <form class="sheet" id="itemForm" autocomplete="off">
     <div class="grab"></div>
     <div class="sheet-head">
-      <div class="ph" id="f-ph"></div>
+      <div><div class="ph" id="f-ill"></div><img class="photo-mini" id="f-photo" alt="Eredeti fotó" hidden></div>
       <div class="field">
         <label class="sec" for="f-name">Név</label>
         <input type="text" id="f-name" maxlength="60">
@@ -293,6 +271,9 @@ details[open]{display:flex;flex-direction:column;gap:8px}
       </div>
     </div>
     <div class="field"><span class="sec">Kategória</span><div class="chips" id="f-cat"></div></div>
+    <div class="field"><span class="sec">Fajta</span><div class="chips" id="f-type"></div></div>
+    <div class="field"><span class="sec">Anyag, minta</span><div class="chips" id="f-tex"></div></div>
+    <div class="field" id="f-sleeves-wrap"><span class="sec">Ujja</span><div class="chips" id="f-sleeves"></div></div>
     <div class="field"><span class="sec">Stílus</span><div class="chips" id="f-styles"></div></div>
     <div class="field"><span class="sec">Évszak</span><div class="chips" id="f-seasons"></div></div>
     <div class="field">
@@ -300,22 +281,12 @@ details[open]{display:flex;flex-direction:column;gap:8px}
       <input type="range" id="f-form" min="1" max="5" step="1">
       <div class="rlab"><span>Sport</span><span>Laza</span><span>Smart</span><span>Üzleti</span><span>Gála</span></div>
     </div>
-    <div class="acts">
+    <div class="acts sticky">
       <button type="button" class="ghost danger" id="f-del">Törlés</button>
       <button type="button" class="ghost" data-act="close">Mégse</button>
       <button type="submit" class="primary">Mentés</button>
     </div>
   </form>
-</div>
-<div class="sheet-wrap" id="tryon" hidden>
-  <div class="scrim" data-act="close-try"></div>
-  <div class="sheet">
-    <div class="grab"></div>
-    <div class="row"><h2 class="sec" id="try-title">Felpróbálás</h2><button type="button" class="ghost" data-act="close-try">Kész</button></div>
-    <div class="stage" id="stage"></div>
-    <p class="hint" id="try-hint"></p>
-    <div class="tools" id="try-tools"></div>
-  </div>
 </div>
 <div id="toast" hidden></div>
 
@@ -325,6 +296,8 @@ details[open]{display:flex;flex-direction:column;gap:8px}
 const $ = s => document.querySelector(s);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const uid8 = () => 'x' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+const cap = s => s ? s[0].toUpperCase() + s.slice(1) : s;
+const todayKey = () => { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0'); };
 
 // ---------- vocab ----------
 const CATS = [['felso','Felső'],['also','Alsó'],['ruha','Ruha'],['kabat','Kabát'],['cipo','Cipő'],['kieg','Kiegészítő']];
@@ -343,533 +316,250 @@ const OCC = [
   {k:'esemeny', l:'Elegáns esemény', f:4.5, st:['elegans','uzleti']},
   {k:'utazas', l:'Utazás', f:1.8, st:['laza','sportos','minimal']},
 ];
-const WX = [{k:'meleg', l:'Meleg'}, {k:'enyhe', l:'Enyhe'}, {k:'hideg', l:'Hideg'}, {k:'eso', l:'Esős'}];
 const COLORS = [
   ['fekete','#1d1d1f'],['fehér','#f5f5f2'],['szürke','#8a8d91'],['sötétszürke','#4a4c50'],['bézs','#d8c3a5'],
   ['teve','#b48a5a'],['barna','#6e4b32'],['sötétkék','#1f2d4d'],['farmerkék','#4f6d94'],['világoskék','#a9c7e8'],
   ['piros','#c0392b'],['bordó','#6d1f2b'],['rózsaszín','#e8a6b8'],['narancs','#e67e22'],['mustár','#d4a017'],
   ['sárga','#f1d44c'],['zöld','#3f7d4e'],['khaki','#8a8a5c'],['olíva','#5f6236'],['lila','#7d5ba6'],['türkiz','#2aa198']
 ];
-
-const SAMPLES = [
-  ['Fehér póló','felso','fehér','#F4F4F1',['laza','minimal'],['tavasz','nyar','osz'],2],
-  ['Sötétkék ing','felso','sötétkék','#24345A',['uzleti','elegans'],['tavasz','osz','tel'],4],
-  ['Mustár pulóver','felso','mustár','#C9971C',['laza','bohem'],['osz','tel'],2],
-  ['Fekete top','felso','fekete','#1C1C1E',['elegans','minimal'],['tavasz','nyar'],3],
-  ['Egyenes farmer','also','farmerkék','#4F6D94',['laza','utcai'],['tavasz','nyar','osz','tel'],2],
-  ['Bézs chino','also','bézs','#CDB894',['minimal','uzleti'],['tavasz','nyar','osz'],3],
-  ['Fekete szövetnadrág','also','fekete','#232326',['uzleti','elegans'],['tavasz','osz','tel'],4],
-  ['Zöld midiruha','ruha','zöld','#3F7D4E',['romantikus','elegans'],['tavasz','nyar'],3],
-  ['Teve kabát','kabat','teve','#B48A5A',['elegans','minimal'],['osz','tel'],4],
-  ['Farmerdzseki','kabat','farmerkék','#6F8DB5',['laza','utcai'],['tavasz','osz'],2],
-  ['Fehér sneaker','cipo','fehér','#F2F2EE',['laza','sportos','utcai'],['tavasz','nyar','osz'],2],
-  ['Barna bokacsizma','cipo','barna','#6E4B32',['bohem','laza'],['osz','tel'],3],
-  ['Fekete loafer','cipo','fekete','#1E1E1E',['uzleti','elegans'],['tavasz','osz','tel'],4],
-  ['Bőr válltáska','kieg','barna','#7B5536',['minimal','elegans'],[],3],
-].map(([name,category,colorName,colorHex,styles,seasons,formality],i)=>({id:'demo'+i,name,category,colorName,colorHex,styles,seasons,formality,demo:true}));
-
-// ---------- state ----------
-const defProfile = () => ({styles:[], likeColors:[], avoidColors:[], about:''});
-const S = {
-  mode:'loading', items:new Map(), favs:new Map(), profile:defProfile(),
-  filter:'all', occ:'hetkoznap', wx:null, engine:'quick', results:[], resultsFrom:null, busy:false,
-  me:null, inspo:[], inspoLook:'',
-};
-const FULL_URL = 'https://claude.ai/artifact/MFbHHKaWnuPbGvCXkRHL9k';
-const PAGES_URL = 'https://greativo13.github.io/gardrob/';
-const IS_CLAUDE = !!(window.claude && typeof window.claude.use === 'function');
-let db = null, uidv = null, sample = null, sampleLimits = null, aiOff = false;
-
-function month(){ return new Date().getMonth() + 1; }
-function curSeason(){ const m = month(); return m>=3&&m<=5?'tavasz':m>=6&&m<=8?'nyar':m>=9&&m<=11?'osz':'tel'; }
-S.wx = {nyar:'meleg', tel:'hideg'}[curSeason()] || 'enyhe';
-function seasonsFor(w){ return w==='meleg'?['nyar']:w==='hideg'?['tel']:['tavasz','osz']; }
+const QS = [
+  {k:'for', l:'Kinek szól a ruhatár?', o:[['ferfi','Férfi'],['noi','Női'],['mind','Nem számít']]},
+  {k:'height', l:'Magasság', o:[['alacsony','Alacsony'],['atlagos','Átlagos'],['magas','Magas']]},
+  {k:'build', l:'Alkat', o:[['vekony','Vékony'],['atlagos','Átlagos'],['sportos','Sportos'],['eros','Erősebb']]},
+  {k:'work', l:'Munka, dress code', o:[['nincs','Nincs (otthon, suli)'],['smart','Smart casual'],['business','Üzleti'],['fizikai','Fizikai, egyenruha']]},
+  {k:'week', l:'Mi tölti ki a heted?', multi:true, o:[['iroda','Iroda'],['home','Home office'],['suli','Egyetem, suli'],['edzes','Edzés'],['esti','Esti programok'],['utazas','Utazás']]},
+  {k:'vibe', l:'Milyen hatást szeretnél kelteni? (max. 2)', multi:true, max:2, o:[['letisztult','Letisztult'],['magabiztos','Magabiztos'],['laza','Laza'],['elegans','Elegáns'],['kreativ','Kreatív'],['sportos','Sportos']]},
+  {k:'fit', l:'Milyen szabást szeretsz?', o:[['slim','Testhez simuló'],['regular','Normál'],['bo','Bő, oversized']]},
+];
 
 // ---------- color helpers ----------
 function hexToRgb(h){ const m=/^#?([0-9a-f]{6})$/i.exec(h||''); if(!m) return [128,128,128]; const n=parseInt(m[1],16); return [n>>16&255,n>>8&255,n&255]; }
-function rgbToHex(r,g,b){ return '#'+[r,g,b].map(v=>Math.round(v).toString(16).padStart(2,'0')).join(''); }
+function rgbToHex(r,g,b){ return '#'+[r,g,b].map(v=>Math.max(0,Math.min(255,Math.round(v))).toString(16).padStart(2,'0')).join(''); }
 function hsl(hex){ let [r,g,b]=hexToRgb(hex).map(v=>v/255); const mx=Math.max(r,g,b), mn=Math.min(r,g,b); let h=0,s=0; const l=(mx+mn)/2;
   if(mx!==mn){ const d=mx-mn; s=l>.5?d/(2-mx-mn):d/(mx+mn); h=mx===r?(g-b)/d+(g<b?6:0):mx===g?(b-r)/d+2:(r-g)/d+4; h*=60; } return {h,s,l}; }
 function isNeutral(hex){ const {h,s,l}=hsl(hex);
   if(s<.16||l<.13||l>.92) return true;
-  if(h>=18&&h<=50&&s<.55&&l>.22&&l<.86) return true;      // bézs, teve, barna
-  if(h>=200&&h<=245&&l<.33) return true;                 // sötétkék
-  if(h>=200&&h<=230&&s<.42&&l<.62) return true;          // farmer
+  if(h>=18&&h<=50&&s<.55&&l>.22&&l<.86) return true;
+  if(h>=200&&h<=245&&l<.33) return true;
+  if(h>=200&&h<=230&&s<.42&&l<.62) return true;
+  if(h>=55&&h<=100&&s<.35&&l<.5) return true;
   return false; }
 function nearestColor(hex){ const [r,g,b]=hexToRgb(hex); let best=COLORS[0][0], bd=1e9;
   for(const [n,h] of COLORS){ const [r2,g2,b2]=hexToRgb(h); const d=(r-r2)**2*0.3+(g-g2)**2*0.59+(b-b2)**2*0.11; if(d<bd){bd=d;best=n;} } return best; }
 function hueDiff(a,b){ const d=Math.abs(a-b)%360; return d>180?360-d:d; }
 
-// ---------- silhouettes ----------
-const SIL = {
-  felso:'M30 18 L42 12 Q50 19 58 12 L70 18 L86 32 L76 43 L70 38 L70 88 L30 88 L30 38 L24 43 L14 32 Z',
-  also:'M32 10 L68 10 L73 90 L56 90 L50 36 L44 90 L27 90 Z',
-  ruha:'M41 8 L59 8 L58 28 Q66 30 64 40 L80 90 L20 90 L36 40 Q34 30 42 28 Z',
-  kabat:'M35 10 L50 20 L65 10 L84 24 L89 86 L73 86 L71 46 L69 92 L31 92 L29 46 L27 86 L11 86 L16 24 Z',
-  cipo:'M12 60 L38 56 Q47 66 60 66 L86 70 Q92 78 85 82 L15 82 Q10 72 12 60 Z',
-  kieg:'M22 42 L78 42 L82 86 L18 86 Z',
+// ---------- garment illustration kit ----------
+// One consistent flat-illustration style for every item. AI (or the user) picks type/texture/sleeves; colour comes from the item.
+const TYPES = {
+  felso: [['polo','Galléros póló'],['polo_zip','Cipzáras póló'],['ing','Ing'],['ing_allo','Állógalléros ing'],['tshirt','Póló'],['pulover','Pulóver'],['garbo','Garbó'],['hoodie','Kapucnis pulóver'],['kardigan','Kardigán']],
+  also:  [['chino','Chino'],['farmer','Farmer'],['szovet','Szövetnadrág'],['melegito','Melegítő'],['short','Rövidnadrág'],['szoknya','Szoknya']],
+  kabat: [['dzseki','Dzseki'],['kabat','Kabát'],['blazer','Zakó']],
+  ruha:  [['ruha','Ruha']],
+  cipo:  [['sneaker','Sportcipő'],['csizma','Bakancs, csizma'],['felcipo','Félcipő, loafer']],
+  kieg:  [['taska','Táska'],['sapka','Sapka'],['ov','Öv'],['sal','Sál']],
 };
-function sil(it){
-  const c = esc(it.colorHex||'#999');
-  const extra = it.category==='kieg' ? `<path d="M37 42 Q37 22 50 22 Q63 22 63 42" fill="none" stroke="${c}" stroke-width="5"/>`
-    : it.category==='kabat' ? `<path d="M50 20 L50 92" stroke="var(--sil-line)" stroke-width="1.5"/>` : '';
-  return `<svg viewBox="0 0 100 100" aria-hidden="true">${extra}<path d="${SIL[it.category]||SIL.felso}" fill="${c}" stroke="var(--sil-line)" stroke-width="1.2" stroke-linejoin="round"/></svg>`;
+const TYPE_L = Object.fromEntries(Object.values(TYPES).flat());
+const DEF_TYPE = {felso:'pulover', also:'chino', kabat:'dzseki', ruha:'ruha', cipo:'sneaker', kieg:'taska'};
+const TEX = [['sima','Sima'],['bordas','Bordás'],['kotott','Kötött'],['farmer','Farmer'],['melange','Melírozott'],['kord','Kord'],['csikos','Csíkos'],['kockas','Kockás']];
+const TEX_L = Object.fromEntries(TEX);
+function lookOf(it){
+  const l = it.look || {};
+  const type = (TYPES[it.category]||[]).some(t=>t[0]===l.type) ? l.type : DEF_TYPE[it.category] || 'pulover';
+  return {type, texture: TEX_L[l.texture] ? l.texture : (type==='farmer' ? 'farmer' : 'sima'),
+    sleeves: l.sleeves==='rovid' || l.sleeves==='hosszu' ? l.sleeves : (type==='tshirt' || type==='polo' && !l.sleeves ? 'rovid' : 'hosszu'),
+    pocket: !!l.pocket, color2: /^#[0-9a-f]{6}$/i.test(l.color2||'') ? l.color2 : null};
 }
-function thumb(it){ return it.img ? `<img src="${esc(it.img)}" alt="${esc(it.name)}" loading="lazy">` : sil(it); }
-function formDots(f){ let s='<span class="form-dots" aria-label="Formalitás '+f+'/5">'; for(let i=1;i<=5;i++) s+=`<i class="${i<=f?'on':''}"></i>`; return s+'</span>'; }
+function mix(hex, t){ const [r,g,b] = hexToRgb(hex); const f = v => t<0 ? v*(1+t) : v+(255-v)*t; return rgbToHex(f(r),f(g),f(b)); }
+function lum(hex){ const [r,g,b] = hexToRgb(hex).map(v=>v/255); return 0.2126*r + 0.7152*g + 0.0722*b; }
+let svgN = 0;
+function texDef(kind, base, c2, id){
+  const dark = lum(base) < .2, lt = mix(base,.3), dk = mix(base,-.3), c = dark ? lt : dk, a = c2 || (dark ? mix(base,.55) : mix(base,-.5));
+  const pat = (w,h,inner,extra='') => `<pattern id="${id}" width="${w}" height="${h}" patternUnits="userSpaceOnUse" ${extra}>${inner}</pattern>`;
+  switch(kind){
+    case 'bordas': return pat(6,6,`<path d="M3 0V6" stroke="${c}" stroke-width="1.5" opacity=".55"/>`);
+    case 'kord':   return pat(5,5,`<path d="M2.5 0V5" stroke="${c}" stroke-width="2.2" opacity=".45"/>`);
+    case 'kotott': return pat(8,7,`<path d="M0 1L4 5L8 1" fill="none" stroke="${c}" stroke-width="1.1" opacity=".55"/>`);
+    case 'farmer': return pat(4,4,`<path d="M0 0V4" stroke="${lt}" stroke-width="1" opacity=".4"/>`, 'patternTransform="rotate(40)"');
+    case 'melange':return pat(7,7,`<circle cx="1.5" cy="2" r="1" fill="${lt}" opacity=".7"/><circle cx="5" cy="5.5" r=".9" fill="${dk}" opacity=".6"/><circle cx="5.5" cy="1" r=".7" fill="${lt}" opacity=".5"/>`);
+    case 'csikos': return pat(10,14,`<rect width="10" height="5" fill="${a}" opacity=".85"/>`);
+    case 'kockas': return pat(24,24,`<rect width="24" height="8" fill="${a}" opacity=".3"/><rect width="8" height="24" fill="${a}" opacity=".3"/><path d="M0 16H24M16 0V24" stroke="${a}" stroke-width="1" opacity=".55"/>`);
+    default: return '';
+  }
+}
+function garmentSVG(it){
+  const L = lookOf(it), base = /^#[0-9a-f]{6}$/i.test(it.colorHex||'') ? it.colorHex : '#8A8D91';
+  const dark = lum(base) < .2;
+  const edge = dark ? mix(base,.38) : mix(base,-.42);
+  const inner = dark ? mix(base,.14) : mix(base,-.3);
+  const btn = dark ? mix(base,.5) : mix(base,-.5);
+  const sh = t => mix(base, t);
+  const P = [], Ls = [], D = [];
+  const part = (d, fill = base, tex = true) => P.push([d, fill, tex]);
+  const line = (d, w = 1.1, stroke = edge, dash = '') => Ls.push([d, stroke, w, dash]);
+  const dot = (x, y, r = 2.6, fill = btn) => D.push([x, y, r, fill]);
 
-// ---------- storage ----------
-const LS_KEY = 'gardrob.v1';
-function lsLoad(){ try{ const d = JSON.parse(localStorage.getItem(LS_KEY)||'null'); if(!d) return;
+  const top = (o = {}) => {
+    const hem = o.hem || 238, w = o.wide ? 4 : 0;
+    if(L.sleeves !== 'rovid'){
+      part('M34 50 L12 64 L4 224 L28 228 L38 112 Z', sh(dark?.05:-.07));
+      part('M166 50 L188 64 L196 224 L172 228 L162 112 Z', sh(dark?.05:-.07));
+      if(o.cuffs) { line('M6 212 L29 216'); line('M194 212 L171 216'); }
+    } else {
+      part('M34 50 L10 66 L20 110 L38 100 Z', sh(dark?.05:-.07));
+      part('M166 50 L190 66 L180 110 L162 100 Z', sh(dark?.05:-.07));
+    }
+    part(`M62 36 L138 36 L166 50 L${164+w} ${hem} L${36-w} ${hem} L34 50 Z`);
+    if(o.band) line(`M${36-w} ${hem-12} L${164+w} ${hem-12}`);
+  };
+  const crew = () => { part('M78 36 Q100 54 122 36 Z', inner, false); line('M76 36 Q100 58 124 36', 2.4); };
+  const shirtCollar = () => { part('M82 36 L118 36 L100 60 Z', inner, false); part('M80 30 L100 58 L86 74 L66 42 Z', sh(dark?.08:.06)); part('M120 30 L100 58 L114 74 L134 42 Z', sh(dark?.08:.06)); };
+  const bandCollar = () => { part('M80 26 L120 26 L123 40 Q100 47 77 40 Z', sh(dark?.06:.04)); part('M96 41 L104 41 L100 50 Z', inner, false); };
+  const placket = (from, to, n) => { line(`M96 ${from} L96 ${to}`, 1); line(`M104 ${from} L104 ${to}`, 1); for(let i=0;i<n;i++) dot(100, from + 12 + i*((to-from-20)/Math.max(1,n-1))); };
+  const zip = (from, to) => { line(`M100 ${from} L100 ${to}`, 2.6, '#9C9C9C'); line(`M100 ${from} L100 ${to}`, 2.6, '#6E6E6E', '1.4 2'); part(`M96.5 ${from+2} h7 v13 h-7 Z`, '#C4C4C4', false); };
+  const chestPocket = () => line('M112 80 L136 80 L136 106 L112 106 Z');
+  const lapels = (bottom) => {
+    part(`M74 36 L100 ${bottom} L126 36 Z`, '#ECEAE4', false);
+    part(`M74 36 L100 ${bottom} L92 ${bottom+4} L70 76 L79 68 L64 44 Z`, sh(dark?.07:.05));
+    part(`M126 36 L100 ${bottom} L108 ${bottom+4} L130 76 L121 68 L136 44 Z`, sh(dark?.07:.05));
+  };
+
+  switch(L.type){
+    case 'tshirt': top(); crew(); if(L.pocket) chestPocket(); break;
+    case 'pulover': top({cuffs:true, band:true}); crew(); break;
+    case 'garbo': top({cuffs:true, band:true}); part('M78 14 L122 14 L124 42 Q100 50 76 42 Z', sh(dark?.04:-.02)); line('M77 27 Q100 32 123 27'); break;
+    case 'polo': top({cuffs:L.sleeves!=='rovid'}); shirtCollar(); placket(58, 104, 2); break;
+    case 'polo_zip': top({cuffs:true, band:true}); shirtCollar(); zip(56, 108); break;
+    case 'ing': top({cuffs:true}); shirtCollar(); placket(58, 236, 6); if(L.pocket) chestPocket(); break;
+    case 'ing_allo': top({cuffs:true}); bandCollar(); placket(46, 236, 6); if(L.pocket) chestPocket(); break;
+    case 'hoodie':
+      part('M64 40 Q58 4 100 2 Q142 4 136 40 Q100 30 64 40 Z', sh(dark?.06:-.08));
+      top({cuffs:true, band:true}); part('M80 38 Q100 64 120 38 Z', inner, false);
+      line('M92 46 L90 86', 1.4); line('M108 46 L110 86', 1.4);
+      line('M60 160 L140 160 L150 212 L50 212 Z'); break;
+    case 'kardigan': top({cuffs:true, band:true}); part('M76 36 L100 100 L124 36 Z', inner, false); line('M76 36 L100 100 L124 36', 2.2); placket(100, 236, 4); break;
+    case 'dzseki': top({cuffs:true, band:true}); bandCollar(); zip(42, 236); line('M52 168 L74 168'); line('M126 168 L148 168'); break;
+    case 'kabat': top({cuffs:true, hem:254, wide:true}); lapels(124); for(const y of [146,176,206]){ dot(88,y,3); dot(112,y,3); } line('M44 190 L72 190'); line('M128 190 L156 190'); break;
+    case 'blazer': top({hem:232}); lapels(128); dot(100,150,3); dot(100,176,3); line('M46 182 L74 182'); line('M126 182 L154 182'); line('M116 92 L136 90'); break;
+    case 'ruha':
+      part('M70 18 L130 18 L134 92 Q100 100 66 92 Z');
+      part('M66 92 Q100 100 134 92 L172 250 L28 250 Z');
+      part('M80 18 Q100 40 120 18 Z', inner, false); line('M66 92 Q100 100 134 92', 1.4); break;
+    case 'chino': case 'szovet': case 'farmer': {
+      part('M48 30 L152 30 L160 252 L110 252 L100 96 L90 252 L40 252 Z');
+      part('M48 18 L152 18 L152 32 L48 32 Z', sh(dark?.05:-.06));
+      for(const x of [60, 84, 112, 136]) part(`M${x} 15 h5 v19 h-5 Z`, sh(dark?.05:-.06), false);
+      line('M100 32 L100 74 Q100 82 91 84');
+      if(L.type==='farmer'){
+        const st = '#D49A3A';
+        dot(100, 25, 3, '#B08D57');
+        line('M50 36 Q72 38 74 58'); line('M150 36 Q128 38 126 58');
+        line('M106 32 L106 72 Q106 80 98 86', 1, st, '2 2'); line('M52 40 Q70 42 72 58', 1, st, '2 2'); line('M148 40 Q130 42 128 58', 1, st, '2 2');
+        line('M42 244 L90 244', 1, st, '2 2'); line('M110 244 L158 244', 1, st, '2 2');
+        dot(74, 58, 1.6, '#B08D57'); dot(126, 58, 1.6, '#B08D57');
+      } else {
+        dot(100, 25, 2.6);
+        line('M50 36 Q64 40 68 62'); line('M150 36 Q136 40 132 62');
+        line('M67 40 L65 248', .9, sh(dark?.12:-.16)); line('M133 40 L135 248', .9, sh(dark?.12:-.16));
+      }
+      break; }
+    case 'melegito':
+      part('M48 30 L152 30 L150 234 L114 234 L100 96 L86 234 L50 234 Z');
+      part('M50 234 L86 234 L86 252 L52 252 Z', sh(dark?.05:-.06)); part('M114 234 L150 234 L148 252 L114 252 Z', sh(dark?.05:-.06));
+      part('M48 12 L152 12 L152 34 L48 34 Z', sh(dark?.05:-.06));
+      for(let x=56; x<150; x+=8) line(`M${x} 14 L${x} 32`, .7);
+      line('M94 34 Q92 48 88 58', 1.4); line('M106 34 Q108 48 112 58', 1.4);
+      line('M50 40 Q62 44 64 64'); line('M150 40 Q138 44 136 64'); break;
+    case 'short':
+      part('M48 30 L152 30 L162 146 L108 152 L100 96 L92 152 L38 146 Z');
+      part('M48 18 L152 18 L152 32 L48 32 Z', sh(dark?.05:-.06));
+      dot(100, 25, 2.6); line('M100 32 L100 72 Q100 80 91 82'); line('M50 36 Q64 40 68 60'); line('M150 36 Q136 40 132 60'); break;
+    case 'szoknya':
+      part('M60 30 L140 30 L170 236 L30 236 Z'); part('M60 18 L140 18 L140 32 L60 32 Z', sh(dark?.05:-.06)); break;
+    case 'sneaker':
+      part('M22 196 Q18 152 56 142 L96 134 Q118 128 128 148 Q144 174 180 180 L184 196 Z');
+      part('M16 196 L186 196 Q190 210 178 214 L26 214 Q12 210 16 196 Z', lum(base) > .8 ? mix(base,-.1) : '#F2F1EC');
+      line('M24 204 L180 204', .8, '#C9C7C0');
+      for(const [a,b] of [[[78,146],[100,140]],[[84,156],[106,150]],[[90,166],[112,160]]]) line(`M${a[0]} ${a[1]} L${b[0]} ${b[1]}`, 1.6, lum(base) > .8 ? '#9B9B95' : '#F2F1EC');
+      line('M130 152 Q150 182 182 186', 1); break;
+    case 'csizma':
+      part('M44 194 L46 72 L106 72 L110 142 Q150 160 180 174 L184 194 Z');
+      part('M40 194 L188 194 L188 212 L40 212 Z', '#2B2622', false);
+      line('M46 84 L106 84', 1.2); for(let y=96; y<140; y+=12){ dot(96, y, 2); dot(108, y+4, 2); }
+      line('M110 142 Q140 150 150 170', 1); break;
+    case 'felcipo':
+      part('M18 194 Q20 166 60 158 L118 152 Q160 156 184 184 L184 194 Z');
+      part('M14 194 L188 194 L186 204 L16 204 Z', mix(base, dark ? .2 : -.45), false);
+      line('M60 160 Q90 176 120 154', 1.4); line('M78 166 L102 164', 2.4, mix(base, dark ? .3 : -.3)); break;
+    case 'taska':
+      line('M70 112 Q70 58 100 58 Q130 58 130 112', 6, sh(dark?.1:-.12));
+      part('M40 110 L160 110 L168 236 L32 236 Z');
+      part('M40 110 L160 110 L156 160 Q100 174 44 160 Z', sh(dark?.06:-.05));
+      dot(100, 160, 4, '#C4A86A'); break;
+    case 'sapka':
+      part('M42 150 Q42 82 100 80 Q158 82 158 150 Z');
+      part('M42 150 Q100 140 158 150 L192 164 Q100 174 30 160 Z', sh(dark?.06:-.08));
+      line('M100 82 L100 148', .9); dot(100, 82, 3.5, sh(dark?.1:-.1)); break;
+    case 'ov':
+      part('M10 116 L190 116 L190 144 L10 144 Z');
+      part('M120 110 L150 110 L150 150 L120 150 Z', 'none', false); line('M120 110 L150 110 L150 150 L120 150 Z', 3, '#B9B9B9');
+      line('M150 130 L134 130', 3, '#B9B9B9'); for(const x of [40, 60, 80]) dot(x, 130, 2.2, inner); break;
+    case 'sal':
+      part('M70 26 L130 26 L128 118 L146 236 L118 240 L104 128 L96 128 L82 240 L54 236 L72 118 Z');
+      for(const x of [58, 66, 74, 122, 130, 138]) line(`M${x} 238 L${x} 250`, 1.2); break;
+    default: top({cuffs:true, band:true}); crew();
+  }
+  const id = 'tx' + (++svgN);
+  const tdef = texDef(L.texture, base, L.color2, id);
+  const parts = P.map(([d, fill, t]) => `<path d="${d}" fill="${fill}" stroke="${edge}" stroke-width="1.6" stroke-linejoin="round"/>` + (t && tdef ? `<path d="${d}" fill="url(#${id})"/>` : '')).join('');
+  const lines = Ls.map(([d, s, w, dash]) => `<path d="${d}" fill="none" stroke="${s}" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round"${dash ? ` stroke-dasharray="${dash}"` : ''}/>`).join('');
+  const dots = D.map(([x, y, r, f]) => `<circle cx="${x}" cy="${y}" r="${r}" fill="${f}"/>`).join('');
+  const vb = it.category === 'cipo' ? (L.type === 'csizma' ? '0 40 200 200' : '0 78 200 170') : '-4 -6 208 270';
+  return `<svg class="ill" viewBox="${vb}" role="img" aria-label="${esc(it.name||'')}"><defs>${tdef}</defs>${parts}${lines}${dots}</svg>`;
+}
+
+
+// ---------- samples ----------
+const SAMPLES = [
+  ['Fehér póló','felso','tshirt','sima','fehér','#F4F4F1',['laza','minimal'],['tavasz','nyar','osz'],2],
+  ['Sötétkék ing','felso','ing','sima','sötétkék','#24345A',['uzleti','elegans'],['tavasz','osz','tel'],4],
+  ['Bézs kötött pulóver','felso','pulover','kotott','bézs','#C9B79A',['laza','minimal'],['osz','tel'],2],
+  ['Fekete garbó','felso','garbo','bordas','fekete','#1C1C1E',['elegans','minimal'],['osz','tel'],3],
+  ['Egyenes farmer','also','farmer','farmer','farmerkék','#3F5A80',['laza','utcai'],['tavasz','nyar','osz','tel'],2],
+  ['Bézs chino','also','chino','sima','bézs','#CDB894',['minimal','uzleti'],['tavasz','nyar','osz'],3],
+  ['Szürke szövetnadrág','also','szovet','sima','szürke','#5A5C60',['uzleti','elegans'],['tavasz','osz','tel'],4],
+  ['Teve kabát','kabat','kabat','sima','teve','#B48A5A',['elegans','minimal'],['osz','tel'],4],
+  ['Farmerdzseki','kabat','dzseki','farmer','farmerkék','#6F8DB5',['laza','utcai'],['tavasz','osz'],2],
+  ['Fehér sneaker','cipo','sneaker','sima','fehér','#F2F2EE',['laza','sportos','utcai'],['tavasz','nyar','osz'],2],
+  ['Barna bakancs','cipo','csizma','sima','barna','#6E4B32',['laza'],['osz','tel'],3],
+  ['Fekete loafer','cipo','felcipo','sima','fekete','#1E1E1E',['uzleti','elegans'],['tavasz','osz','tel'],4],
+].map(([name,category,type,texture,colorName,colorHex,styles,seasons,formality],i)=>({id:'demo'+i,name,category,colorName,colorHex,styles,seasons,formality,look:{type,texture},demo:true}));
+
+// ---------- state & storage ----------
+const defProfile = () => ({styles:[], likeColors:[], avoidColors:[], about:'', q:{}, view:'rajz'});
+const S = { items:new Map(), favs:new Map(), profile:defProfile(), filter:'all', occ:'hetkoznap', occResults:[], occFrom:null, busy:{} };
+let LOG = {wears:[], fb:[]}, CHAT = [], TODAY = null, ANALYSIS = null;
+const K = {main:'gardrob.v1', log:'gardrob.log', chat:'gardrob.chat', today:'gardrob.today', analysis:'gardrob.analysis', or:'gardrob.openrouter'};
+const lsGet = (k, d) => { try{ const v = JSON.parse(localStorage.getItem(k) || 'null'); return v ?? d; }catch{ return d; } };
+const lsSet = (k, v) => { try{ localStorage.setItem(k, JSON.stringify(v)); return true; }catch{ toast('Megtelt a böngésző tárhelye. Törölj néhány ruhát.'); return false; } };
+function load(){
+  const d = lsGet(K.main, {});
   (d.items||[]).forEach(i=>S.items.set(i.id,i)); (d.favs||[]).forEach(f=>S.favs.set(f.id,f));
-  if(d.profile) S.profile = {...defProfile(), ...d.profile}; if(d.me) S.me = d.me; }catch{} }
-function lsSave(){ try{ localStorage.setItem(LS_KEY, JSON.stringify({items:[...S.items.values()], favs:[...S.favs.values()], profile:S.profile, me:S.me})); }
-  catch{ toast('Megtelt a böngésző tárhelye. Törölj néhány ruhát.'); } }
-const writing = new Map();
-async function put(key, obj){
-  if(S.mode !== 'cloud'){ lsSave(); return; }
-  const prev = writing.get(key) || Promise.resolve();
-  const p = prev.then(() => db.doc(`data/users/${uidv}/${key}`).set(obj)).catch(onWriteErr);
-  writing.set(key, p); return p;
+  S.profile = {...defProfile(), ...(d.profile||{})}; S.profile.q = S.profile.q || {};
+  LOG = lsGet(K.log, {wears:[], fb:[]}); CHAT = lsGet(K.chat, []); TODAY = lsGet(K.today, null); ANALYSIS = lsGet(K.analysis, null);
 }
-async function remove(key){
-  if(S.mode !== 'cloud'){ lsSave(); return; }
-  try{ await db.doc(`data/users/${uidv}/${key}`).delete(); }catch(e){ onWriteErr(e); }
-}
-function onWriteErr(e){
-  if(e?.code==='quota_exceeded') toast('Betelt a tárhely. Törölj néhány ruhát.');
-  else if(e?.code==='invalid_argument') toast('Ezt nem tudtam elmenteni. Lehet, hogy túl nagy a kép.');
-  else toast('Mentési hiba. Próbáld újra.');
-}
-
-// ---------- boot ----------
-async function boot(){
-  renderAll();
-  const c = window.claude;
-  if(!c || typeof c.use !== 'function'){ S.mode='local'; lsLoad(); enableOrAI(); renderAll(); return; }
-  const [d,u,s] = await Promise.all([c.use('db'), c.use('user'), c.use('sample')].map(p=>p.catch(()=>null)));
-  sample = s;
-  if(s){ try{ sampleLimits = await s.limits(); }catch{} S.engine = 'ai'; }
-  uidv = u ? await u.id() : null;
-  if(d && uidv){ db = d; S.mode = 'cloud'; subscribe(); }
-  else { S.mode = 'local'; lsLoad(); }
-  renderAll();
-}
-let profileDirty = false;
-function subscribe(){
-  let first = false;
-  const t = setTimeout(()=>{ if(!first) toast('A szekrényed még nem érhető el. Ellenőrizd a netet.'); }, 10000);
-  db.collection(`data/users/${uidv}`).onSnapshot(snap => {
-    const items = new Map(), favs = new Map(); let prof = null, me = null;
-    for(const d of snap.docs){ const v = d.data(); if(!v) continue;
-      if(d.id==='profile') prof = v; else if(d.id==='photo') me = v; else if(d.id.startsWith('i_')) items.set(v.id, v); else if(d.id.startsWith('f_')) favs.set(v.id, v); }
-    S.items = items; S.favs = favs; S.me = me && me.img ? me : null;
-    if(prof && !profileDirty) S.profile = {...defProfile(), ...prof};
-    if(!snap.metadata.fromCache){ first = true; clearTimeout(t); }
-    renderAll();
-  }, err => {
-    clearTimeout(t); S.mode='local'; lsLoad(); renderAll();
-    toast('A fiókos mentés nem érhető el, most ebben a böngészőben mentek.');
-  });
-}
-
-// ---------- routing ----------
-const ROUTES = {szekreny:'closet', szettek:'outfits', stilus:'style'};
-let view = 'closet';
-function route(){ const h = location.hash.replace('#',''); view = ROUTES[h] || 'closet';
-  for(const v of ['closet','outfits','style']) $('#view-'+v).hidden = v!==view;
-  document.querySelectorAll('nav.tabs a').forEach(a=>{ if(a.dataset.view===view) a.setAttribute('aria-current','page'); else a.removeAttribute('aria-current'); });
-  $('#fab').hidden = view !== 'closet';
-  if(view==='outfits' && !S.results.length && !S.busy) quickGenerate(false);
-  renderAll(); window.scrollTo(0,0); }
-addEventListener('hashchange', route);
-
-// ---------- helpers ----------
+const save = () => lsSet(K.main, {items:[...S.items.values()], favs:[...S.favs.values()], profile:S.profile});
+const saveLog = () => { LOG.wears = LOG.wears.slice(-60); LOG.fb = LOG.fb.slice(-60); lsSet(K.log, LOG); };
 const realItems = () => [...S.items.values()].sort((a,b)=>(b.ts||0)-(a.ts||0));
-const isDemo = () => S.mode!=='loading' && S.items.size===0;
+const isDemo = () => S.items.size === 0;
 const pool = () => isDemo() ? SAMPLES : realItems();
 const byId = id => S.items.get(id) || SAMPLES.find(s=>s.id===id);
-function chip(label, pressed, data, extra=''){ return `<button type="button" class="chip" aria-pressed="${pressed}" ${data}>${esc(label)}${extra}</button>`; }
+const chip = (label, pressed, data, extra='') => `<button type="button" class="chip" aria-pressed="${pressed}" ${data}>${esc(label)}${extra}</button>`;
 
-// ---------- render: closet ----------
-function renderCloset(){
-  const el = $('#closet');
-  const n = S.items.size;
-  $('#count').textContent = S.mode==='loading' ? 'betöltés…' : n ? `${n} darab` : 'mintaszekrény';
-  if(S.mode==='loading'){ el.innerHTML = '<p class="empty">Szekrény betöltése…</p>'; $('#filters').innerHTML=''; return; }
-  const list = pool();
-  const counts = {}; list.forEach(i=>counts[i.category]=(counts[i.category]||0)+1);
-  $('#filters').innerHTML = chip('Mind', S.filter==='all', 'data-filter="all"', ` <small>${list.length}</small>`) +
-    CATS.filter(([k])=>counts[k]).map(([k,l])=>chip(l, S.filter===k, `data-filter="${k}"`, ` <small>${counts[k]}</small>`)).join('');
-  const shown = list.filter(i=>S.filter==='all'||i.category===S.filter);
-  const moved = IS_CLAUDE ? `<div class="banner" style="margin-bottom:14px"><div style="flex:1"><b>Az app átköltözött</b><p>A teljes app, felpróbálással együtt, mostantól a webes változatban van. Ott töltsd fel a ruháidat.</p></div><a class="primary btnlabel" href="${PAGES_URL}" target="_blank" rel="noopener">Megnyitás</a></div>` : '';
-  const banner = isDemo() ? `<div class="banner"><div><b>Ez egy mintaszekrény</b><p>Fotózd le a ruháidat egyesével (sima háttér előtt a legjobb), és töltsd fel őket. A háttérüket egységesítem, az AI pedig felismeri a darabot, a színét és a stílusát. Amint feltöltötted az elsőt, a minták eltűnnek.</p></div></div>` : '';
-  const oldPics = IS_CLAUDE ? 0 : realItems().filter(i=>i.img && !i.std).length;
-  const stdBtn = oldPics ? `<div class="banner"><div style="flex:1"><b>Egységes képek</b><p>${oldPics} ruhádnak még az eredeti fotója van. Eltávolítom a hátteret, és egyforma, világos háttérre teszem őket. Így a felpróbálás is jobban működik.</p></div><button type="button" class="ghost" id="stdall">Egységesítés</button></div>` : '';
-  const tip = (!IS_CLAUDE && !sample && S.mode!=='loading') ? `<div class="banner"><p>Tipp: a Stílusom fülön lépj be OpenRouterrel, és az AI magától felcímkézi a ruháidat, és szetteket állít össze.</p></div>` : '';
-  el.innerHTML = moved + banner + stdBtn + tip + `<div class="grid" style="margin-top:${banner||stdBtn||tip?'14px':'0'}">` + shown.map(it => `
-    <button type="button" class="item" data-item="${esc(it.id)}">
-      ${it.demo ? '<span class="badge">Minta</span>' : it.review ? '<span class="badge">Ellenőrizd</span>' : ''}
-      <div class="ph">${thumb(it)}</div>
-      <div class="meta"><div class="nm">${esc(it.name)}</div>
-        <div class="sub"><span class="dot" style="background:${esc(it.colorHex)}"></span>${esc(CAT_L[it.category]||'')}${formDots(it.formality||2)}</div></div>
-    </button>`).join('') + '</div>';
-}
-
-// ---------- upload ----------
-function loadImg(file){ return new Promise((res,rej)=>{ const u=URL.createObjectURL(file); const im=new Image();
-  im.onload=()=>{ URL.revokeObjectURL(u); res(im); }; im.onerror=()=>{ URL.revokeObjectURL(u); rej(new Error('decode')); }; im.src=u; }); }
-function dominant(cv){
-  const s=48, c=document.createElement('canvas'); c.width=c.height=s; const x=c.getContext('2d',{willReadFrequently:true});
-  x.drawImage(cv,0,0,s,s); const d=x.getImageData(0,0,s,s).data;
-  const px=(i,j)=>{const k=(j*s+i)*4; return [d[k],d[k+1],d[k+2]];};
-  const corners=[px(1,1),px(s-2,1),px(1,s-2),px(s-2,s-2)]; const bg=corners.reduce((a,c)=>a.map((v,i)=>v+c[i]/4),[0,0,0]);
-  const bins=new Map(); let total=0;
-  for(let j=Math.floor(s*.18);j<s*.82;j++) for(let i=Math.floor(s*.22);i<s*.78;i++){ const [r,g,b]=px(i,j);
-    if(Math.hypot(r-bg[0],g-bg[1],b-bg[2])<38) continue; const key=(r>>4)<<8|(g>>4)<<4|(b>>4);
-    const e=bins.get(key)||{n:0,r:0,g:0,b:0}; e.n++; e.r+=r; e.g+=g; e.b+=b; bins.set(key,e); total++; }
-  if(!total) return rgbToHex(...bg);
-  let best=null; for(const e of bins.values()) if(!best||e.n>best.n) best=e;
-  return rgbToHex(best.r/best.n, best.g/best.n, best.b/best.n);
-}
-async function prep(file, max = 520){
-  const im = await loadImg(file); const k = Math.min(1, max/Math.max(im.naturalWidth, im.naturalHeight));
-  const cv = document.createElement('canvas'); cv.width = Math.round(im.naturalWidth*k); cv.height = Math.round(im.naturalHeight*k);
-  const x = cv.getContext('2d'); x.fillStyle='#fff'; x.fillRect(0,0,cv.width,cv.height); x.drawImage(im,0,0,cv.width,cv.height);
-  let q = 0.8, dataUrl = cv.toDataURL('image/jpeg', q);
-  while(dataUrl.length > 220000 && q > 0.4){ q -= 0.1; dataUrl = cv.toDataURL('image/jpeg', q); }
-  const blob = await new Promise(r=>cv.toBlob(r,'image/jpeg',0.85));
-  return {dataUrl, blob, hex: dominant(cv)};
-}
-function normItem(raw, base){
-  const cat = CAT_L[raw.category] ? raw.category : 'felso';
-  const hex = /^#[0-9a-f]{6}$/i.test(raw.colorHex||'') ? raw.colorHex : base.hex;
-  const colorName = String(raw.colorName || nearestColor(hex)).slice(0,30).toLowerCase();
-  const styles = (Array.isArray(raw.styles)?raw.styles:[]).filter(s=>STY_L[s]).slice(0,3);
-  const seasons = (Array.isArray(raw.seasons)?raw.seasons:[]).filter(s=>SEA_L[s]);
-  const f = Math.min(5, Math.max(1, Math.round(Number(raw.formality)||2)));
-  const name = String(raw.name || `${colorName[0].toUpperCase()+colorName.slice(1)} ${CAT_L[cat].toLowerCase()}`).slice(0,60);
-  return {id: uid8(), ts: Date.now(), img: base.dataUrl, std: !!base.std, name, category: cat, colorName, colorHex: hex.toUpperCase(), styles, seasons, formality: f, review: !raw.name};
-}
-const TAG_PROMPT = n => `${n} ruhadarab fotóját kapod, ebben a sorrendben. Mindegyikről add meg az adatokat ugyanabban a sorrendben.
-Csak egy JSON tömböt válaszolj, ${n} elemmel, így:
-[{"name":"rövid magyar név, pl. Fehér oxford ing","category":"felso|also|ruha|kabat|cipo|kieg","colorName":"magyar színnév, kisbetűvel","colorHex":"#rrggbb a darab fő színe","styles":["legfeljebb 3 a következőkből: laza, minimal, elegans, uzleti, utcai, sportos, bohem, romantikus"],"seasons":["évszakok, amikor hordható: tavasz, nyar, osz, tel"],"formality":1}]
-A formality 1-5: 1 sport, 2 laza, 3 smart casual, 4 üzleti, 5 gála. A kategória: felso = póló/ing/pulóver/blúz, also = nadrág/szoknya/short, ruha = egyrészes ruha/overál, kabat = kabát/dzseki/blézer, cipo = lábbeli, kieg = táska/öv/sál/ékszer/sapka.`;
-
-async function addFiles(files){
-  files = [...files].filter(f => !f.type || f.type.startsWith('image/'));
-  if(!files.length) return;
-  const prog = $('#progress');
-  const setProg = t => prog.innerHTML = `<div class="progress"><div class="spin"></div><div>${esc(t)}</div></div>`;
-  setProg(`${files.length} kép előkészítése…`);
-  const prepared = [];
-  for(let i=0;i<files.length;i++){
-    try{
-      let p = await prep(files[i], IS_CLAUDE ? 520 : 1024);
-      if(!IS_CLAUDE){
-        setProg(`Háttér eltávolítása… (${i+1}/${files.length})${i===0 ? '. Az első alkalommal letölti a modellt, ez kb. fél perc.' : ''}`);
-        try{ const r = await standardize(p.blob); p = r ? {...r, std:true} : {...(await prep(files[i])), std:true}; }
-        catch{ p = await prep(files[i]); }
-      }
-      prepared.push(p);
-    }catch{}
-  }
-  if(!prepared.length){ prog.innerHTML=''; toast('Ezeket a képeket nem tudtam megnyitni.'); return; }
-  let tags = prepared.map(()=>({}));
-  const canSee = sample && !aiOff && sampleLimits?.images;
-  if(canSee){
-    const per = Math.max(1, Math.min(6, sampleLimits.images.maxCount||1));
-    for(let i=0;i<prepared.length;i+=per){
-      const chunk = prepared.slice(i,i+per);
-      setProg(`Az AI nézi a ruháidat… (${Math.min(i+per,prepared.length)}/${prepared.length})`);
-      try{
-        const res = await sample.json(TAG_PROMPT(chunk.length), {images: chunk.map(c=>c.blob), modelTier:'quick'});
-        const arr = Array.isArray(res) ? res : (res && Array.isArray(res.items) ? res.items : []);
-        chunk.forEach((_,j)=>{ if(arr[j] && typeof arr[j]==='object') tags[i+j] = arr[j]; });
-      }catch(e){ if(handleSampleErr(e)) break; }
-    }
-  }
-  const added = prepared.map((p,i)=>normItem(tags[i]||{}, p));
-  for(const it of added){ S.items.set(it.id, it); }
-  if(S.mode==='cloud'){ for(const it of added) await put('i_'+it.id, it); } else lsSave();
-  prog.innerHTML = '';
-  S.filter = 'all'; S.results = [];
-  renderAll();
-  const unchecked = added.filter(a=>a.review).length;
-  toast(unchecked ? `${added.length} ruha hozzáadva. Nézd át a címkéket.` : `${added.length} ruha hozzáadva és felcímkézve.`);
-}
-function handleSampleErr(e){
-  const c = e?.code;
-  if(['not_granted','sampling_disabled','not_declared','capability_disabled','capability_removed'].includes(c)){
-    aiOff = true; S.engine='quick'; toast('Az AI nem érhető el, ezért a gyors módot használom.'); renderAll(); return true; }
-  if(c==='images_unavailable'){ sampleLimits = {...sampleLimits, images:null}; return true; }
-  if(c==='cancelled') return true;
-  if(c==='rate_limited'){ toast(IS_CLAUDE ? 'Túl sok kérés. Próbáld újra kicsit később.' : 'Elfogyott a mai ingyenes AI-keret, vagy túl sok volt a kérés. Próbáld később.'); return true; }
-  if(c==='session_expired'){ toast('Jelentkezz be újra a claude.ai-on.'); return true; }
-  if(c==='or_auth'){ toast('Lépj be újra az OpenRouterrel a Stílusom fülön.'); return true; }
-  if(c==='invalid_json'){ toast('Az AI válasza nem volt használható. Próbáld újra.'); return true; }
-  toast('Az AI most nem válaszolt. Próbáld újra.'); return false;
-}
-
-// ---------- item sheet ----------
-let editing = null, delArmed = 0;
-function openSheet(it){
-  editing = JSON.parse(JSON.stringify(it)); delArmed = 0;
-  $('#f-ph').innerHTML = thumb(it);
-  $('#f-name').value = it.name; $('#f-color').value = (it.colorHex||'#888888').toLowerCase(); $('#f-colorname').value = it.colorName||'';
-  $('#f-form').value = it.formality||2; $('#f-del').textContent = 'Törlés';
-  renderSheetChips(); $('#sheet').hidden = false;
-}
-function renderSheetChips(){
-  $('#f-cat').innerHTML = CATS.map(([k,l])=>chip(l, editing.category===k, `data-fcat="${k}"`)).join('');
-  $('#f-styles').innerHTML = STYLES.map(([k,l])=>chip(l, editing.styles.includes(k), `data-fsty="${k}"`)).join('');
-  $('#f-seasons').innerHTML = SEASONS.map(([k,l])=>chip(l, editing.seasons.includes(k), `data-fsea="${k}"`)).join('');
-}
-function closeSheet(){ $('#sheet').hidden = true; editing = null; }
-$('#f-color').addEventListener('input', e => { $('#f-colorname').value = nearestColor(e.target.value); });
-$('#itemForm').addEventListener('submit', async e => {
-  e.preventDefault(); if(!editing) return;
-  const it = {...editing, name: $('#f-name').value.trim() || editing.name, colorHex: $('#f-color').value.toUpperCase(),
-    colorName: ($('#f-colorname').value.trim() || nearestColor($('#f-color').value)).toLowerCase(), formality: +$('#f-form').value, review:false};
-  S.items.set(it.id, it); closeSheet(); S.results = []; renderAll(); await put('i_'+it.id, it); toast('Mentve');
-});
-$('#f-del').addEventListener('click', async () => {
-  if(!editing) return;
-  if(Date.now() - delArmed > 3000){ delArmed = Date.now(); $('#f-del').textContent = 'Biztos? Koppints újra'; return; }
-  const id = editing.id; S.items.delete(id); closeSheet(); S.results = []; renderAll(); await remove('i_'+id); toast('Törölve');
-});
-
-// ---------- outfit engine (offline) ----------
-function itemScore(it, ctx){
-  let s = 0;
-  for(const x of it.styles||[]){ if(ctx.prof.styles.includes(x)) s += 2; if(ctx.occ.st.includes(x)) s += 1.5; }
-  if(it.seasons?.length) s += it.seasons.some(x=>ctx.seasons.includes(x)) ? 1.2 : -4;
-  s -= Math.abs((it.formality||2) - ctx.occ.f) * 1.4;
-  if(ctx.prof.likeColors.includes(it.colorName)) s += 1;
-  if(ctx.prof.avoidColors.includes(it.colorName)) s -= 3;
-  if(ctx.inspo?.length){ const [r,g,b] = hexToRgb(it.colorHex);
-    const md = Math.min(...ctx.inspo.map(h=>{ const [r2,g2,b2] = hexToRgb(h); return Math.hypot(r-r2,g-g2,b-b2); }));
-    s += Math.max(0, 3 - md/45); }
-  return s;
-}
-function harmony(items){
-  const acc = items.filter(i=>!isNeutral(i.colorHex));
-  if(!acc.length) return {s:.6, note:'semleges, letisztult színek'};
-  const hs = []; for(const a of acc){ const h = hsl(a.colorHex).h; if(!hs.some(x=>hueDiff(x,h)<22)) hs.push(h); }
-  if(hs.length===1) return {s:1.5, note: acc.length>1 ? 'ton-sur-ton színvilág' : `semleges alap, ${acc[0].colorName} kiemeléssel`};
-  if(hs.length===2){ const d = hueDiff(hs[0],hs[1]);
-    if(d<50) return {s:.8, note:'rokon árnyalatok'};
-    if(Math.abs(d-180)<35) return {s:.7, note:'merész komplementer színpár'};
-    return {s:-1.5, note:'két erős szín'}; }
-  return {s:-3, note:'sok szín'};
-}
-function wpick(arr, temp=1.3){
-  if(!arr.length) return null; const top = arr.slice(0,6);
-  const w = top.map(x=>Math.exp(x._s/temp)); const sum = w.reduce((a,b)=>a+b,0); let r = Math.random()*sum;
-  for(let i=0;i<top.length;i++){ r -= w[i]; if(r<=0) return top[i]; } return top[0];
-}
-function genQuick(items, occK, wxK, n=3, inspo=null){
-  const occ = OCC.find(o=>o.k===occK), seasons = seasonsFor(wxK);
-  const ctx = {occ, seasons, prof:S.profile, inspo};
-  const g = {}; for(const it of items){ (g[it.category] ||= []).push({...it, _s: itemScore(it, ctx) + Math.random()*0.6}); }
-  for(const k in g) g[k].sort((a,b)=>b._s-a._s);
-  const canSep = g.felso?.length && g.also?.length, canDress = g.ruha?.length;
-  if(!canSep && !canDress) return {error:'Kell legalább egy felső és egy alsó, vagy egy ruha.'};
-  const seen = new Map();
-  for(let t=0;t<260;t++){
-    const dress = canDress && (!canSep || Math.random() < (occ.k==='sport'?0.05:0.3));
-    const core = dress ? [wpick(g.ruha)] : [wpick(g.felso), wpick(g.also)];
-    const set = [...core];
-    if(g.cipo) set.push(wpick(g.cipo));
-    const coldish = wxK==='hideg' || wxK==='eso';
-    if(g.kabat && (coldish || (wxK==='enyhe' && Math.random()<.5))) set.push(wpick(g.kabat));
-    if(g.kieg && Math.random()<.55) set.push(wpick(g.kieg));
-    const h = harmony(set);
-    const score = set.reduce((a,i)=>a+i._s,0)/set.length + h.s + (coldish && g.kabat && !set.some(i=>i.category==='kabat') ? -3 : 0);
-    const key = core.map(i=>i.id).join('+');
-    if(!seen.has(key) || seen.get(key).score < score) seen.set(key, {set, core, score, h});
-  }
-  const sorted = [...seen.values()].sort((a,b)=>b.score-a.score);
-  const chosen = [];
-  const used = new Set();
-  for(const c of sorted){ if(chosen.length>=n) break; if(c.core.some(i=>used.has(i.id))) continue; chosen.push(c); c.core.forEach(i=>used.add(i.id)); }
-  for(const c of sorted){ if(chosen.length>=n) break; if(!chosen.includes(c)) chosen.push(c); }
-  return {outfits: chosen.map(c=>{
-    const stc = {}; c.set.forEach(i=>(i.styles||[]).forEach(s=>stc[s]=(stc[s]||0)+1));
-    const main = Object.entries(stc).sort((a,b)=>b[1]-a[1])[0]?.[0];
-    const avgF = (c.set.reduce((a,i)=>a+(i.formality||2),0)/c.set.length);
-    const title = `${main?STY_L[main]:'Kényelmes'} ${occ.l.toLowerCase()}`;
-    const why = `${cap(c.h.note)}. ${main?STY_L[main]+' hangulat, ':''}formalitás ${avgF.toFixed(1).replace('.',',')}/5, ${occ.l.toLowerCase()} alkalomra.`;
-    return {itemIds: c.set.map(i=>i.id), title, why, tip:'', occ:occ.k};
-  })};
-}
-const cap = s => s ? s[0].toUpperCase()+s.slice(1) : s;
-
-function quickGenerate(show=true){
-  if(S.mode==='loading') return;
-  const r = genQuick(pool(), S.occ, S.wx);
-  S.results = r.outfits || []; S.resultsFrom = isDemo() ? 'demo' : 'quick';
-  S.statusMsg = r.error || '';
-  if(show) renderOutfits();
-}
-
-// ---------- outfit engine (Claude) ----------
-let aiCtl = null;
-function outfitLines(items){
-  return 'Ruhatár (azonosító | kategória | név | szín | stílusok | évszakok | formalitás 1-5):\n' +
-    items.slice(0,180).map(i=>[i.id, i.category, i.name, i.colorName, (i.styles||[]).join(','), (i.seasons||[]).join(',')||'bármikor', i.formality||2].join(' | ')).join('\n');
-}
-function parseOutfits(res, items){
-  const ids = new Set(items.map(i=>i.id));
-  return (Array.isArray(res?.outfits) ? res.outfits : []).map(o=>{
-    const itemIds = [...new Set((Array.isArray(o?.items)?o.items:[]).map(String).filter(id=>ids.has(id)))];
-    const cats = itemIds.map(id=>byId(id).category);
-    const ok = cats.includes('ruha') || (cats.includes('felso') && cats.includes('also'));
-    return ok ? {itemIds, title:String(o.title||'Szett').slice(0,80), why:String(o.why||'').slice(0,400), tip:String(o.tip||'').slice(0,200), missing:String(o.missing||'').slice(0,200), occ:S.occ} : null;
-  }).filter(Boolean);
-}
-async function aiGenerate(){
-  const items = pool(); const occ = OCC.find(o=>o.k===S.occ); const wx = WX.find(w=>w.k===S.wx);
-  const p = S.profile;
-  const lines = outfitLines(items);
-  const extra = $('#extra').value.trim().slice(0,300);
-  const prompt = `Személyes stylist vagy. A felhasználó ruhatárából állíts össze 3 különböző szettet.
-Alkalom: ${occ.l}. Időjárás: ${wx.l}. Mostani évszak: ${SEA_L[curSeason()]}.
-${extra ? 'Különleges kérés: '+extra : ''}
-Stílusprofil — kedvelt stílusok: ${p.styles.map(s=>STY_L[s]).join(', ')||'nincs megadva'}; kedvenc színek: ${p.likeColors.join(', ')||'-'}; kerülendő színek: ${p.avoidColors.join(', ')||'-'}.
-Magáról írta: "${(p.about||'').slice(0,800)}"
-Szabályok: minden szett tartalmazzon vagy egy darabot a "ruha" kategóriából, vagy egy felsőt és egy alsót. Tegyél bele cipőt, ha van. Hideg vagy esős időben kabátot is, ha van. Csak a listában szereplő azonosítókat használd. A 3 szett alapdarabjai lehetőleg különbözzenek. Figyelj a színharmóniára és a formalitásra.
-${lines}
-
-Csak JSON-t válaszolj, így:
-{"outfits":[{"title":"rövid, ütős magyar cím","items":["azonosító1","azonosító2"],"why":"1-2 mondat magyarul: miért működik és hogyan illik a stílusához","tip":"egy rövid styling tipp (pl. tűrd be, hajtsd fel)"}]}`;
-  aiCtl = new AbortController(); S.busy = true; S.statusMsg = ''; renderOutfits();
-  try{
-    const res = await sample.json(prompt, {signal: aiCtl.signal, cache:false});
-    const outs = parseOutfits(res, items);
-    if(outs.length){ S.results = outs; S.resultsFrom = isDemo() ? 'demo' : 'ai'; }
-    else { toast('Nem kaptam használható szettet, ezért a gyors módot használtam.'); quickGenerate(false); }
-  }catch(e){ handleSampleErr(e); }
-  finally{ S.busy = false; aiCtl = null; renderOutfits(); }
-}
-
-// ---------- render: outfits ----------
-function outfitCard(o, saved){
-  const its = o.itemIds.map(byId).filter(Boolean).sort((a,b)=>(CAT_ORDER[a.category]??9)-(CAT_ORDER[b.category]??9));
-  if(!its.length) return '';
-  const occ = OCC.find(x=>x.k===o.occ);
-  return `<article class="outfit">
-    <div><div class="kicker">${esc(occ?occ.l:'Szett')} · ${its.length} darab</div><h3>${esc(o.title)}</h3></div>
-    <div class="lay">${its.map(i=>`<div class="tile">${thumb(i)}<span>${esc(i.name)}</span></div>`).join('')}</div>
-    ${o.why?`<p class="why">${esc(o.why)}</p>`:''}
-    ${o.tip?`<p class="tip">${esc(o.tip)}</p>`:''}
-    ${o.missing?`<p class="missing"><b>Ehhez vennék</b>${esc(o.missing)}</p>`:''}
-    <div class="acts">
-      ${IS_CLAUDE ? '' : `<button type="button" class="ghost" ${saved ? `data-tryf="${esc(o.id)}"` : `data-tryr="${esc(o._i)}"`}>Felpróbálom</button>`}
-      ${saved
-      ? `<button type="button" class="ghost danger" data-unfav="${esc(o.id)}">Eltávolítás</button>`
-      : `<button type="button" class="ghost" data-fav="${esc(o._i)}">♥ Mentés</button>`}</div>
-  </article>`;
-}
-function renderOutfits(){
-  $('#occ').innerHTML = OCC.map(o=>chip(o.l, S.occ===o.k, `data-occ="${o.k}"`)).join('');
-  $('#wx').innerHTML = WX.map(w=>chip(w.l, S.wx===w.k, `data-wx="${w.k}"`)).join('');
-  const aiAvail = !!sample && !aiOff;
-  $('#engine').hidden = !aiAvail;
-  if(!aiAvail) S.engine = 'quick';
-  document.querySelectorAll('#engine button').forEach(b=>b.setAttribute('aria-pressed', b.dataset.engine===S.engine));
-  $('#extra-wrap').hidden = S.engine!=='ai';
-  const go = $('#go'); go.disabled = S.busy || S.mode==='loading';
-  go.textContent = S.results.length ? 'Újabb szettek' : 'Szettek összeállítása';
-  const st = $('#status');
-  const strip = S.resultsFrom==='inspo' && S.inspo.length
-    ? `<div class="panel"><div class="row"><h2 class="sec">Inspiráció</h2><button type="button" class="ghost" data-act="clear-inspo">Törlés</button></div>
-       <div class="inspo">${S.inspo.map(p=>`<img src="${esc(p.dataUrl)}" alt="Inspirációs kép">`).join('')}</div>
-       ${S.inspoLook?`<p class="why">${esc(S.inspoLook)}</p>`:''}</div>` : '';
-  if(S.busy) st.innerHTML = strip + `<div class="progress" style="margin-top:${strip?'14px':'0'}"><div class="spin"></div><div style="flex:1">A stylist válogat… (fél perc is lehet)</div><button type="button" class="ghost" id="stop">Leállítás</button></div>`;
-  else if(strip) st.innerHTML = strip + (S.statusMsg ? `<div class="banner" style="margin-top:14px"><p>${esc(S.statusMsg)}</p></div>` : '');
-  else if(S.statusMsg) st.innerHTML = `<div class="banner"><p>${esc(S.statusMsg)}</p></div>`;
-  else if(S.resultsFrom==='demo' && S.results.length) st.innerHTML = `<div class="banner"><div><b>Mintaszettek</b><p>Ezek a mintaszekrényből készültek. Töltsd fel a saját ruháidat, és azokból válogatok.</p></div></div>`;
-  else st.innerHTML = '';
-  $('#results').innerHTML = S.results.map((o,i)=>outfitCard({...o,_i:i}, false)).join('');
-  const favs = [...S.favs.values()].sort((a,b)=>(b.ts||0)-(a.ts||0));
-  $('#favs').innerHTML = favs.length ? favs.map(f=>outfitCard(f, true)).join('') : '<p class="hint">Még nincs mentett szetted. Nyomj a ♥ Mentés gombra annál, amelyik tetszik.</p>';
-}
-
-// ---------- render: style ----------
-function renderStyle(){
-  const p = S.profile;
-  $('#p-styles').innerHTML = STYLES.map(([k,l])=>chip(l, p.styles.includes(k), `data-psty="${k}"`)).join('');
-  const sw = (list, attr) => COLORS.map(([n,h])=>`<button type="button" class="sw" style="background:${h}" title="${n}" aria-label="${n}" aria-pressed="${list.includes(n)}" ${attr}="${n}"></button>`).join('');
-  $('#p-like').innerHTML = sw(p.likeColors, 'data-like');
-  $('#p-avoid').innerHTML = sw(p.avoidColors, 'data-avoid');
-  const ta = $('#p-about'); if(document.activeElement !== ta) ta.value = p.about || '';
-  const items = pool(); const c = {}; items.forEach(i=>(i.styles||[]).forEach(s=>c[s]=(c[s]||0)+1));
-  const max = Math.max(1, ...Object.values(c));
-  const rows = STYLES.filter(([k])=>c[k]).sort((a,b)=>c[b[0]]-c[a[0]]);
-  $('#bars').innerHTML = rows.length ? rows.map(([k,l])=>`<div class="bar"><span>${l}</span><div class="tr"><i style="width:${(c[k]/max*100).toFixed(0)}%"></i></div><span class="n">${c[k]}</span></div>`).join('')
-    : '<p class="hint">Tölts fel ruhákat, és itt látod, milyen stílusok vannak túlsúlyban.</p>';
-  $('#detect').hidden = !items.length;
-  renderMe();
-  const note = $('#storage-note');
-  if(S.mode==='cloud') note.textContent = 'Mentés: a Claude-fiókodban, csak te látod';
-  else if(S.mode==='local') note.textContent = 'Mentés: ebben a böngészőben';
-  else note.textContent = '';
-}
-let profTimer = null;
-function saveProfile(){ profileDirty = true; clearTimeout(profTimer);
-  profTimer = setTimeout(async ()=>{ await put('profile', S.profile); profileDirty = false; }, 700); }
-async function detectStyle(){
-  const out = $('#detect-out'); const items = pool();
-  if(sample && !aiOff){
-    const btn = $('#detect'); btn.disabled = true; out.textContent = 'Az AI elemzi a szekrényedet…';
-    const lines = items.slice(0,180).map(i=>`${i.name} | ${CAT_L[i.category]} | ${i.colorName} | ${(i.styles||[]).join(',')} | ${i.formality}`).join('\n');
-    try{
-      const r = await sample.json(`Egy ember ruhatára (név | kategória | szín | stílusok | formalitás 1-5):\n${lines}\n\nHatározd meg a stílusát. Csak JSON-t válaszolj: {"styles":["1-3 kulcs ezekből: laza, minimal, elegans, uzleti, utcai, sportos, bohem, romantikus"],"colors":["2-4 jellemző szín ezekből: ${COLORS.map(c=>c[0]).join(', ')}"],"summary":"2-3 mondat magyarul, tegezve: milyen a stílusa és mi hiányzik a szekrényéből"}`, {modelTier:'quick'});
-      const st = (r?.styles||[]).filter(s=>STY_L[s]).slice(0,3);
-      if(st.length) S.profile.styles = st;
-      const cols = (r?.colors||[]).filter(cn=>COLORS.some(c=>c[0]===cn));
-      if(cols.length && !S.profile.likeColors.length) S.profile.likeColors = cols;
-      out.textContent = String(r?.summary||'');
-      saveProfile(); renderStyle(); S.results = [];
-    }catch(e){ handleSampleErr(e); out.textContent=''; }
-    finally{ btn.disabled = false; }
-    return;
-  }
-  const c = {}; items.forEach(i=>(i.styles||[]).forEach(s=>c[s]=(c[s]||0)+1));
-  S.profile.styles = Object.entries(c).sort((a,b)=>b[1]-a[1]).slice(0,3).map(e=>e[0]);
-  out.textContent = 'A leggyakoribb stílusokat jelöltem be a szekrényed alapján.';
-  saveProfile(); renderStyle(); S.results = [];
-}
-
-// ---------- me photo ----------
-const PERSON_SVG = `<svg viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="16" r="9" fill="var(--line)"/><path d="M34 30 Q50 26 66 30 L70 58 L62 58 L60 94 L52 94 L50 62 L48 94 L40 94 L38 58 L30 58 Z" fill="var(--line)"/></svg>`;
-function renderMe(){
-  const el = $('#me');
-  $('#ai-panel').hidden = IS_CLAUDE;
-  if(IS_CLAUDE){
-    el.innerHTML = `<div class="ph">${PERSON_SVG}</div><div><p class="hint">Az AI-os felpróbálás (te a szettben) a telefonos webes változatban működik, mert ahhoz az OpenRoutert kell meghívni, a claude.ai pedig ezt nem engedi.</p>
-      <div class="acts"><a class="ghost btnlabel" href="${PAGES_URL}" target="_blank" rel="noopener">Megnyitás</a></div></div>`;
-    return;
-  }
-  if(S.me){
-    el.innerHTML = `<div class="ph"><img src="${esc(S.me.img)}" alt="A fotód"></div>
-      <div><p class="hint">Kész! A szetteknél nyomj a „Felpróbálom” gombra.</p>
-      <div class="acts"><label class="ghost btnlabel" for="mefile">Csere</label><button type="button" class="ghost danger" id="me-del">Törlés</button></div></div>`;
-  } else {
-    el.innerHTML = `<div class="ph">${PERSON_SVG}</div>
-      <div><p class="hint">Egész alakos, szemből készült, éles fotó, jó fényben. Erről készül a kép, amin a szettet viseled.</p>
-      <div class="acts"><label class="primary btnlabel" for="mefile">Fotó feltöltése</label></div></div>`;
-  }
-  renderOR();
-}
-async function setMePhoto(file){
-  let p; try{ p = await prep(file, 1024); }catch{ toast('Ezt a képet nem tudtam megnyitni.'); return; }
-  S.me = {img: p.dataUrl, ts: Date.now()};
-  renderMe(); await put('photo', S.me); toast('Fotó elmentve');
-}
-
-// ---------- OpenRouter AI (free vision models) ----------
+// ---------- OpenRouter (free AI models) ----------
+const OR_API = 'https://openrouter.ai/api/v1';
+const orCfg = () => lsGet(K.or, {});
+const orSetCfg = c => lsSet(K.or, c);
+const aiReady = () => { const c = orCfg(); return !!(c.key && (c.textModels||[]).length); };
 async function orFreeVision(){
   const j = await (await fetch(OR_API + '/models')).json();
   const rank = id => (/gemma|gemini/i.test(id)?3:0) + (/super|31b|large/i.test(id)?1:0) - (/nano|preview|reasoning/i.test(id)?1:0);
@@ -884,333 +574,568 @@ function looseJson(t){
   if(i >= 0 && k > i){ try{ return JSON.parse(t.slice(i, k+1)); }catch{} }
   return undefined;
 }
-function makeOrSample(){
-  const call = async (input, opts={}) => {
-    const c = orCfg(); const models = (c.textModels||[]).slice(0,3);
-    if(!c.key || !models.length) throw {code:'not_granted'};
-    const text = typeof input === 'string' ? input : input.map(m=>m.content).join('\n\n');
-    const imgs = !opts.images ? [] : opts.images instanceof Blob ? [opts.images] : [...opts.images];
-    const content = [{type:'text', text}];
-    for(const b of imgs) content.push({type:'image_url', image_url:{url: await blobToDataUrl(b)}});
-    let r;
-    try{ r = await fetch(OR_API + '/chat/completions', {method:'POST', signal: opts.signal,
-      headers:{'Content-Type':'application/json', 'Authorization':'Bearer ' + c.key, 'X-Title':'Gardrob'},
-      body: JSON.stringify({models, messages:[{role:'user', content}]})}); }
-    catch(e){ throw {code: e?.name==='AbortError' ? 'cancelled' : 'upstream_error'}; }
-    const j = await r.json().catch(()=>({}));
-    if(!r.ok) throw {code: r.status===401 ? 'or_auth' : (r.status===429 || r.status===402) ? 'rate_limited' : 'upstream_error', message: j?.error?.message};
-    const m = j?.choices?.[0]?.message?.content;
-    const out = Array.isArray(m) ? m.map(x=>x.text||'').join('') : String(m||'');
-    if(!out.trim()) throw {code:'empty_completion'};
-    return out;
-  };
-  const fn = async (i, o) => ({text: await call(i, o), truncated:false});
-  fn.json = async (i, o) => { const t = await call(i, o); const v = looseJson(t); if(v === undefined) throw {code:'invalid_json', text:t}; return v; };
-  fn.limits = async () => ({maxPromptBytes: 200000, images:{maxCount: 4, maxInputBytes: 2e7, mediaTypes:['image/jpeg','image/png','image/webp']}});
-  return fn;
-}
-function enableOrAI(){
-  if(IS_CLAUDE) return;
-  const c = orCfg();
-  if(c.key && (c.textModels||[]).length){ sample = makeOrSample(); sampleLimits = {images:{maxCount:4}}; aiOff = false; S.engine = 'ai'; }
-  else { sample = null; S.engine = 'quick'; }
-}
-
-// ---------- photo standardizing (web: background removal) ----------
-let bgLib = null;
-async function standardize(blob){
-  if(IS_CLAUDE) return null;
-  bgLib ||= import('https://cdn.jsdelivr.net/npm/@imgly/background-removal@1.7.0/+esm');
-  const m = await bgLib;
-  const cut = await m.removeBackground(blob, {model:'isnet_quint8', output:{format:'image/png'}});
-  const im = await createImageBitmap(cut);
-  const c = document.createElement('canvas'); c.width = im.width; c.height = im.height;
-  const x = c.getContext('2d', {willReadFrequently:true}); x.drawImage(im, 0, 0);
-  const d = x.getImageData(0, 0, c.width, c.height).data;
-  let x0 = c.width, y0 = c.height, x1 = -1, y1 = -1;
-  for(let j=0;j<c.height;j++) for(let i=0;i<c.width;i++) if(d[(j*c.width+i)*4+3] > 40){ if(i<x0)x0=i; if(i>x1)x1=i; if(j<y0)y0=j; if(j>y1)y1=j; }
-  if(x1 < 0 || (x1-x0)*(y1-y0) < c.width*c.height*0.02) return null;
-  const W = 600, H = 800, pad = 0.08;
-  const o = document.createElement('canvas'); o.width = W; o.height = H; const ox = o.getContext('2d');
-  ox.fillStyle = '#F3F3F0'; ox.fillRect(0, 0, W, H);
-  const bw = x1-x0+1, bh = y1-y0+1, k = Math.min(W*(1-2*pad)/bw, H*(1-2*pad)/bh);
-  const dw = bw*k, dh = bh*k;
-  ox.drawImage(c, x0, y0, bw, bh, (W-dw)/2, (H-dh)/2, dw, dh);
-  let q = 0.85, dataUrl = o.toDataURL('image/jpeg', q);
-  while(dataUrl.length > 200000 && q > 0.5){ q -= 0.1; dataUrl = o.toDataURL('image/jpeg', q); }
-  const outBlob = await new Promise(r=>o.toBlob(r, 'image/jpeg', 0.85));
-  return {dataUrl, blob: outBlob, hex: dominant(o)};
-}
-async function standardizeAll(){
-  const todo = realItems().filter(i => i.img && !i.std);
-  if(!todo.length) return;
-  const prog = $('#progress'); let n = 0;
-  for(const it of todo){
-    n++; prog.innerHTML = `<div class="progress"><div class="spin"></div><div>Képek egységesítése… (${n}/${todo.length})${n===1 ? '. Az első alkalommal letölti a modellt, ez kb. fél perc.' : ''}</div></div>`;
-    try{
-      const r = await standardize(await dataUrlToBlob(it.img));
-      const upd = r ? {...it, img: r.dataUrl, std: true} : {...it, std: true};
-      S.items.set(it.id, upd); await put('i_'+it.id, upd);
-    }catch{ toast('Egy kép egységesítése nem sikerült.'); }
+// messages: string or [{role, content}]; images go with the last user turn.
+async function aiCall(messages, opts={}){
+  const c = orCfg(); const models = (c.textModels||[]).slice(0,3);
+  if(!c.key || !models.length) throw {code:'no_ai'};
+  const msgs = typeof messages === 'string' ? [{role:'user', content:messages}] : messages.map(m=>({...m}));
+  const imgs = opts.images || [];
+  if(imgs.length){
+    const last = msgs[msgs.length-1]; const parts = [{type:'text', text:last.content}];
+    for(const b of imgs) parts.push({type:'image_url', image_url:{url: typeof b === 'string' ? b : await blobToDataUrl(b)}});
+    last.content = parts;
   }
-  prog.innerHTML = ''; S.results = []; renderAll(); toast('Képek egységesítve');
-}
-
-// ---------- OpenRouter settings ----------
-const OR_KEY = 'gardrob.openrouter';
-const OR_API = 'https://openrouter.ai/api/v1';
-function orCfg(){ try{ return JSON.parse(localStorage.getItem(OR_KEY) || 'null') || {}; }catch{ return {}; } }
-function orSetCfg(c){ try{ localStorage.setItem(OR_KEY, JSON.stringify(c)); return true; }catch{ toast('Nem tudtam elmenteni a kulcsot ebben a böngészőben.'); return false; } }
-function renderOR(){
-  const mode = tryMode();
-  document.querySelectorAll('#trymode button').forEach(b=>b.setAttribute('aria-pressed', b.dataset.mode===mode));
-  $('#free-section').hidden = mode!=='free'; $('#or-section').hidden = mode!=='or';
-  $('#try-panel').hidden = IS_CLAUDE;
-  const c = orCfg(); const sel = $('#ormodel'); const st = $('#orstatus');
-  if(document.activeElement !== $('#orkey')) $('#orkey').value = c.key ? '••••••••' + c.key.slice(-4) : '';
-  const models = c.models || [];
-  sel.hidden = !models.length; $("#ormodel-l").hidden = !models.length;
-  sel.innerHTML = models.map(m=>`<option value="${esc(m.id)}" ${m.id===c.model?'selected':''}>${esc(m.label)}</option>`).join('');
-  $('#ordel').hidden = !c.key;
-  $('#orlogin').hidden = !!c.key;
-  if(!st.dataset.busy) st.textContent = c.key ? `Összekötve. Ingyenes AI: ${(c.textModels||[])[0] || 'nincs elérhető'}.` : 'Még nincs összekötve. Az AI-címkézéshez és a stylisthoz kell.';
-}
-function rankModel(id){
-  return (/gemini|nano-banana/i.test(id)?4:0) + (/gpt-image/i.test(id)?3:0) + (/seedream|kontext/i.test(id)?2:0)
-    - (/lite|mini|preview/i.test(id)?.5:0);
-}
-async function orModels(key){
-  const r = await fetch(`${OR_API}/images/models`, {headers:{'Authorization': 'Bearer ' + key}});
+  let r;
+  try{ r = await fetch(OR_API + '/chat/completions', {method:'POST', signal: opts.signal,
+    headers:{'Content-Type':'application/json', 'Authorization':'Bearer ' + c.key, 'X-Title':'Gardrob'},
+    body: JSON.stringify({models, messages:msgs})}); }
+  catch(e){ throw {code: e?.name==='AbortError' ? 'cancelled' : 'network'}; }
   const j = await r.json().catch(()=>({}));
-  if(!r.ok) throw {status: r.status, message: j?.error?.message};
-  return (j.data||[])
-    .filter(m => (m.architecture?.input_modalities||[]).includes('image'))
-    .map(m => {
-      const sp = m.supported_parameters || {};
-      const refMax = sp.input_references?.type==='range' ? Number(sp.input_references.max)||4 : 4;
-      const ar = sp.aspect_ratio?.type==='enum' && (sp.aspect_ratio.values||[]).includes('3:4');
-      return {id: m.id, label: m.name || m.id, refMax, ar};
-    })
-    .sort((a,b) => rankModel(b.id)-rankModel(a.id) || b.id.localeCompare(a.id));
+  if(!r.ok) throw {code: r.status===401 ? 'auth' : (r.status===429 || r.status===402) ? 'limit' : 'upstream', message: j?.error?.message};
+  const m = j?.choices?.[0]?.message?.content;
+  const out = Array.isArray(m) ? m.map(x=>x.text||'').join('') : String(m||'');
+  if(!out.trim()) throw {code:'empty'};
+  return out;
 }
-async function orKeyCheck(key){
-  const r = await fetch(`${OR_API}/key`, {headers:{'Authorization': 'Bearer ' + key}});
-  if(r.status===401) throw {status:401};
-}
-function orErrText(e){
-  const m = String(e?.message||'');
-  if(e?.status===401) return 'Hibás vagy letiltott kulcs. Lépj be újra, vagy másolj be új kulcsot.';
-  if(e?.status===402) return 'Elfogyott az OpenRouter-egyenleged. Töltsd fel itt: openrouter.ai/credits';
-  if(e?.status===403) return 'Az OpenRouter ezt a kérést elutasította (tartalomszűrő). Próbálj másik fotót vagy szettet.';
-  if(e?.status===413) return 'Túl nagyok a képek. Próbáld kevesebb darabos szettel.';
-  if(e?.status===429) return 'Túl sok kérés. Várj egy kicsit, és próbáld újra.';
-  if(e?.status===502) return 'A modell most nem tudta elkészíteni a képet (ezt nem számolják fel). Próbáld újra, vagy válassz másik modellt.';
-  if(e?.status===503 || e?.status===529) return 'A modell túlterhelt. Próbáld újra kicsit később, vagy válassz másikat.';
-  if(e?.status===400) return 'A modell nem fogadta el a kérést' + (m ? ': ' + m : '.') + ' Próbálj másik modellt.';
-  if(e?.empty) return 'A modell nem adott vissza képet. Próbáld újra, vagy válassz másik modellt.';
-  if(e instanceof TypeError) return 'Nem értem el az OpenRoutert. Ellenőrizd a netet.';
-  return 'Nem sikerült: ' + (m || 'ismeretlen hiba');
+async function aiJson(messages, opts){ const t = await aiCall(messages, opts); const v = looseJson(t); if(v === undefined) throw {code:'json'}; return v; }
+function aiErrText(e){
+  return ({no_ai:'Ehhez lépj be OpenRouterrel a Profil fülön.', auth:'Lépj be újra OpenRouterrel a Profil fülön.',
+    limit:'Elfogyott a mai ingyenes AI-keret, vagy túl sok volt a kérés. Próbáld kicsit később.', network:'Nem értem el az AI-t. Ellenőrizd a netet.',
+    json:'Az AI válasza nem volt használható. Próbáld újra.', empty:'Az AI nem válaszolt. Próbáld újra.'})[e?.code]
+    || 'Az AI most nem válaszolt' + (e?.message ? ': ' + String(e.message).slice(0,120) : '.') + ' Próbáld újra.';
 }
 async function orConnect(key){
-  const st = $('#orstatus');
-  st.dataset.busy = '1'; st.textContent = 'Kapcsolat ellenőrzése…';
+  const st = $('#orstatus'); st.dataset.busy = '1'; st.textContent = 'Kapcsolat ellenőrzése…';
   try{
-    await orKeyCheck(key);
-    const [models, textModels] = await Promise.all([orModels(key).catch(()=>[]), orFreeVision()]);
-    const prev = orCfg().model;
-    const keep = models.some(m=>m.id===prev) ? prev : (models[0]?.id || '');
-    orSetCfg({key, model: keep, models, textModels}); $('#orkey').blur();
-    enableOrAI();
+    const r = await fetch(OR_API + '/key', {headers:{'Authorization':'Bearer ' + key}});
+    if(r.status === 401) throw {code:'auth'};
+    const textModels = await orFreeVision();
+    orSetCfg({key, textModels}); $('#orkey').blur();
     delete st.dataset.busy; renderAll(); toast('OpenRouter összekötve');
-  }catch(e){ st.textContent = orErrText(e); }
+  }catch(e){ st.textContent = e?.code === 'auth' ? 'Hibás vagy letiltott kulcs.' : 'Nem sikerült összekötni. Ellenőrizd a netet, és próbáld újra.'; }
   finally{ delete st.dataset.busy; }
 }
-function orSave(){
-  const raw = $('#orkey').value.trim(); const key = raw.startsWith('••') ? orCfg().key : raw;
-  if(!key){ $('#orstatus').textContent = 'Másold be a kulcsot, vagy használd a belépés gombot.'; return; }
-  orConnect(key);
-}
-// OpenRouter login for browser apps (OAuth PKCE): the key comes back to this page, no copy-paste.
 const b64url = buf => btoa(String.fromCharCode(...new Uint8Array(buf))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
 async function orLogin(){
   const verifier = b64url(crypto.getRandomValues(new Uint8Array(32)));
   const challenge = b64url(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(verifier)));
   try{ localStorage.setItem('gardrob.pkce', verifier); }catch{ toast('Ebben a böngészőben nem megy a belépés. Másold be a kulcsot.'); return; }
-  const cb = location.origin + location.pathname;
-  location.href = `https://openrouter.ai/auth?callback_url=${encodeURIComponent(cb)}&code_challenge=${challenge}&code_challenge_method=S256`;
+  location.href = `https://openrouter.ai/auth?callback_url=${encodeURIComponent(location.origin + location.pathname)}&code_challenge=${challenge}&code_challenge_method=S256`;
 }
 async function orHandleCallback(){
   const code = new URLSearchParams(location.search).get('code'); if(!code) return;
   let verifier = null; try{ verifier = localStorage.getItem('gardrob.pkce'); localStorage.removeItem('gardrob.pkce'); }catch{}
-  history.replaceState(null, '', location.pathname + '#stilus');
+  history.replaceState(null, '', location.pathname + '#profil'); route();
   if(!verifier) return;
   try{
-    const r = await fetch(`${OR_API}/auth/keys`, {method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({code, code_verifier: verifier, code_challenge_method: 'S256'})});
+    const r = await fetch(OR_API + '/auth/keys', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({code, code_verifier: verifier, code_challenge_method:'S256'})});
     const j = await r.json().catch(()=>({}));
-    if(!r.ok || !j.key) throw {status: r.status, message: j?.error?.message};
-    route(); await orConnect(j.key);
-  }catch(e){ toast('A belépés nem sikerült. Próbáld újra, vagy másold be a kulcsot.'); }
+    if(!r.ok || !j.key) throw 0;
+    await orConnect(j.key);
+  }catch{ toast('A belépés nem sikerült. Próbáld újra, vagy másold be a kulcsot.'); }
 }
 
-// ---------- free try-on (FASHN VTON on Hugging Face) ----------
-const MODE_KEY = 'gardrob.tryon';
-function tryMode(){ try{ return (JSON.parse(localStorage.getItem(MODE_KEY)||'null')||{}).mode || 'free'; }catch{ return 'free'; } }
-function setTryMode(m){ try{ localStorage.setItem(MODE_KEY, JSON.stringify({mode:m})); }catch{} }
-const HF_ROOT = 'https://fashn-ai-fashn-vton-1-5.hf.space/gradio_api';
-const dataUrlToBlob = async u => (await fetch(u)).blob();
-async function hfUpload(blob, name, signal){
-  const fd = new FormData(); fd.append('files', blob, name);
-  const r = await fetch(HF_ROOT + '/upload', {method:'POST', body:fd, signal});
-  const j = await r.json().catch(()=>null);
-  if(!r.ok || !Array.isArray(j)) throw {hf:true, status:r.status, message: JSON.stringify(j||'')};
-  return j[0];
-}
-const fileData = path => ({path, meta:{_type:'gradio.FileData'}, orig_name: String(path).split('/').pop()});
-async function hfCall(data, signal){
-  const r1 = await fetch(HF_ROOT + '/call/try_on', {method:'POST', signal, headers:{'Content-Type':'application/json'}, body: JSON.stringify({data})});
-  if(!r1.ok) throw {hf:true, status:r1.status};
-  const {event_id} = await r1.json();
-  const txt = await (await fetch(HF_ROOT + '/call/try_on/' + event_id, {signal})).text();
-  let ev = null, dat = null;
-  for(const block of txt.split(/\r?\n\r?\n/)){
-    const e = /^event:\s*(.+)$/m.exec(block)?.[1]?.trim(); const d = /^data:\s*(.*)$/m.exec(block)?.[1];
-    if(e === 'complete' || e === 'error'){ ev = e; dat = d; }
+// ---------- weather ----------
+const WCODE = c => c===0 ? 'derült' : c<=3 ? 'felhős' : c<=48 ? 'ködös' : c<=67 ? 'esős' : c<=77 ? 'havas' : c<=82 ? 'záporos' : 'zivataros';
+let W = null;
+async function getWeather(){
+  if(W && Date.now() - W.t < 30*60e3) return W;
+  let loc = S.profile.loc;
+  if(!loc){
+    const name = (S.profile.q.city || 'Budapest').trim();
+    const g = await (await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(name)}&count=1&language=hu`)).json();
+    const r = g.results?.[0]; if(!r) throw {code:'city'};
+    loc = S.profile.loc = {lat:r.latitude, lon:r.longitude, city:r.name}; save();
   }
-  if(ev === 'complete'){ const out = JSON.parse(dat)?.[0]; if(out?.path) return out; }
-  let msg = ''; try{ msg = JSON.parse(dat); }catch{ msg = dat || ''; }
-  throw {hf:true, message: typeof msg === 'string' ? msg : JSON.stringify(msg)};
+  const j = await (await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${loc.lat}&longitude=${loc.lon}&current=temperature_2m&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max,weather_code&timezone=auto&forecast_days=1`)).json();
+  W = {t:Date.now(), city:loc.city, now:Math.round(j.current.temperature_2m), max:Math.round(j.daily.temperature_2m_max[0]), min:Math.round(j.daily.temperature_2m_min[0]), rain:j.daily.precipitation_probability_max[0]??0, desc:WCODE(j.daily.weather_code[0])};
+  return W;
 }
-async function hfTryOn(its, signal, onStep){
-  const withImg = c => its.find(i => i.category === c && i.img);
-  const dress = withImg('ruha');
-  const steps = dress ? [[dress, 'one-pieces']] : [[withImg('felso'), 'tops'], [withImg('also'), 'bottoms']].filter(s => s[0]);
-  if(!steps.length) throw {nopiece:true};
-  let person = await hfUpload(await dataUrlToBlob(S.me.img), 'person.jpg', signal);
-  let out = null;
-  for(let i=0;i<steps.length;i++){
-    const [it, cat] = steps[i];
-    onStep(i+1, steps.length, it);
-    const g = await hfUpload(await dataUrlToBlob(it.img), 'garment.jpg', signal);
-    out = await hfCall([fileData(person), fileData(g), cat, 'flat-lay', 30, 1.5, Math.floor(Math.random()*1e6), true], signal);
-    person = out.path;
-  }
-  const blob = await (await fetch(out.url, {signal})).blob();
-  const used = new Set(steps.map(s=>s[0].id));
-  return {url: URL.createObjectURL(blob), skipped: its.filter(i=>!used.has(i.id))};
+const wxText = w => w ? `${w.city}: most ${w.now}°, ma ${w.min}–${w.max}°, ${w.desc}, eső esélye ${w.rain}%` : 'Az időjárás nem ismert.';
+const wxKey = w => !w ? ({nyar:'meleg', tel:'hideg'}[curSeason()] || 'enyhe') : w.rain >= 55 ? 'eso' : w.max >= 22 ? 'meleg' : w.max <= 9 ? 'hideg' : 'enyhe';
+function curSeason(){ const m = new Date().getMonth()+1; return m>=3&&m<=5?'tavasz':m>=6&&m<=8?'nyar':m>=9&&m<=11?'osz':'tel'; }
+const seasonsFor = w => w==='meleg' ? ['nyar'] : w==='hideg' ? ['tel'] : ['tavasz','osz'];
+
+// ---------- context for the AI ----------
+function profileText(){
+  const q = S.profile.q, p = S.profile;
+  const lab = (k, v) => { const Q = QS.find(x=>x.k===k); const f = x => Q.o.find(o=>o[0]===x)?.[1]; return Array.isArray(v) ? v.map(f).filter(Boolean).join(', ') : f(v); };
+  const L = [];
+  if(q.for) L.push('Ruhatár: ' + lab('for', q.for));
+  if(q.height || q.build) L.push(`Magasság: ${lab('height', q.height)||'?'}, alkat: ${lab('build', q.build)||'?'}`);
+  if(q.work) L.push('Munka, dress code: ' + lab('work', q.work));
+  if(q.week?.length) L.push('A hete: ' + lab('week', q.week));
+  if(q.vibe?.length) L.push('Ezt a hatást szeretné kelteni: ' + lab('vibe', q.vibe));
+  if(q.fit) L.push('Kedvelt szabás: ' + lab('fit', q.fit));
+  if(p.styles.length) L.push('Kedvelt stílusok: ' + p.styles.map(s=>STY_L[s]).join(', '));
+  if(p.likeColors.length) L.push('Kedvenc színek: ' + p.likeColors.join(', '));
+  if(p.avoidColors.length) L.push('Kerülendő színek: ' + p.avoidColors.join(', '));
+  if(p.about) L.push('Magáról írta: "' + p.about.slice(0,600) + '"');
+  return L.length ? 'A felhasználóról:\n' + L.join('\n') : 'A felhasználóról még nem tudunk semmit.';
 }
-function hfErrText(e){
-  const m = String(e?.message||'');
-  if(e?.nopiece) return 'Ehhez a szetthez nincs lefotózott felső, alsó vagy ruha. A mintadarabokat és a fotó nélküli ruhákat nem tudom rád adni.';
-  if(/quota|gpu|zerogpu|exceeded/i.test(m)) return 'Elfogyott a mai ingyenes Hugging Face-keret. Próbáld később, vagy válts OpenRouterre a Stílusom fülön.';
-  if(e?.status === 503 || /sleep|paused|building|runtime/i.test(m)) return 'Az ingyenes modell most nem fut. Próbáld pár perc múlva, vagy válts OpenRouterre.';
-  if(e?.status === 413) return 'Túl nagy a fotó. Próbálj kisebbet.';
-  if(e instanceof TypeError) return 'Nem értem el a Hugging Face-t. Ellenőrizd a netet.';
-  return 'Nem sikerült' + (m ? ': ' + m.slice(0,160) : '.') + ' Próbáld újra, vagy válts OpenRouterre.';
+function wardrobeCtx(items){
+  const code = new Map(), back = new Map();
+  items.forEach((it,i)=>{ const c = 'R' + (i+1); code.set(it.id, c); back.set(c, it.id); });
+  const lines = items.slice(0,150).map(it => { const L = lookOf(it);
+    return [code.get(it.id), CAT_L[it.category] + ': ' + (TYPE_L[L.type]||''), it.name, it.colorName, [TEX_L[L.texture], (it.category==='felso'||it.category==='kabat') ? (L.sleeves==='rovid'?'rövid ujjú':'hosszú ujjú') : ''].filter(Boolean).join(', '),
+      (it.styles||[]).map(s=>STY_L[s]).join(', ') || '-', (it.seasons||[]).map(s=>SEA_L[s]).join(', ') || 'bármikor', it.formality||2].join(' | '); });
+  return {code, back, text:'Ruhatár (kód | kategória: fajta | név | szín | anyag | stílus | évszak | formalitás 1-5):\n' + lines.join('\n')};
+}
+function historyText(ctx){
+  const c = id => ctx.code.get(id); const L = [];
+  const recent = LOG.wears.slice(-7).map(w => `${w.d}: ${w.ids.map(c).filter(Boolean).join(', ')}`);
+  if(recent.length) L.push('Az utóbbi napokban viselte:\n' + recent.join('\n'));
+  const fb = LOG.fb.slice(-12).map(f => `${f.v==='up'?'Tetszett':'Nem tetszett'}: ${f.ids.map(c).filter(Boolean).join(', ')}${f.r ? ' (' + f.r + ')' : ''}`);
+  if(fb.length) L.push('Visszajelzései korábbi ajánlásokra:\n' + fb.join('\n'));
+  return L.join('\n\n');
+}
+function parseOutfit(o, ctx){
+  const ids = [...new Set((Array.isArray(o?.items)?o.items:[]).map(x=>ctx.back.get(String(x).trim().toUpperCase().replace(/[\[\]]/g,''))).filter(Boolean))];
+  const cats = ids.map(id=>byId(id).category);
+  if(!(cats.includes('ruha') || (cats.includes('felso') && cats.includes('also')))) return null;
+  return {itemIds:ids, title:String(o.title||'Szett').slice(0,80), why:String(o.why||'').slice(0,400), tip:String(o.tip||'').slice(0,200)};
 }
 
-// ---------- AI try-on ----------
-const CAT_EN = {felso:'top', also:'bottoms (trousers/skirt)', ruha:'dress / one-piece', kabat:'outerwear (coat/jacket)', cipo:'shoes', kieg:'accessory (bag/belt/jewellery)'};
-const T = {o:null, ctl:null, url:null};
-function tryPrompt(its, withPhoto){
-  return `Virtual try-on. Reference image 1 is a photo of a real person. ${withPhoto.length ? `Reference images 2–${withPhoto.length+1} are clothing items from their own wardrobe, in this order: ${withPhoto.map(it=>it.name).join('; ')}.` : ''}
-Create one photorealistic, full-body photo of THE SAME PERSON wearing ALL of these items together as one outfit:
-${its.map((it,i)=>`${i+1}. ${it.name} — ${CAT_EN[it.category]||'garment'}, colour ${it.colorName} (${it.colorHex})${it.img && withPhoto.includes(it) ? '' : ' (no reference photo; use a simple, plain version)'}`).join('\n')}
-Keep the person's face, hair, skin tone, body shape and proportions exactly as in their photo. Natural standing pose, clean simple background, soft daylight.
-Keep each garment's colour, pattern, fabric and cut faithful to its reference image; ignore the references' backgrounds, hangers and mannequins.
-Do not add clothing items that are not listed (plain basics underneath are fine if needed).`;
+// ---------- rule-based engine (fallback) ----------
+function itemScore(it, ctx){
+  let s = 0;
+  for(const x of it.styles||[]){ if(ctx.prof.styles.includes(x)) s += 2; if(ctx.occ.st.includes(x)) s += 1.5; }
+  if(it.seasons?.length) s += it.seasons.some(x=>ctx.seasons.includes(x)) ? 1.2 : -4;
+  s -= Math.abs((it.formality||2) - ctx.occ.f) * 1.4;
+  if(ctx.prof.likeColors.includes(it.colorName)) s += 1;
+  if(ctx.prof.avoidColors.includes(it.colorName)) s -= 3;
+  if(ctx.recent?.has(it.id)) s -= 2.5;
+  return s;
 }
-async function orTryOn(its, signal){
-  const c = orCfg(); const m = (c.models||[]).find(x=>x.id===c.model) || {refMax:4, ar:false};
-  const withPhoto = its.filter(it=>it.img).slice(0, Math.max(0, (m.refMax||4) - 1));
-  const refs = [S.me.img, ...withPhoto.map(it=>it.img)].map(url => ({type:'image_url', image_url:{url}}));
-  const body = {model: c.model, prompt: tryPrompt(its, withPhoto), input_references: refs, n: 1};
-  if(m.ar) body.aspect_ratio = '3:4';
-  const r = await fetch(`${OR_API}/images`, {method:'POST', signal,
-    headers:{'Content-Type':'application/json', 'Authorization':'Bearer ' + c.key, 'X-Title':'Gardrob'},
-    body: JSON.stringify(body)});
-  const j = await r.json().catch(()=>({}));
-  if(!r.ok) throw {status: r.status, message: j?.error?.message};
-  const d = (j.data||[])[0];
-  if(!d?.b64_json) throw {empty: true};
-  return {url: `data:${d.media_type || 'image/png'};base64,${d.b64_json}`, cost: j?.usage?.cost};
+function harmony(items){
+  const acc = items.filter(i=>!isNeutral(i.colorHex));
+  if(!acc.length) return {s:.6, note:'semleges, letisztult színek'};
+  const hs = []; for(const a of acc){ const h = hsl(a.colorHex).h; if(!hs.some(x=>hueDiff(x,h)<22)) hs.push(h); }
+  if(hs.length===1) return {s:1.5, note: acc.length>1 ? 'ton-sur-ton színvilág' : `semleges alap, ${acc[0].colorName} kiemeléssel`};
+  if(hs.length===2){ const d = hueDiff(hs[0],hs[1]); if(d<50) return {s:.8, note:'rokon árnyalatok'}; if(Math.abs(d-180)<35) return {s:.7, note:'merész színpár'}; return {s:-1.5, note:'két erős szín'}; }
+  return {s:-3, note:'sok szín'};
 }
-function openTry(o){
-  if(IS_CLAUDE){ toast('A felpróbálás a webes változatban működik (Stílusom fül).'); return; }
-  T.o = o; T.url = null;
-  $('#try-title').textContent = o.title || 'Felpróbálás';
-  $('#tryon').hidden = false;
-  const c = orCfg(); const free = tryMode() === 'free';
-  if(!S.me || (!free && (!c.key || !c.model))){
-    $('#stage').innerHTML = `<div class="hint" style="padding:24px;text-align:center">${!S.me ? 'Előbb tölts fel magadról egy egész alakos fotót.' : 'Kösd össze az appot az OpenRouterrel, vagy válaszd az ingyenes módot.'}<br>Mindkettőt a Stílusom fülön teheted meg.</div>`;
-    $('#try-hint').textContent = '';
-    $('#try-tools').innerHTML = `<a class="primary btnlabel" href="#stilus" data-act="close-try">Beállítás</a>`;
-    return;
+function wpick(arr, temp=1.3){ if(!arr?.length) return null; const top = arr.slice(0,6); const w = top.map(x=>Math.exp(x._s/temp)); let r = Math.random()*w.reduce((a,b)=>a+b,0); for(let i=0;i<top.length;i++){ r -= w[i]; if(r<=0) return top[i]; } return top[0]; }
+function genQuick(items, occK, wxK, n=3){
+  const occ = OCC.find(o=>o.k===occK), seasons = seasonsFor(wxK);
+  const recent = new Set(LOG.wears.slice(-2).flatMap(w=>w.ids));
+  const ctx = {occ, seasons, prof:S.profile, recent};
+  const g = {}; for(const it of items){ (g[it.category] ||= []).push({...it, _s: itemScore(it, ctx) + Math.random()*0.6}); }
+  for(const k in g) g[k].sort((a,b)=>b._s-a._s);
+  const canSep = g.felso?.length && g.also?.length, canDress = g.ruha?.length;
+  if(!canSep && !canDress) return {error:'Kell legalább egy felső és egy alsó, vagy egy ruha.'};
+  const seen = new Map();
+  for(let t=0;t<260;t++){
+    const dress = canDress && (!canSep || Math.random() < .3);
+    const core = dress ? [wpick(g.ruha)] : [wpick(g.felso), wpick(g.also)];
+    const set = [...core];
+    if(g.cipo) set.push(wpick(g.cipo));
+    const cold = wxK==='hideg' || wxK==='eso';
+    if(g.kabat && (cold || (wxK==='enyhe' && Math.random()<.5))) set.push(wpick(g.kabat));
+    if(g.kieg && Math.random()<.4) set.push(wpick(g.kieg));
+    const h = harmony(set);
+    const score = set.reduce((a,i)=>a+i._s,0)/set.length + h.s;
+    const key = core.map(i=>i.id).join('+');
+    if(!seen.has(key) || seen.get(key).score < score) seen.set(key, {set, core, score, h});
   }
-  runTry();
+  const sorted = [...seen.values()].sort((a,b)=>b.score-a.score), chosen = [], used = new Set();
+  for(const c of sorted){ if(chosen.length>=n) break; if(c.core.some(i=>used.has(i.id))) continue; chosen.push(c); c.core.forEach(i=>used.add(i.id)); }
+  for(const c of sorted){ if(chosen.length>=n) break; if(!chosen.includes(c)) chosen.push(c); }
+  return {outfits: chosen.map(c=>{
+    const stc = {}; c.set.forEach(i=>(i.styles||[]).forEach(s=>stc[s]=(stc[s]||0)+1));
+    const main = Object.entries(stc).sort((a,b)=>b[1]-a[1])[0]?.[0];
+    return {itemIds:c.set.map(i=>i.id), title:`${main?STY_L[main]:'Kényelmes'} ${occ.l.toLowerCase()}`, why:`${cap(c.h.note)}, ${occ.l.toLowerCase()} alkalomra.`, tip:''};
+  })};
 }
-async function runTry(){
-  const its = T.o.itemIds.map(byId).filter(Boolean).sort((a,b)=>(CAT_ORDER[a.category]??9)-(CAT_ORDER[b.category]??9));
-  T.ctl?.abort(); T.ctl = new AbortController(); const ctl = T.ctl;
-  const free = tryMode() === 'free';
-  const busy = t => $('#stage').innerHTML = `<div class="status" style="padding:24px"><div class="spin"></div><div>${esc(t)}</div></div>`;
-  busy(free ? 'Kapcsolódás az ingyenes modellhez…' : 'Öltöztetlek… ez 10–60 másodperc.');
-  $('#try-hint').textContent = '';
-  $('#try-tools').innerHTML = `<button type="button" class="ghost" data-try="stop">Leállítás</button>`;
-  try{
-    let url, cost, skipped = [];
-    if(free){ ({url, skipped} = await hfTryOn(its, ctl.signal, (i,n,it) => { if(!ctl.signal.aborted) busy(`${i}/${n}: ${it.name} felvétele… (darabonként kb. 30 mp, sorban állással több)`); })); }
-    else ({url, cost} = await orTryOn(its, ctl.signal));
-    if(ctl.signal.aborted || $('#tryon').hidden) return;
-    T.url = url;
-    $('#stage').innerHTML = `<img src="${esc(url)}" alt="Te a szettben: ${esc(T.o.title||'')}">`;
-    $('#try-hint').textContent = (typeof cost === 'number' ? `Ez a kép kb. $${cost.toFixed(3)} volt. ` : '') + (skipped.length ? `Az ingyenes modell ezeket nem tudja rád adni: ${skipped.map(i=>i.name).join(', ')}. ` : '') + 'Ha nem tetszik, kérj újat: minden generálás kicsit más.';
-    $('#try-tools').innerHTML = `<button type="button" class="ghost" data-try="again">Újra</button><a class="primary btnlabel" href="${esc(url)}" download="gardrob-szett.png">Letöltés</a>`;
-  }catch(e){
-    if(e?.name === 'AbortError' || ctl.signal.aborted) return;
-    $('#stage').innerHTML = `<div class="hint" style="padding:24px;text-align:center">${esc(free ? hfErrText(e) : orErrText(e))}</div>`;
-    $('#try-tools').innerHTML = `<button type="button" class="ghost" data-try="again">Újra</button>`;
-  }
-}
-function closeTry(){ T.ctl?.abort(); $('#tryon').hidden = true; }
+const defaultOcc = () => { const d = new Date().getDay(), q = S.profile.q; if(d===0||d===6) return 'hetkoznap'; return (q.work==='business'||q.work==='smart') && !(q.week||[]).includes('home') ? 'munka' : 'hetkoznap'; };
 
-// ---------- inspiration ----------
-async function inspoFiles(files){
-  files = [...files].filter(f => !f.type || f.type.startsWith('image/')).slice(0,4);
+// ---------- outfit card ----------
+function outfitHTML(o, {big=false, actions=''}={}){
+  const its = o.itemIds.map(byId).filter(Boolean).sort((a,b)=>(CAT_ORDER[a.category]??9)-(CAT_ORDER[b.category]??9));
+  if(!its.length) return '';
+  return `<article class="outfit">
+    <div><div class="kicker">${esc(o.kicker || its.length + ' darab')}</div><h3>${esc(o.title)}</h3></div>
+    <div class="lay${big?' big':''}">${its.map(i=>`<div class="tile">${garmentSVG(i)}<span>${esc(i.name)}</span></div>`).join('')}</div>
+    ${o.why?`<p class="why">${esc(o.why)}</p>`:''}${o.tip?`<p class="tip">${esc(o.tip)}</p>`:''}${actions}
+  </article>`;
+}
+
+// ---------- TODAY ----------
+const DOWN_REASONS = ['Túl elegáns','Túl laza','Nem illenek a színek','Nem az én stílusom','Nem jó az időhöz','Mostanában hordtam'];
+async function makeToday(force){
+  if(S.busy.today) return;
+  if(!force && TODAY?.d === todayKey() && TODAY.o) { renderToday(); return; }
+  S.busy.today = true; renderToday();
+  let w = null; try{ w = await getWeather(); }catch{}
+  const items = pool(); let o = null, err = '';
+  if(aiReady() && !isDemo()){
+    const ctx = wardrobeCtx(items);
+    const days = ['vasárnap','hétfő','kedd','szerda','csütörtök','péntek','szombat'];
+    const prompt = `Személyes stylist vagy. Állíts össze a felhasználónak EGY szettet mára, a saját ruhatárából.
+Ma ${days[new Date().getDay()]} van. Időjárás: ${wxText(w)}.
+${profileText()}
+
+${historyText(ctx)}
+${force && TODAY?.o ? 'Az előző ajánlatod helyett mást kér: ' + TODAY.o.itemIds.map(id=>ctx.code.get(id)).join(', ') : ''}
+
+Szabályok: vagy egy "Ruha" kategóriájú darab, vagy egy felső és egy alsó. Cipőt is, ha van. Ha hideg (12° alatt) vagy esős, kabátot vagy dzsekit is, ha van. Ne ismételd a tegnapi szettet. Vedd figyelembe a visszajelzéseit. Csak a lista kódjait használd.
+${ctx.text}
+
+Csak JSON-t válaszolj: {"title":"rövid, ütős magyar cím","items":["R1","R5"],"why":"1-2 mondat tegezve: miért jó ma, és miért illik hozzá","tip":"egy konkrét styling tipp"}`;
+    try{ o = parseOutfit(await aiJson(prompt), ctx); if(!o) err = 'Az AI nem adott használható szettet, ezért szabály alapján válogattam.'; }
+    catch(e){ err = aiErrText(e) + ' Addig szabály alapján válogattam.'; }
+  }
+  if(!o){ const r = genQuick(items, defaultOcc(), wxKey(w), 1); o = r.outfits?.[0] || null; if(!o) err = r.error; }
+  TODAY = {d:todayKey(), o, worn:false, vote:null, err}; lsSet(K.today, TODAY);
+  S.busy.today = false; renderToday();
+}
+function renderToday(){
+  const d = new Date();
+  $('#today-date').textContent = d.toLocaleDateString('hu-HU', {weekday:'long', month:'long', day:'numeric'});
+  const w = W; $('#wx').innerHTML = w ? `<b>${w.max}°</b> ${esc(w.desc)}${w.rain>=30?` · eső ${w.rain}%`:''}` : '';
+  const B = [];
+  if(isDemo()) B.push(`<div class="banner"><div><b>Még mintaszekrényt látsz</b><p>Töltsd fel a ruháidat a Szekrény fülön, és azokból válogatok.</p></div><a class="ghost" href="#szekreny">Szekrény</a></div>`);
+  if(!Object.keys(S.profile.q).length) B.push(`<div class="banner"><div><b>Mesélj magadról</b><p>7 gyors kérdés, és sokkal jobban eltalálom, mi illik hozzád.</p></div><a class="ghost" href="#profil">Kérdések</a></div>`);
+  if(!aiReady()) B.push(`<div class="banner"><div><b>Kapcsold be az AI stylistot</b><p>Ingyenes OpenRouter-belépéssel az AI állítja össze a szetteket, és meg is indokolja őket.</p></div><a class="ghost" href="#profil">Belépés</a></div>`);
+  $('#today-banners').innerHTML = B.join('');
+  const card = $('#today-card');
+  if(S.busy.today){ card.innerHTML = `<div class="progress"><div class="spin"></div><div>A stylist válogat… (fél perc is lehet)</div></div>`; return; }
+  if(!TODAY?.o){ card.innerHTML = TODAY?.err ? `<div class="banner"><p>${esc(TODAY.err)}</p></div>` : ''; return; }
+  const t = TODAY;
+  const acts = t.worn ? `<div class="row"><span class="done">✓ Ma ezt viseled</span><button class="ghost" type="button" data-today="other">Mégis mást</button></div>`
+    : t.vote === 'down-ask' ? `<div class="field"><span class="sec">Mi nem tetszik?</span><div class="chips">${DOWN_REASONS.map(r=>chip(r,false,`data-reason="${esc(r)}"`)).join('')}</div></div>`
+    : `<div class="vote"><button class="primary" type="button" data-today="wear">Ezt veszem fel</button><button class="ghost" type="button" data-today="up" aria-label="Tetszik" aria-pressed="${t.vote==='up'}">👍</button><button class="ghost" type="button" data-today="down" aria-label="Nem tetszik">👎</button></div>
+       <button class="ghost" type="button" data-today="other">Mutass másikat</button>`;
+  card.innerHTML = (t.err ? `<p class="hint" style="margin-bottom:10px">${esc(t.err)}</p>` : '') + outfitHTML({...t.o, kicker: (W ? W.city + ' · ' : '') + t.o.itemIds.length + ' darab'}, {big:true, actions:acts});
+}
+function feedback(v, r){
+  if(!TODAY?.o) return;
+  LOG.fb.push({d:todayKey(), ids:TODAY.o.itemIds, v, r:r||''}); saveLog();
+}
+
+// ---------- other occasions ----------
+async function occGenerate(){
+  if(S.busy.occ) return;
+  const items = pool(); const occ = OCC.find(o=>o.k===S.occ);
+  let w = null; try{ w = await getWeather(); }catch{}
+  S.busy.occ = true; S.occErr = ''; renderOcc();
+  let outs = null;
+  if(aiReady() && !isDemo()){
+    const ctx = wardrobeCtx(items);
+    const prompt = `Személyes stylist vagy. A felhasználó saját ruhatárából állíts össze 3 különböző szettet erre: ${occ.l}.
+Időjárás: ${wxText(w)}.
+${profileText()}
+
+${historyText(ctx)}
+
+Szabályok: minden szettben vagy egy "Ruha" kategóriájú darab, vagy egy felső és egy alsó. Cipőt is, ha van. A 3 szett alapdarabjai különbözzenek. Csak a lista kódjait használd.
+${ctx.text}
+
+Csak JSON-t válaszolj: {"outfits":[{"title":"rövid cím","items":["R1","R2"],"why":"1-2 mondat tegezve","tip":"rövid styling tipp"}]}`;
+    try{ const res = await aiJson(prompt); outs = (res?.outfits||[]).map(o=>parseOutfit(o, ctx)).filter(Boolean); if(!outs.length){ outs = null; S.occErr = 'Az AI nem adott használható szettet, ezért szabály alapján válogattam.'; } }
+    catch(e){ S.occErr = aiErrText(e) + ' Addig szabály alapján válogattam.'; }
+  }
+  if(!outs){ const r = genQuick(items, S.occ, wxKey(w), 3); outs = r.outfits || []; if(r.error) S.occErr = r.error; }
+  S.occResults = outs.map(o=>({...o, occ:S.occ})); S.occFrom = isDemo() ? 'demo' : 'real';
+  S.busy.occ = false; renderOcc();
+}
+function renderOcc(){
+  $('#occ').innerHTML = OCC.map(o=>chip(o.l, S.occ===o.k, `data-occ="${o.k}"`)).join('');
+  $('#occ-go').disabled = !!S.busy.occ;
+  $('#occ-status').innerHTML = S.busy.occ ? `<div class="progress"><div class="spin"></div><div>A stylist válogat…</div></div>` : S.occErr ? `<p class="hint">${esc(S.occErr)}</p>` : '';
+  $('#occ-results').innerHTML = S.occResults.map((o,i)=>outfitHTML({...o, kicker: OCC.find(x=>x.k===o.occ)?.l}, {actions:`<div class="acts"><button type="button" class="ghost" data-fav="${i}">♥ Mentés</button></div>`})).join('');
+  const favs = [...S.favs.values()].sort((a,b)=>(b.ts||0)-(a.ts||0));
+  $('#favs').innerHTML = favs.length ? favs.map(f=>outfitHTML({...f, kicker: OCC.find(x=>x.k===f.occ)?.l || 'Mentett'}, {actions:`<div class="acts"><button type="button" class="ghost danger" data-unfav="${esc(f.id)}">Eltávolítás</button></div>`})).join('') : '<p class="hint">Még nincs mentett szetted.</p>';
+}
+
+// ---------- CLOSET ----------
+function renderCloset(){
+  const n = S.items.size;
+  $('#count').textContent = n ? `${n} darab` : 'mintaszekrény';
+  const list = pool(); const counts = {}; list.forEach(i=>counts[i.category]=(counts[i.category]||0)+1);
+  $('#filters').innerHTML = chip('Mind', S.filter==='all', 'data-filter="all"', ` <small>${list.length}</small>`) +
+    CATS.filter(([k])=>counts[k]).map(([k,l])=>chip(l, S.filter===k, `data-filter="${k}"`, ` <small>${counts[k]}</small>`)).join('');
+  const mode = S.profile.view === 'foto' ? 'foto' : 'rajz';
+  document.querySelectorAll('#viewmode button').forEach(b=>b.setAttribute('aria-pressed', b.dataset.viewmode===mode));
+  const B = [];
+  if(isDemo()) B.push(`<div class="banner"><div><b>Ez egy mintaszekrény</b><p>Fotózd le a ruháidat egyesével, és töltsd fel őket. Az AI felismeri a darabot, és egységes rajz készül róla. Amint feltöltöd az elsőt, a minták eltűnnek.</p></div></div>`);
+  const undigit = realItems().filter(i=>!i.look?.ai).length;
+  if(undigit && !S.busy.digit) B.push(`<div class="banner"><div><b>${undigit} ruhád még nincs rendesen felismerve</b><p>Az AI megnézi a fotókat, kitölti a nevet, a fajtát, az anyagot, a stílust és az évszakot, és ebből készül a rajz.</p></div>${aiReady() ? `<button class="primary" type="button" id="digitize">Digitalizálás</button>` : `<a class="ghost" href="#profil">Belépés</a>`}</div>`);
+  $('#closet-banners').innerHTML = B.join('');
+  const shown = list.filter(i=>S.filter==='all'||i.category===S.filter);
+  $('#closet').innerHTML = `<div class="grid">` + shown.map(it => `
+    <button type="button" class="item" data-item="${esc(it.id)}">
+      ${it.demo ? '<span class="badge">Minta</span>' : ''}
+      ${mode==='foto' && it.img ? `<div class="ph photo"><img src="${esc(it.img)}" alt="${esc(it.name)}" loading="lazy"></div>` : `<div class="ph">${garmentSVG(it)}</div>`}
+      <div class="meta"><div class="nm">${esc(it.name)}</div>
+        <div class="sub"><span class="dot" style="background:${esc(it.colorHex)}"></span><span>${esc(TYPE_L[lookOf(it).type] || CAT_L[it.category] || '')}</span></div></div>
+    </button>`).join('') + '</div>';
+}
+
+// ---------- upload & AI recognition ----------
+function loadImg(file){ return new Promise((res,rej)=>{ const u=URL.createObjectURL(file); const im=new Image(); im.onload=()=>{ URL.revokeObjectURL(u); res(im); }; im.onerror=()=>{ URL.revokeObjectURL(u); rej(new Error('decode')); }; im.src=u; }); }
+function dominant(cv){
+  const s=48, c=document.createElement('canvas'); c.width=c.height=s; const x=c.getContext('2d',{willReadFrequently:true});
+  x.drawImage(cv,0,0,s,s); const d=x.getImageData(0,0,s,s).data;
+  const px=(i,j)=>{const k=(j*s+i)*4; return [d[k],d[k+1],d[k+2]];};
+  const corners=[px(1,1),px(s-2,1),px(1,s-2),px(s-2,s-2)]; const bg=corners.reduce((a,c)=>a.map((v,i)=>v+c[i]/4),[0,0,0]);
+  const bins=new Map(); let total=0;
+  for(let j=Math.floor(s*.25);j<s*.75;j++) for(let i=Math.floor(s*.25);i<s*.75;i++){ const [r,g,b]=px(i,j);
+    if(Math.hypot(r-bg[0],g-bg[1],b-bg[2])<38) continue; const key=(r>>4)<<8|(g>>4)<<4|(b>>4);
+    const e=bins.get(key)||{n:0,r:0,g:0,b:0}; e.n++; e.r+=r; e.g+=g; e.b+=b; bins.set(key,e); total++; }
+  if(!total) return rgbToHex(...bg);
+  let best=null; for(const e of bins.values()) if(!best||e.n>best.n) best=e;
+  return rgbToHex(best.r/best.n, best.g/best.n, best.b/best.n);
+}
+async function prep(file){
+  const im = await loadImg(file); const k = Math.min(1, 560/Math.max(im.naturalWidth, im.naturalHeight));
+  const cv = document.createElement('canvas'); cv.width = Math.round(im.naturalWidth*k); cv.height = Math.round(im.naturalHeight*k);
+  const x = cv.getContext('2d'); x.fillStyle='#fff'; x.fillRect(0,0,cv.width,cv.height); x.drawImage(im,0,0,cv.width,cv.height);
+  return {dataUrl: cv.toDataURL('image/jpeg', 0.78), hex: dominant(cv)};
+}
+const TAG_PROMPT = n => `${n} ruhadarab fotóját kapod, ebben a sorrendben (a vállfát, a kezet és a hátteret hagyd figyelmen kívül). Mindegyikről add meg az adatokat ugyanabban a sorrendben.
+Csak egy JSON tömböt válaszolj, pontosan ${n} elemmel:
+[{"name":"rövid, pontos magyar név, pl. Fekete bordás galléros pulóver","category":"felso|also|ruha|kabat|cipo|kieg","type":"lásd lent","texture":"sima|bordas|kotott|farmer|melange|kord|csikos|kockas","sleeves":"hosszu|rovid","pocket":false,"colorName":"magyar színnév kisbetűvel","colorHex":"#rrggbb, a darab valódi fő színe","color2Hex":"csak csíkos vagy kockás mintánál a második szín, különben null","styles":["legfeljebb 3: laza, minimal, elegans, uzleti, utcai, sportos, bohem, romantikus"],"seasons":["tavasz, nyar, osz, tel közül, amikor hordható"],"formality":2}]
+A type a kategóriától függ:
+felso: polo (galléros, gombos póló, hosszú ujjú is), polo_zip (galléros, cipzáras), ing (hagyományos galléros ing), ing_allo (állógalléros, kínai galléros ing), tshirt (sima póló), pulover (kerek nyakú pulóver), garbo (garbó, magas nyak), hoodie (kapucnis), kardigan
+also: chino, farmer, szovet (elegáns szövetnadrág), melegito (melegítő, jogger), short, szoknya
+kabat: dzseki (cipzáras dzseki, bomber), kabat (hosszú kabát), blazer (zakó)
+ruha: ruha
+cipo: sneaker, csizma (bakancs is), felcipo (loafer is)
+kieg: taska, sapka, ov, sal
+A formality 1-5: 1 sport, 2 laza, 3 smart casual, 4 üzleti, 5 gála.`;
+function applyTags(it, t){
+  if(!t || typeof t !== 'object') return it;
+  const cat = CAT_L[t.category] ? t.category : it.category;
+  const types = TYPES[cat].map(x=>x[0]);
+  const hex = /^#[0-9a-f]{6}$/i.test(t.colorHex||'') ? t.colorHex.toUpperCase() : it.colorHex;
+  return {...it, category:cat,
+    name: String(t.name || it.name).slice(0,60),
+    colorHex: hex, colorName: String(t.colorName || nearestColor(hex)).toLowerCase().slice(0,30),
+    styles: (Array.isArray(t.styles)?t.styles:[]).filter(s=>STY_L[s]).slice(0,3),
+    seasons: (Array.isArray(t.seasons)?t.seasons:[]).filter(s=>SEA_L[s]),
+    formality: Math.min(5, Math.max(1, Math.round(Number(t.formality)||it.formality||2))),
+    look: {type: types.includes(t.type) ? t.type : DEF_TYPE[cat], texture: TEX_L[t.texture] ? t.texture : 'sima',
+      sleeves: t.sleeves==='rovid' ? 'rovid' : 'hosszu', pocket: !!t.pocket, color2: /^#[0-9a-f]{6}$/i.test(t.color2Hex||'') ? t.color2Hex : null, ai:true}};
+}
+async function recognize(items, setProg){
+  const per = 4; let failed = 0, lastErr = null;
+  for(let i=0;i<items.length;i+=per){
+    const chunk = items.slice(i, i+per);
+    setProg(`Az AI nézi a ruháidat… (${Math.min(i+per, items.length)}/${items.length})`);
+    try{
+      const res = await aiJson(TAG_PROMPT(chunk.length), {images: chunk.map(c=>c.img)});
+      const arr = Array.isArray(res) ? res : Array.isArray(res?.items) ? res.items : [];
+      chunk.forEach((it,j)=>{ const upd = applyTags(it, arr[j]); S.items.set(it.id, upd); if(!arr[j]) failed++; });
+      save(); renderCloset();
+    }catch(e){ failed += chunk.length; lastErr = e; if(e?.code==='limit' || e?.code==='auth' || e?.code==='no_ai') break; }
+  }
+  return {failed, lastErr};
+}
+async function addFiles(files){
+  files = [...files].filter(f => !f.type || f.type.startsWith('image/'));
   if(!files.length) return;
-  location.hash = 'szettek';
-  const prepared = []; for(const f of files){ try{ prepared.push(await prep(f, 640)); }catch{} }
-  if(!prepared.length){ toast('Ezeket a képeket nem tudtam megnyitni.'); return; }
-  S.inspo = prepared; S.inspoLook = ''; S.results = []; S.resultsFrom = 'inspo'; S.statusMsg = '';
-  if(sample && !aiOff && sampleLimits?.images) await aiInspo(); else quickInspo();
+  const prog = $('#progress'); const setProg = t => prog.innerHTML = `<div class="progress"><div class="spin"></div><div>${esc(t)}</div></div>`;
+  setProg(`${files.length} kép előkészítése…`);
+  const added = [];
+  for(const f of files){ try{ const p = await prep(f); const cn = nearestColor(p.hex);
+    added.push({id:uid8(), ts:Date.now()+added.length, img:p.dataUrl, name:`${cap(cn)} ruhadarab`, category:'felso', colorName:cn, colorHex:p.hex.toUpperCase(), styles:[], seasons:[], formality:2}); }catch{} }
+  if(!added.length){ prog.innerHTML=''; toast('Ezeket a képeket nem tudtam megnyitni.'); return; }
+  added.forEach(it=>S.items.set(it.id, it)); save(); S.filter = 'all'; resetPicks(); renderCloset();
+  if(aiReady()){
+    const {failed, lastErr} = await recognize(added, setProg);
+    prog.innerHTML = '';
+    toast(failed ? (lastErr ? aiErrText(lastErr) : `${failed} ruhát nem sikerült felismerni. Koppints rájuk, és állítsd be kézzel.`) : `${added.length} ruha hozzáadva és felismerve.`);
+  } else { prog.innerHTML = ''; toast(`${added.length} ruha hozzáadva. Lépj be OpenRouterrel, hogy az AI felismerje őket.`); }
+  renderCloset();
 }
-function quickInspo(){
-  const r = genQuick(pool(), S.occ, S.wx, 3, S.inspo.map(p=>p.hex));
-  S.results = (r.outfits||[]).map(o=>({...o, why: 'A képek színeihez igazítva. ' + o.why}));
-  S.resultsFrom = 'inspo'; S.statusMsg = r.error || ''; S.inspoLook = '';
-  renderOutfits();
+async function digitizeAll(){
+  const todo = realItems().filter(i=>!i.look?.ai && i.img);
+  if(!todo.length) return;
+  S.busy.digit = true; renderCloset();
+  const prog = $('#progress');
+  const {failed, lastErr} = await recognize(todo, t => prog.innerHTML = `<div class="progress"><div class="spin"></div><div>${esc(t)}</div></div>`);
+  prog.innerHTML = ''; S.busy.digit = false; resetPicks(); renderCloset();
+  toast(failed ? (lastErr ? aiErrText(lastErr) : `${failed} ruhát nem sikerült felismerni. Próbáld újra, vagy állítsd be kézzel.`) : 'Kész! Minden ruhád digitalizálva.');
 }
-async function aiInspo(){
-  const items = pool(); const occ = OCC.find(o=>o.k===S.occ); const wx = WX.find(w=>w.k===S.wx); const p = S.profile;
-  const max = Math.max(1, Math.min(4, sampleLimits.images.maxCount||1));
-  const prompt = `A képeken inspirációs szettek láthatók (pl. Pinterestről vagy Instagramról). Először értsd meg a lookot: színek, sziluett, anyagok, stílus, hangulat.
-Aztán a felhasználó SAJÁT ruhatárából rakj össze legfeljebb 3 szettet, ami a lehető legjobban visszaadja ezt a lookot.
-Alkalom: ${occ.l}. Időjárás: ${wx.l}.
-Stílusprofil — kedvelt stílusok: ${p.styles.map(s=>STY_L[s]).join(', ')||'nincs megadva'}; kerülendő színek: ${p.avoidColors.join(', ')||'-'}. Magáról: "${(p.about||'').slice(0,600)}"
-Szabályok: minden szett tartalmazzon vagy egy darabot a "ruha" kategóriából, vagy egy felsőt és egy alsót. Cipőt is, ha van. Csak a listában szereplő azonosítókat használd.
-${outfitLines(items)}
+const resetPicks = () => { if(TODAY && !TODAY.worn){ TODAY = null; lsSet(K.today, null); } S.occResults = []; };
 
-Csak JSON-t válaszolj, így:
-{"look":"1 mondat magyarul: mi az inspiráció lényege","outfits":[{"title":"rövid magyar cím","items":["azonosító1","azonosító2"],"why":"1-2 mondat: mi adja vissza az inspirációt","tip":"rövid styling tipp","missing":"ha egy kulcsdarab hiányzik a szekrényből, mit érdemes venni hozzá; ha semmi, üres szöveg"}]}`;
-  aiCtl = new AbortController(); S.busy = true; renderOutfits();
+// ---------- item sheet ----------
+let editing = null, delArmed = 0;
+function openSheet(it){
+  editing = JSON.parse(JSON.stringify(it)); editing.look = {...lookOf(it), ai: it.look?.ai}; delArmed = 0;
+  $('#f-name').value = it.name; $('#f-color').value = (it.colorHex||'#888888').toLowerCase(); $('#f-colorname').value = it.colorName||'';
+  $('#f-form').value = it.formality||2; $('#f-del').textContent = 'Törlés';
+  const ph = $('#f-photo'); ph.hidden = !it.img; if(it.img) ph.src = it.img;
+  renderSheet(); $('#sheet').hidden = false;
+}
+function renderSheet(){
+  const e = editing, L = e.look;
+  $('#f-ill').innerHTML = garmentSVG({...e, colorHex: $('#f-color').value});
+  $('#f-cat').innerHTML = CATS.map(([k,l])=>chip(l, e.category===k, `data-fcat="${k}"`)).join('');
+  $('#f-type').innerHTML = (TYPES[e.category]||[]).map(([k,l])=>chip(l, L.type===k, `data-ftype="${k}"`)).join('');
+  $('#f-tex').innerHTML = TEX.map(([k,l])=>chip(l, L.texture===k, `data-ftex="${k}"`)).join('');
+  $('#f-sleeves-wrap').hidden = !['felso','kabat'].includes(e.category);
+  $('#f-sleeves').innerHTML = [['hosszu','Hosszú'],['rovid','Rövid']].map(([k,l])=>chip(l, L.sleeves===k, `data-fsl="${k}"`)).join('') + chip('Mellzseb', !!L.pocket, 'data-fpocket="1"');
+  $('#f-styles').innerHTML = STYLES.map(([k,l])=>chip(l, (e.styles||[]).includes(k), `data-fsty="${k}"`)).join('');
+  $('#f-seasons').innerHTML = SEASONS.map(([k,l])=>chip(l, (e.seasons||[]).includes(k), `data-fsea="${k}"`)).join('');
+}
+const closeSheet = () => { $('#sheet').hidden = true; editing = null; };
+$('#f-color').addEventListener('input', e => { $('#f-colorname').value = nearestColor(e.target.value); if(editing) $('#f-ill').innerHTML = garmentSVG({...editing, colorHex:e.target.value}); });
+$('#itemForm').addEventListener('submit', e => {
+  e.preventDefault(); if(!editing) return;
+  const it = {...editing, name: $('#f-name').value.trim() || editing.name, colorHex: $('#f-color').value.toUpperCase(),
+    colorName: ($('#f-colorname').value.trim() || nearestColor($('#f-color').value)).toLowerCase(), formality: +$('#f-form').value};
+  S.items.set(it.id, it); save(); closeSheet(); resetPicks(); renderAll(); toast('Mentve');
+});
+$('#f-del').addEventListener('click', () => {
+  if(!editing) return;
+  if(Date.now() - delArmed > 3000){ delArmed = Date.now(); $('#f-del').textContent = 'Biztos? Koppints újra'; return; }
+  S.items.delete(editing.id); save(); closeSheet(); resetPicks(); renderAll(); toast('Törölve');
+});
+
+// ---------- CHAT ----------
+let chatImg = null, chatCtl = null;
+const SUGGEST = ['Mit vegyek fel ma este egy randira?', 'Mihez illik a legtöbbet hordott nadrágom?', 'Milyen 3 darabot vegyek, hogy több szett kijöjjön?', 'Állíts össze egy irodai hetet'];
+function refChip(it){ return `<span class="ref"><i>${garmentSVG(it)}</i><em>${esc(it.name)}</em></span>`; }
+function formatAI(text, back){
+  let h = esc(text).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>');
+  h = h.replace(/\[\s*(R\d+)\s*\]/g, (m, c) => { const it = back && byId(back[c]); return it ? refChip(it) : m; });
+  return h;
+}
+function renderChat(){
+  const ready = aiReady();
+  $('#chat-intro').innerHTML = CHAT.length ? '' : `<div class="panel"><h2 class="big">Szia! Én vagyok a stylistod.</h2>
+    <p class="hint">Ismerem a szekrényedet, az időjárást és azt, amit magadról elmondtál. Kérdezz bármit, vagy küldj egy inspirációs képet, és megmondom, mit vegyél fel hozzá a saját ruháidból.</p>
+    ${ready ? `<div class="chips">${SUGGEST.map(s=>chip(s,false,`data-suggest="${esc(s)}"`)).join('')}</div>` : `<a class="primary" href="#profil">Belépés OpenRouterrel</a>`}</div>`;
+  $('#msgs').innerHTML = CHAT.map(m => m.role === 'user'
+    ? `<div class="msg me">${m.thumb ? `<img class="att" src="${esc(m.thumb)}" alt="Csatolt kép">` : ''}${esc(m.content)}</div>`
+    : `<div class="msg ai">${formatAI(m.content, m.back)}</div>`).join('');
+  $('#chat-status').innerHTML = S.busy.chat ? `<div class="status"><div class="spin"></div><div style="flex:1">A stylist gondolkodik…</div><button class="ghost" type="button" id="chat-stop">Leállítás</button></div>` : '';
+  const ap = $('#attprev'); ap.hidden = !chatImg; ap.innerHTML = chatImg ? `<img src="${esc(chatImg.thumb)}" alt="Csatolt kép"><span style="flex:1">Kép csatolva</span><button class="ghost" type="button" id="att-del">Eltávolítás</button>` : '';
+  if(CHAT.length && $('#view-chat') && !$('#view-chat').hidden) window.scrollTo(0, document.body.scrollHeight);
+}
+async function sendChat(text){
+  text = String(text||'').trim();
+  if(!text && !chatImg) return;
+  if(!aiReady()){ toast('A stylisthoz lépj be OpenRouterrel a Profil fülön.'); return; }
+  if(S.busy.chat) return;
+  const items = pool(); const ctx = wardrobeCtx(items);
+  let w = null; try{ w = await getWeather(); }catch{}
+  const img = chatImg; chatImg = null;
+  CHAT.push({role:'user', content: text || 'Mit vegyek fel ehhez hasonlót a saját ruháimból?', thumb: img?.thumb || null});
+  $('#chat-in').value = ''; S.busy.chat = true; renderChat();
+  const system = `Te egy személyes stylist vagy. Magyarul, tegezve, barátságosan és tömören válaszolsz (legfeljebb kb. 120 szó, felsorolás is jó).
+Ismered a felhasználó ruhatárát (lent). Ha konkrét saját ruhadarabot ajánlasz, MINDIG írd mellé a kódját szögletes zárójelben, pl. [R3]. Csak a listában szereplő darabokat nevezd a sajátjának. Ha valami hiányzik, mondd meg, mit érdemes venni.
+Ha képet kapsz inspirációként, elemezd a lookot (színek, sziluett, hangulat), és a saját ruháiból rakd össze a leghasonlóbbat.
+Ma: ${new Date().toLocaleDateString('hu-HU',{weekday:'long'})}. Időjárás: ${wxText(w)}.
+${profileText()}
+
+${historyText(ctx)}
+
+${ctx.text}`;
+  const turns = CHAT.slice(-14).map(m=>({role:m.role, content:m.content}));
+  const messages = [{role:'user', content:system}, {role:'assistant', content:'Rendben, ismerem a ruhatáradat. Miben segíthetek?'}, ...turns];
+  chatCtl = new AbortController();
   try{
-    const res = await sample.json(prompt, {images: S.inspo.slice(0,max).map(x=>x.blob), signal: aiCtl.signal, cache:false});
-    const outs = parseOutfits(res, items);
-    S.inspoLook = String(res?.look||'').slice(0,300);
-    if(outs.length){ S.results = outs; S.resultsFrom = 'inspo'; }
-    else { toast('Nem kaptam használható szettet, ezért a színek alapján válogattam.'); quickInspo(); }
-  }catch(e){ handleSampleErr(e); if(e?.code!=='cancelled') quickInspo(); }
-  finally{ S.busy = false; aiCtl = null; renderOutfits(); }
+    const out = await aiCall(messages, {images: img ? [img.dataUrl] : [], signal: chatCtl.signal});
+    CHAT.push({role:'assistant', content: out.trim(), back: Object.fromEntries(ctx.back)});
+  }catch(e){ if(e?.code !== 'cancelled') CHAT.push({role:'assistant', content: aiErrText(e)}); }
+  CHAT = CHAT.slice(-40); lsSet(K.chat, CHAT);
+  S.busy.chat = false; chatCtl = null; renderChat();
+}
+async function attachChatImg(file){
+  try{ const p = await prep(file); const im = await loadImg(file); const c = document.createElement('canvas'); const k = 140/Math.max(im.naturalWidth, im.naturalHeight);
+    c.width = Math.round(im.naturalWidth*k); c.height = Math.round(im.naturalHeight*k); c.getContext('2d').drawImage(im,0,0,c.width,c.height);
+    chatImg = {dataUrl: p.dataUrl, thumb: c.toDataURL('image/jpeg', .7)}; renderChat(); $('#chat-in').focus(); }
+  catch{ toast('Ezt a képet nem tudtam megnyitni.'); }
+}
+
+// ---------- PROFILE ----------
+function renderProfile(){
+  const q = S.profile.q;
+  $('#qs').innerHTML = QS.map(Q => `<div class="q"><span class="sec">${esc(Q.l)}</span><div class="chips">${Q.o.map(([k,l])=>chip(l, Q.multi ? (q[Q.k]||[]).includes(k) : q[Q.k]===k, `data-q="${Q.k}" data-qv="${k}"`)).join('')}</div></div>`).join('');
+  const city = $('#city'); if(document.activeElement !== city) city.value = q.city || '';
+  const ab = $('#p-about'); if(document.activeElement !== ab) ab.value = S.profile.about || '';
+  const p = S.profile;
+  $('#p-styles').innerHTML = STYLES.map(([k,l])=>chip(l, p.styles.includes(k), `data-psty="${k}"`)).join('');
+  const sw = (list, attr) => COLORS.map(([n,h])=>`<button type="button" class="sw" style="background:${h}" title="${n}" aria-label="${n}" aria-pressed="${list.includes(n)}" ${attr}="${n}"></button>`).join('');
+  $('#p-like').innerHTML = sw(p.likeColors, 'data-like'); $('#p-avoid').innerHTML = sw(p.avoidColors, 'data-avoid');
+  const c = orCfg(), st = $('#orstatus');
+  if(document.activeElement !== $('#orkey')) $('#orkey').value = c.key ? '••••••••' + c.key.slice(-4) : '';
+  $('#ordel').hidden = !c.key; $('#orlogin').hidden = !!c.key;
+  if(!st.dataset.busy) st.textContent = c.key ? ((c.textModels||[]).length ? `Összekötve. Ingyenes AI: ${c.textModels[0]}` : 'Összekötve, de most nincs elérhető ingyenes képet értő modell.') : 'Még nincs összekötve.';
+  renderAnalysis();
+}
+let profTimer = null;
+const saveProfileSoon = () => { clearTimeout(profTimer); profTimer = setTimeout(()=>{ save(); }, 500); };
+
+// ---------- wardrobe analysis ----------
+async function analyze(){
+  if(S.busy.an) return;
+  const items = realItems(); if(!items.length){ toast('Előbb töltsd fel a ruháidat.'); return; }
+  S.busy.an = true; renderAnalysis();
+  const ctx = wardrobeCtx(items);
+  if(aiReady()){
+    const prompt = `Személyes stylist vagy. Elemezd a felhasználó ruhatárát.
+${profileText()}
+
+${historyText(ctx)}
+
+${ctx.text}
+
+Csak JSON-t válaszolj, magyarul, tegezve:
+{"summary":"2-3 mondat: milyen most a stílusa és a ruhatára","palette":["a ruhatár 3-5 fő színe"],"strengths":["2-3 erősség"],"gaps":[{"item":"konkrét darab, amit érdemes venni","why":"miért, mihez illene a meglévőkből (kódokkal, pl. [R2])"}],"underused":["kódok, amiket ritkán vagy nehezen lehet kombinálni"],"tip":"egy fő tanács"}
+A gaps legyen 3-4 elem, a legnagyobb hatásúval kezdve.`;
+    try{ const r = await aiJson(prompt); ANALYSIS = {d:todayKey(), ai:true, back:Object.fromEntries(ctx.back), ...r}; }
+    catch(e){ toast(aiErrText(e)); ANALYSIS = offlineAnalysis(items); }
+  } else ANALYSIS = offlineAnalysis(items);
+  lsSet(K.analysis, ANALYSIS); S.busy.an = false; renderAnalysis();
+}
+function offlineAnalysis(items){
+  const cnt = c => items.filter(i=>i.category===c).length;
+  const colors = {}; items.forEach(i=>colors[i.colorName]=(colors[i.colorName]||0)+1);
+  const palette = Object.entries(colors).sort((a,b)=>b[1]-a[1]).slice(0,5).map(e=>e[0]);
+  const gaps = [];
+  if(!cnt('cipo')) gaps.push({item:'Cipők feltöltése', why:'Cipő nélkül nem tudok teljes szettet összerakni.'});
+  if(!cnt('kabat')) gaps.push({item:'Egy semleges dzseki vagy kabát', why:'Hűvösebb napokra most nincs mit javasolnom.'});
+  if(cnt('felso') > cnt('also')*3) gaps.push({item:'Még egy-két nadrág', why:`${cnt('felso')} felsődhöz csak ${cnt('also')} alsó tartozik, egy új nadrággal sokkal több szett jön ki.`});
+  if(palette.every(c=>['fekete','szürke','sötétszürke','bézs','barna','teve','sötétkék','fehér'].includes(c))) gaps.push({item:'Egy színes kiegészítő vagy felső', why:'A ruhatárad csupa semleges szín: egy színes darab feldobná a szetteket.'});
+  return {d:todayKey(), ai:false, summary:`${items.length} darabod van: ${cnt('felso')} felső, ${cnt('also')} alsó, ${cnt('kabat')} kabát, ${cnt('cipo')} cipő. Körülbelül ${cnt('felso')*cnt('also')+cnt('ruha')} alapszett rakható ki belőlük.`, palette, strengths:[], gaps, underused:[], tip: aiReady() ? '' : 'Lépj be OpenRouterrel, és az AI részletes elemzést ad.'};
+}
+function renderAnalysis(){
+  const el = $('#analysis'); const a = ANALYSIS;
+  $('#analyze').disabled = !!S.busy.an; $('#analyze').textContent = a ? 'Újra' : 'Elemzés';
+  if(S.busy.an){ el.innerHTML = `<div class="status"><div class="spin"></div><div>Az AI átnézi a szekrényedet…</div></div>`; return; }
+  if(!a){ el.innerHTML = `<p class="hint">Megmondom, milyen a stílusod, mi hiányzik a szekrényedből, és mit érdemes venni, hogy több szett jöjjön ki ugyanabból.</p>`; return; }
+  const fmt = t => formatAI(String(t||''), a.back);
+  const L = arr => Array.isArray(arr) ? arr : [];
+  el.innerHTML = `${a.summary ? `<p class="why">${fmt(a.summary)}</p>` : ''}
+    ${L(a.palette).length ? `<div class="chips">${L(a.palette).map(c=>{ const h = COLORS.find(x=>x[0]===String(c).toLowerCase())?.[1]; return `<span class="chip">${h?`<span class="dot" style="background:${h}"></span>`:''}${esc(c)}</span>`; }).join('')}</div>` : ''}
+    ${L(a.strengths).length ? `<span class="sec">Erősségek</span><ul class="alist">${L(a.strengths).map(s=>`<li>${fmt(s)}</li>`).join('')}</ul>` : ''}
+    ${L(a.gaps).length ? `<span class="sec">Ezt érdemes beszerezni</span>${L(a.gaps).map(g=>`<div class="gap"><b>${esc(g.item||'')}</b><span class="hint">${fmt(g.why)}</span></div>`).join('')}` : ''}
+    ${L(a.underused).length && a.back ? `<span class="sec">Nehezen kombinálható darabok</span><div>${L(a.underused).map(c=>{ const it = byId(a.back[String(c).replace(/[\[\]\s]/g,'')]); return it ? refChip(it) : ''; }).join(' ')}</div>` : ''}
+    ${a.tip ? `<p class="tip">${fmt(a.tip)}</p>` : ''}`;
+}
+
+// ---------- routing ----------
+const ROUTES = {ma:'today', szekreny:'closet', stylist:'chat', profil:'profile'};
+let view = 'today';
+function route(){
+  view = ROUTES[location.hash.replace('#','')] || 'today';
+  for(const v of ['today','closet','chat','profile']) $('#view-'+v).hidden = v !== view;
+  document.querySelectorAll('nav.tabs a').forEach(a=>{ if(a.dataset.view===view) a.setAttribute('aria-current','page'); else a.removeAttribute('aria-current'); });
+  $('#fab').hidden = view !== 'closet';
+  renderAll(); window.scrollTo(0, view==='chat' ? document.body.scrollHeight : 0);
+  if(view === 'today') makeToday(false);
+}
+addEventListener('hashchange', route);
+function renderAll(){
+  $('#count').textContent = S.items.size ? `${S.items.size} darab` : 'mintaszekrény';
+  if(view==='today'){ renderToday(); renderOcc(); }
+  if(view==='closet') renderCloset();
+  if(view==='chat') renderChat();
+  if(view==='profile') renderProfile();
 }
 
 // ---------- events ----------
@@ -1218,61 +1143,68 @@ document.addEventListener('click', e => {
   const t = e.target.closest('button,[data-act]'); if(!t) return;
   const d = t.dataset;
   if(d.act==='close'){ closeSheet(); return; }
-  if(d.act==='close-try'){ closeTry(); return; }
-  if(d.act==='clear-inspo'){ S.inspo = []; S.inspoLook = ''; S.results = []; quickGenerate(); return; }
-  if(d.tryr!==undefined){ const o = S.results[+d.tryr]; if(o) openTry(o); return; }
-  if(d.tryf){ const o = S.favs.get(d.tryf); if(o) openTry(o); return; }
-  if(d.try==='again'){ runTry(); return; }
-  if(d.try==='stop'){ closeTry(); return; }
-  if(d.mode){ setTryMode(d.mode); renderOR(); return; }
-  if(t.id==='orsave'){ orSave(); return; }
-  if(t.id==='orlogin'){ orLogin(); return; }
-  if(t.id==='ordel'){ try{ localStorage.removeItem(OR_KEY); }catch{} $('#orkey').value=''; sample = null; S.engine='quick'; renderAll(); toast('Kijelentkeztél'); return; }
-  if(t.id==='me-del'){ S.me = null; remove('photo'); renderMe(); toast('Fotó törölve'); return; }
   if(d.filter){ S.filter = d.filter; renderCloset(); return; }
-  if(d.item){ const it = S.items.get(d.item); if(it) openSheet(it); else toast('Ez mintadarab. Töltsd fel a saját ruháidat a + gombbal.'); return; }
-  if(d.fcat){ editing.category = d.fcat; renderSheetChips(); return; }
-  if(d.fsty){ const a = editing.styles; const i = a.indexOf(d.fsty); i>=0 ? a.splice(i,1) : a.push(d.fsty); renderSheetChips(); return; }
-  if(d.fsea){ const a = editing.seasons; const i = a.indexOf(d.fsea); i>=0 ? a.splice(i,1) : a.push(d.fsea); renderSheetChips(); return; }
-  if(d.occ){ S.occ = d.occ; renderOutfits(); return; }
-  if(d.wx){ S.wx = d.wx; renderOutfits(); return; }
-  if(d.engine){ S.engine = d.engine; renderOutfits(); return; }
-  if(t.id==='go'){ S.inspo = []; S.inspoLook = ''; if(S.engine==='ai' && sample && !aiOff) aiGenerate(); else { quickGenerate(); } return; }
-  if(t.id==='stop'){ aiCtl?.abort(); return; }
+  if(d.viewmode){ S.profile.view = d.viewmode; save(); renderCloset(); return; }
+  if(d.item){ const it = S.items.get(d.item); if(it) openSheet(it); else toast('Ez mintadarab. Töltsd fel a saját ruháidat.'); return; }
+  if(t.id==='digitize'){ digitizeAll(); return; }
+  if(d.fcat && editing){ editing.category = d.fcat; editing.look.type = DEF_TYPE[d.fcat]; renderSheet(); return; }
+  if(d.ftype && editing){ editing.look.type = d.ftype; if(d.ftype==='farmer') editing.look.texture = 'farmer'; renderSheet(); return; }
+  if(d.ftex && editing){ editing.look.texture = d.ftex; renderSheet(); return; }
+  if(d.fsl && editing){ editing.look.sleeves = d.fsl; renderSheet(); return; }
+  if(d.fpocket && editing){ editing.look.pocket = !editing.look.pocket; renderSheet(); return; }
+  if(d.fsty && editing){ const a = editing.styles ||= []; const i = a.indexOf(d.fsty); i>=0 ? a.splice(i,1) : a.push(d.fsty); renderSheet(); return; }
+  if(d.fsea && editing){ const a = editing.seasons ||= []; const i = a.indexOf(d.fsea); i>=0 ? a.splice(i,1) : a.push(d.fsea); renderSheet(); return; }
+  if(d.today){
+    const a = d.today;
+    if(a==='wear' && TODAY?.o){ TODAY.worn = true; LOG.wears = LOG.wears.filter(w=>w.d!==todayKey()); LOG.wears.push({d:todayKey(), ids:TODAY.o.itemIds}); saveLog(); lsSet(K.today, TODAY); renderToday(); toast('Feljegyeztem. Jó napot!'); }
+    if(a==='up' && TODAY?.o){ TODAY.vote = 'up'; feedback('up'); lsSet(K.today, TODAY); renderToday(); toast('Köszi, ezt megjegyzem.'); }
+    if(a==='down' && TODAY?.o){ TODAY.vote = 'down-ask'; renderToday(); }
+    if(a==='other'){ if(TODAY?.worn){ LOG.wears = LOG.wears.filter(w=>w.d!==todayKey()); saveLog(); } makeToday(true); }
+    return;
+  }
+  if(d.reason){ feedback('down', d.reason); makeToday(true); return; }
+  if(d.occ){ S.occ = d.occ; renderOcc(); return; }
+  if(t.id==='occ-go'){ occGenerate(); return; }
   if(d.fav!==undefined){
-    if(S.resultsFrom==='demo'){ toast('Ez mintaszett. A saját ruháidból készült szetteket tudod menteni.'); return; }
-    const o = S.results[+d.fav]; if(!o) return;
-    const f = {...o, id: uid8(), ts: Date.now()}; S.favs.set(f.id, f); put('f_'+f.id, f); renderOutfits(); toast('Szett elmentve'); return; }
-  if(d.unfav){ S.favs.delete(d.unfav); remove('f_'+d.unfav); renderOutfits(); return; }
-  if(d.psty){ const a = S.profile.styles; const i = a.indexOf(d.psty); i>=0 ? a.splice(i,1) : a.push(d.psty); saveProfile(); renderStyle(); S.results=[]; return; }
-  if(d.like){ toggleColor('likeColors','avoidColors',d.like); return; }
-  if(d.avoid){ toggleColor('avoidColors','likeColors',d.avoid); return; }
-  if(t.id==='detect'){ detectStyle(); return; }
-  if(t.id==='stdall'){ t.disabled = true; standardizeAll(); return; }
+    if(S.occFrom==='demo'){ toast('Ez mintaszett. A saját ruháidból készült szetteket tudod menteni.'); return; }
+    const o = S.occResults[+d.fav]; if(!o) return; const f = {...o, id:uid8(), ts:Date.now()}; S.favs.set(f.id, f); save(); renderOcc(); toast('Szett elmentve'); return; }
+  if(d.unfav){ S.favs.delete(d.unfav); save(); renderOcc(); return; }
+  if(d.suggest){ sendChat(d.suggest); return; }
+  if(t.id==='chat-stop'){ chatCtl?.abort(); return; }
+  if(t.id==='att-del'){ chatImg = null; renderChat(); return; }
+  if(d.q){
+    const Q = QS.find(x=>x.k===d.q); const q = S.profile.q;
+    if(Q.multi){ const a = q[Q.k] ||= []; const i = a.indexOf(d.qv); if(i>=0) a.splice(i,1); else { a.push(d.qv); if(Q.max && a.length > Q.max) a.shift(); } }
+    else q[Q.k] = q[Q.k]===d.qv ? undefined : d.qv;
+    save(); resetPicks(); renderProfile(); return;
+  }
+  if(d.psty){ const a = S.profile.styles; const i = a.indexOf(d.psty); i>=0 ? a.splice(i,1) : a.push(d.psty); save(); resetPicks(); renderProfile(); return; }
+  if(d.like || d.avoid){
+    const [list, other, n] = d.like ? ['likeColors','avoidColors',d.like] : ['avoidColors','likeColors',d.avoid];
+    const a = S.profile[list], i = a.indexOf(n); if(i>=0) a.splice(i,1); else { a.push(n); const j = S.profile[other].indexOf(n); if(j>=0) S.profile[other].splice(j,1); }
+    save(); resetPicks(); renderProfile(); return;
+  }
+  if(t.id==='analyze'){ analyze(); return; }
+  if(t.id==='orlogin'){ orLogin(); return; }
+  if(t.id==='orsave'){ const raw = $('#orkey').value.trim(); const key = raw.startsWith('••') ? orCfg().key : raw; if(!key){ $('#orstatus').textContent = 'Másold be a kulcsot.'; return; } orConnect(key); return; }
+  if(t.id==='ordel'){ try{ localStorage.removeItem(K.or); }catch{} $('#orkey').value=''; renderProfile(); toast('Kijelentkeztél'); return; }
 });
-function toggleColor(list, other, n){ const a = S.profile[list]; const i = a.indexOf(n);
-  if(i>=0) a.splice(i,1); else { a.push(n); const j = S.profile[other].indexOf(n); if(j>=0) S.profile[other].splice(j,1); }
-  saveProfile(); renderStyle(); S.results = []; }
-$('#p-about').addEventListener('input', e => { S.profile.about = e.target.value.slice(0,1500); saveProfile(); });
-$('#file').addEventListener('change', e => { const f = e.target.files; addFiles(f).finally(()=>{ e.target.value=''; }); });
-$('#ormodel').addEventListener('change', e => { const c = orCfg(); if(c.key){ c.model = e.target.value; orSetCfg(c); renderOR(); } });
+$('#city').addEventListener('change', e => { S.profile.q.city = e.target.value.trim(); S.profile.loc = null; W = null; save(); resetPicks(); });
+$('#p-about').addEventListener('input', e => { S.profile.about = e.target.value.slice(0,1500); saveProfileSoon(); });
 $('#orkey').addEventListener('focus', e => { if(e.target.value.startsWith('••')) e.target.value = ''; });
-$('#mefile').addEventListener('change', e => { const f = e.target.files?.[0]; if(f) setMePhoto(f).finally(()=>{ e.target.value=''; }); });
-$('#inspofile').addEventListener('change', e => { const f = e.target.files; inspoFiles(f).finally(()=>{ e.target.value=''; }); });
-addEventListener('keydown', e => { if(e.key!=='Escape') return; if(!$('#sheet').hidden) closeSheet(); if(!$('#tryon').hidden) closeTry(); });
-
+$('#file').addEventListener('change', e => { addFiles(e.target.files).finally(()=>{ e.target.value=''; }); });
+$('#chatimg').addEventListener('change', e => { const f = e.target.files?.[0]; if(f) attachChatImg(f); e.target.value=''; });
+$('#composer').addEventListener('submit', e => { e.preventDefault(); sendChat($('#chat-in').value); });
+$('#chat-in').addEventListener('keydown', e => { if(e.key==='Enter' && !e.shiftKey && !matchMedia('(pointer:coarse)').matches){ e.preventDefault(); sendChat(e.target.value); } });
+$('#chat-in').addEventListener('input', e => { e.target.style.height = 'auto'; e.target.style.height = Math.min(140, e.target.scrollHeight) + 'px'; });
+addEventListener('keydown', e => { if(e.key==='Escape' && !$('#sheet').hidden) closeSheet(); });
 let toastT = null;
-function toast(msg){ const el = $('#toast'); el.textContent = msg; el.hidden = false; clearTimeout(toastT); toastT = setTimeout(()=>el.hidden = true, 3200); }
+function toast(msg){ const el = $('#toast'); el.textContent = msg; el.hidden = false; clearTimeout(toastT); toastT = setTimeout(()=>el.hidden = true, 3600); }
 
-function renderAll(){
-  renderCloset();
-  if(view==='outfits'){ if(!S.results.length && !S.busy && S.mode!=='loading') quickGenerate(false); renderOutfits(); }
-  if(view==='style') renderStyle();
-}
-
+load();
 route();
-boot();
-if(!IS_CLAUDE) orHandleCallback();
+orHandleCallback();
+getWeather().then(()=>{ if(view==='today') renderToday(); }).catch(()=>{});
 })();
 </script>
 
