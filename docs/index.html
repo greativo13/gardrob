@@ -858,6 +858,7 @@ function genQuick(items, occK, wxK, n=3, opt={}){
   const ctx = {occ, seasons, prof:S.profile, recent};
   const g = {}; for(const it of items){ (g[it.category] ||= []).push({...it, _s: itemScore(it, ctx) + Math.random()*0.6}); }
   for(const k in g) g[k].sort((a,b)=>b._s-a._s);
+  if(opt.avoid?.size){ for(const k of ['felso','ruha','also']){ const rest = g[k]?.filter(i=>!opt.avoid.has(i.id)); if(rest?.length) g[k] = rest; } }
   if(opt.must){ g[opt.must.category] = [{...opt.must, _s: 5}]; if(opt.must.category==='felso' || opt.must.category==='also') delete g.ruha; if(opt.must.category==='ruha'){ delete g.felso; delete g.also; } }
   const canSep = g.felso?.length && g.also?.length, canDress = g.ruha?.length;
   if(!canSep && !canDress) return {error:'Kell legalább egy felső és egy alsó, vagy egy ruha.'};
@@ -998,6 +999,19 @@ function renderTomorrow(){
   el.innerHTML = !isDemo() && !evening ? '<button class="ghost" type="button" id="tomorrow-go" style="width:100%">Mi legyen holnap?</button>' : '';
 }
 
+// Rule-based plan for several days: no top repeats until every top was used, and never the same trousers two days running.
+function planDays(items, specs, prefill = []){
+  const out = [], usedTops = new Set(); let prevBottom = null;
+  const tops = items.filter(i=>i.category==='felso' || i.category==='ruha');
+  const track = o => { o.itemIds.forEach(id=>{ const c = byId(id)?.category; if(c==='felso' || c==='ruha') usedTops.add(id); if(c==='also') prevBottom = id; }); if(tops.length && tops.every(t=>usedTops.has(t.id))) usedTops.clear(); };
+  specs.forEach((sp, i) => {
+    let o = prefill[i] || null;
+    if(!o){ const avoid = new Set([...usedTops, ...(prevBottom ? [prevBottom] : [])]); o = genQuick(items, sp.occ, sp.wx, 1, {avoid}).outfits?.[0] || null; }
+    out.push(o); if(o) track(o);
+  });
+  return out;
+}
+
 // ---------- WEEK planner ----------
 async function planWeek(){
   if(S.busy.week) return;
@@ -1027,11 +1041,8 @@ Csak JSON-t válaszolj: {"days":[{"date":"${keys[0]}","title":"rövid cím","ite
     }catch(e){ S.weekErr = aiErrText(e) + ' Addig szabály alapján terveztem.'; }
   }
   if(!plan) plan = keys.map(k=>({d:k, o:null}));
-  const used = new Set(LOG.wears.slice(-2).flatMap(w=>w.ids));
-  for(const day of plan){
-    if(!day.o){ const r = genQuick(items, occFor(new Date(day.d+'T12:00')), wxKey(dayWx(day.d)), 1, {recent:new Set(used)}); day.o = r.outfits?.[0] || null; }
-    day.o?.itemIds.forEach(id=>{ const it = byId(id); if(it && it.category !== 'cipo') used.add(id); });
-  }
+  const filled = planDays(items, plan.map(x=>({occ:occFor(new Date(x.d+'T12:00')), wx:wxKey(dayWx(x.d))})), plan.map(x=>x.o));
+  plan.forEach((x,i)=>{ x.o = filled[i]; });
   WEEK = {start:keys[0], days:plan}; lsSet(K.week, WEEK);
   if(TODAY?.d === todayKey() && !TODAY.worn && plan[0]?.o){ TODAY = {d:todayKey(), o:plan[0].o, worn:false, vote:null, err:''}; lsSet(K.today, TODAY); }
   if(plan[1]?.o){ TOMORROW = {d:plan[1].d, o:plan[1].o, w:dayWx(plan[1].d), err:''}; lsSet(K.tomorrow, TOMORROW); }
@@ -1073,13 +1084,12 @@ Csak JSON-t válaszolj: {"capsule":["R1","R2"],"days":[{"day":1,"title":"rövid 
       const r = await aiJson(prompt);
       const capsule = [...new Set((r?.capsule||[]).map(c=>ctx.back.get(String(c).trim().toUpperCase().replace(/[\[\]]/g,''))).filter(Boolean))];
       const days = (r?.days||[]).map(x=>parseOutfit(x, ctx)).filter(Boolean).slice(0, n);
-      if(capsule.length && days.length) res = {capsule:[...new Set([...capsule, ...days.flatMap(d=>d.itemIds)])], days, extras:(r.extras||[]).map(String).slice(0,10), why:String(r.why||'')};
+      if(days.length){ const all = planDays(items, Array.from({length:n}, (_,i)=>({occ, wx:wxKey(wxs[i]||null)})), days); res = {capsule:[...new Set([...capsule, ...all.filter(Boolean).flatMap(d=>d.itemIds)])], days:all.filter(Boolean), extras:(r.extras||[]).map(String).slice(0,10), why:String(r.why||'')}; }
       else S.tripErr += 'Az AI nem adott használható listát, ezért szabály alapján csomagoltam.';
     }catch(e){ S.tripErr += aiErrText(e) + ' Addig szabály alapján csomagoltam.'; }
   }
   if(!res){
-    const days = []; const used = new Set();
-    for(let i=0;i<n;i++){ const w = wxs[i] || null; const r = genQuick(items, occ, wxKey(w), 1, {recent:new Set([...used].filter(id=>byId(id)?.category==='felso'))}); const o = r.outfits?.[0]; if(o){ days.push(o); o.itemIds.forEach(id=>used.add(id)); } }
+    const days = planDays(items, Array.from({length:n}, (_,i)=>({occ, wx:wxKey(wxs[i]||null)}))).filter(Boolean); const used = new Set(days.flatMap(d=>d.itemIds));
     const cold = wxs.some(w=>w.max <= 12), wet = wxs.some(w=>w.rain >= 50);
     res = {capsule:[...used], days, extras:[wet ? 'esernyő' : null, cold ? 'sál, sapka' : null, tripType==='tenger' ? 'fürdőruha, napszemüveg' : null].filter(Boolean), why:''};
   }
